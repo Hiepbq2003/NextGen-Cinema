@@ -187,3 +187,35 @@
 .link-register:hover {
     text-decoration: underline;
 }
+
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Hiệu ứng sáng dần (Fade in) cho Ảnh nền */
+@keyframes fadeInImage {
+    0% {
+        opacity: 0.5;
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+/* Áp dụng animation vào các class hiện có */
+.form-content {
+    animation: slideInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.login-side-image {
+    animation: fadeInImage 0.8s ease-out forwards;
+}
