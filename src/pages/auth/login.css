@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Đặt lại reset CSS cho form */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.login-wrapper {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* --- CỘT 1: ẢNH BÊN TRÁI --- */
+.login-side-image {
+    display: none; /* Mặc định ẩn trên màn hình nhỏ (Mobile) */
+    background-size: cover;
+    background-position: center;
+    /* Ảnh rạp chiếu phim cực chất */
+    background-image: url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop');
+    position: relative;
+}
+
+/* Lớp phủ màu đen mờ lên ảnh cho sang trọng */
+.login-side-image::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* --- CỘT 2: FORM BÊN PHẢI --- */
+.login-side-form {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+}
+
+/* Kích hoạt chia đôi màn hình khi ở trên PC/Tablet lớn */
+@media (min-width: 992px) {
+    .login-side-image {
+        display: block;
+        width: 50%;
+    }
+    .login-side-form {
+        width: 50%;
+    }
+}
+
+.form-content {
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+}
+
+.form-title {
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-subtitle {
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+/* --- Input Fields --- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #495057;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: all 0.3s;
+    background-color: #f8f9fa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #80bdff;
+    background-color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* --- Các nút bấm --- */
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background: #0056b3;
+}
+
+.btn-submit:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Nút đăng nhập Google */
+.btn-google {
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: background 0.3s;
+}
+
+.btn-google:hover {
+    background: #f8f9fa;
+}
+
+.btn-google img {
+    width: 20px;
+}
+
+/* Dòng "Hoặc" */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 25px 0;
+    color: #adb5bd;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.divider span {
+    padding: 0 15px;
+    font-size: 14px;
+}
+
+.error-msg {
+    color: #dc3545;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.link-register {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-register:hover {
+    text-decoration: underline;
+}
