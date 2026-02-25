@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register as registerApi } from '../../services/api/authApi.jsx';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { toast } from 'react-toastify'; 
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
-import './login.css';
+import './Login.css';
 
 const Register = () => {
     const [form, setForm] = useState({

@@ -4,7 +4,7 @@ import { login as loginApi } from '../../services/api/authApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
-import './login.css';
+import './Login.css';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -44,7 +44,7 @@ const Login = () => {
             <div className="login-side-form">
                 <div className="form-content">
                     <h3 className="form-title">Đăng Nhập</h3>
-                    <p className="form-subtitle">Chào mừng bạn đến với Hệ thống quản lý Rạp chiếu phim.</p>
+                    <p className="form-subtitle">Chào mừng bạn đến với NextGen Cinema.</p>
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">

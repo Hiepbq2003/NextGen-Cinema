@@ -3,11 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { ROLE_ADMIN, ROLE_STAFF } from '../utils/constants';
 
 import Login from '../pages/auth/login';
-import AdminPage from '../pages/admin/AdminPage';
-import StaffPage from '../pages/staff/StaffPage';
-import HomePage from '../pages/common/HomePage';
+import AdminPage from '../pages/admin/adminPage.jsx';
+import StaffPage from '../pages/staff/staffPage.jsx';
+import HomePage from '../pages/common/homePage.jsx';
 import ProtectedRoute from './ProtectedRoute';
-import Register from "../pages/auth/register.jsx";
+import Register from "../pages/auth/Register.jsx";
 
 const AppRouter = () => {
     const { auth } = useAuth();
