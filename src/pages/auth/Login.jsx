@@ -85,6 +85,16 @@ const Login = () => {
                             </span>
                         </div>
 
+                        <div style={{ textAlign: 'right', marginBottom: '20px' }}>
+                            <span 
+                                className="link-register" 
+                                onClick={() => navigate('/forgot-password')}
+                                style={{ fontSize: '14px' }}
+                            >
+                                Quên mật khẩu?
+                            </span>
+                        </div>
+
                         <button type="submit" className="btn-submit" disabled={isLoading}>
                             {isLoading ? 'Đang xử lý...' : 'Đăng Nhập Hệ Thống'}
                         </button>

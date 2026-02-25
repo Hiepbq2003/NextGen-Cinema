@@ -1,17 +1,17 @@
 import axios from 'axios';
-import { getAuth, clearAuth } from '../../utils/Auth.jsx';
+import { getAuth, clearAuth } from '../utils/Auth';
 import { toast } from 'react-toastify';
 
-const axiosClient = axios.create({
+const AxiosClient = axios.create({
     baseURL: 'http://localhost:8080/api',
     headers: {
         'Content-Type': 'application/json'
     },
-    timeout: 10000, // Hủy request nếu backend phản hồi quá 10 giây 
+    timeout: 10000,
 });
 
 // 2. REQUEST INTERCEPTOR: Can thiệp vào request trước khi gửi đi
-axiosClient.interceptors.request.use(
+AxiosClient.interceptors.request.use(
     (config) => {
         const auth = getAuth();
         if (auth && auth.token) {
@@ -25,7 +25,7 @@ axiosClient.interceptors.request.use(
 );
 
 // 3. RESPONSE INTERCEPTOR: Can thiệp vào response trước khi trả về cho Component
-axiosClient.interceptors.response.use(
+AxiosClient.interceptors.response.use(
     (response) => {
 
         return response.data;
@@ -39,15 +39,15 @@ axiosClient.interceptors.response.use(
             toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
             clearAuth();
             
-            // Đá người dùng về trang login (Dùng window.location vì đang ở ngoài React Component)
+            // Đá người dùng về trang login
             window.location.href = '/login';
         } 
         else if (status === 403) {
-            // Lỗi 403: Không có quyền truy cập (Ví dụ: USER cố gọi API của ADMIN)
+            // Lỗi 403: Không có quyền truy cập
             toast.error("Bạn không có quyền thực hiện hành động này!");
         }
         else if (status === 500) {
-            // Lỗi từ Server Backend
+         
             toast.error("Lỗi hệ thống (Server Error). Vui lòng thử lại sau!");
         }
 
@@ -55,4 +55,4 @@ axiosClient.interceptors.response.use(
     }
 );
 
-export default axiosClient;
+export default AxiosClient;

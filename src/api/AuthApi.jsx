@@ -1,16 +1,16 @@
-import axiosClient from './AxiosClient.jsx';
+import AxiosClient from "./AxiosClient";
 
 export const login = (data) => {
-    return axiosClient.post('/auth/login', data);
+    return AxiosClient.post('/auth/login', data);
 };
 export const register = (data) => {
-    return axiosClient.post('/auth/register', data);
+    return AxiosClient.post('/auth/register', data);
 };
 
 export const forgotPassword = (data) => {
-    return axiosClient.post('/auth/forgot-password', data);
+    return AxiosClient.post('/auth/forgot-password', data);
 };
 
 export const resetPassword = (data) => {
-    return axiosClient.post('/auth/reset-password', data);
+    return AxiosClient.post('/auth/reset-password', data);
 };
