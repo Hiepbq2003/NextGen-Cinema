@@ -1,4 +1,4 @@
-import axiosClient from './axiosClient';
+import axiosClient from './AxiosClient';
 
 // Lấy tất cả phim (dành cho Admin)
 export const getAllMovies = () => {

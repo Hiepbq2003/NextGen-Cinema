@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as loginApi } from '../../api/AuthApi.jsx';
+import { login as loginApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
@@ -22,12 +22,12 @@ const Login = () => {
 
         try {
             const res = await loginApi({ username, password });
-            login(res.data);
+            login(res);
             
-            toast.success(`Chào mừng ${res.data.fullName || username} trở lại!`);
+            toast.success(`Chào mừng ${res.fullName || username} trở lại!`);
             
             // KIỂM TRA ROLE ĐỂ CHUYỂN HƯỚNG ĐÚNG TRANG
-            const userRole = res.data.role;
+            const userRole = res.role;
             if (userRole === ROLE_ADMIN) {
                 navigate('/admin'); // Admin vào Dashboard
             } else if (userRole === ROLE_STAFF) {

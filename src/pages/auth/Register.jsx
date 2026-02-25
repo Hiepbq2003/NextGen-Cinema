@@ -34,10 +34,10 @@ const Register = () => {
 
         try {
             const res = await registerApi(form);
-            login(res.data);
+            login(res);
             
             toast.success(`Đăng ký thành công! Chào mừng ${form.fullName}`);
-            navigate('/');
+            navigate('/home');
         } catch (err) {
             const errorMsg = err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại!';
        

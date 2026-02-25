@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { forgotPassword, resetPassword } from "../../api/authApi";
+import { forgotPassword, resetPassword } from "../../services/api/AuthApi";
 import { toast } from 'react-toastify';
 import './Login.css';
 
