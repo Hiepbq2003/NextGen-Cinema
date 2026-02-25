@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as loginApi } from '../../services/api/AuthApi.jsx';
+import { login as loginApi } from '../../api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { ROLE_ADMIN, ROLE_STAFF } from '../../utils/Constants.jsx';
 import './Login.css';
 
 const Login = () => {
@@ -24,10 +25,19 @@ const Login = () => {
             login(res.data);
             
             toast.success(`Chào mừng ${res.data.fullName || username} trở lại!`);
-            navigate('/'); 
+            
+            // KIỂM TRA ROLE ĐỂ CHUYỂN HƯỚNG ĐÚNG TRANG
+            const userRole = res.data.role;
+            if (userRole === ROLE_ADMIN) {
+                navigate('/admin'); // Admin vào Dashboard
+            } else if (userRole === ROLE_STAFF) {
+                navigate('/staff'); // Staff vào trang của Staff
+            } else {
+                navigate('/home');  // User bình thường vào trang Home
+            }
+            
         } catch (err) {
             const errorMsg = err.response?.data?.message || 'Sai tên đăng nhập hoặc mật khẩu!';
-      
             toast.error(errorMsg);
         } finally {
             setIsLoading(false);
@@ -63,14 +73,12 @@ const Login = () => {
                             <label>Mật khẩu</label>
                             <input 
                                 className="form-control"
-                              
                                 type={showPassword ? "text" : "password"} 
                                 placeholder="Nhập mật khẩu"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                          
                             <span 
                                 onClick={() => setShowPassword(!showPassword)}
                                 style={{

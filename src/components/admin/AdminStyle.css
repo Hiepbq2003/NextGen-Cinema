@@ -1,0 +1,137 @@
+/* Container bọc toàn bộ trang admin */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f6f9;
+}
+
+/* --- SIDEBAR BÊN TRÁI --- */
+.admin-sidebar {
+    width: 250px;
+    background-color: #343a40;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sidebar-logo {
+    padding: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #4f5962;
+    background-color: #343a40;
+    color: white;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li a {
+    display: block;
+    padding: 15px 20px;
+    color: #c2c7d0;
+    text-decoration: none;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-menu li a:hover {
+    background-color: #494e53;
+    color: #fff;
+}
+
+/* Khi NavLink được click (đang xem trang đó) */
+.sidebar-menu li a.active {
+    background-color: #007bff;
+    color: #fff;
+    border-left: 4px solid #fff;
+}
+
+/* --- VÙNG MAIN BÊN PHẢI --- */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 250px);
+}
+
+.admin-content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto; /* Nếu nội dung dài thì chỉ vùng này có scrollbar */
+}
+/* --- BẢNG DỮ LIỆU (TABLE) --- */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.admin-table th, .admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+/* --- BADGE TRẠNG THÁI --- */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.status-badge.ongoing { background-color: #d4edda; color: #155724; }
+.status-badge.upcoming { background-color: #fff3cd; color: #856404; }
+.status-badge.ended { background-color: #f8d7da; color: #721c24; }
+.status-badge.inactive { background-color: #e2e3e5; color: #383d41; }
+
+/* --- NÚT BẤM --- */
+.btn-add {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-add:hover { background-color: #218838; }
+
+.btn-edit {
+    background-color: #ffc107;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-edit:hover { background-color: #e0a800; }
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-delete:hover { background-color: #c82333; }
