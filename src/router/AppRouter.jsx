@@ -1,13 +1,13 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ROLE_ADMIN, ROLE_STAFF } from '../utils/constants';
+import { ROLE_ADMIN, ROLE_STAFF } from '../utils/Constants.jsx';
 
-import Login from '../pages/auth/Login';
+import Login from '../pages/auth/Login.jsx';
 import AdminPage from '../pages/admin/AdminPage';
 import StaffPage from '../pages/staff/StaffPage';
 import HomePage from '../pages/common/HomePage';
 import ProtectedRoute from './ProtectedRoute';
-import Register from "../pages/auth/register.jsx";
+import Register from "../pages/auth/Register.jsx";
 
 const AppRouter = () => {
     const { auth } = useAuth();

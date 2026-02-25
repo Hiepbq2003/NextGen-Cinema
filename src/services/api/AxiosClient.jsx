@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuth } from '../../utils/auth.jsx';
+import { getAuth } from '../../utils/Auth.jsx';
 
 const axiosClient = axios.create({
     baseURL: 'http://localhost:8080/api',

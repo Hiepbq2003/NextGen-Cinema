@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register as registerApi } from '../../services/api/authApi.jsx';
+import { register as registerApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const Register = () => {
