@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as loginApi } from '../../services/api/authApi.jsx';
+import { login as loginApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 

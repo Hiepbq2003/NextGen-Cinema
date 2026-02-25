@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuth, clearAuth } from '../../utils/auth.jsx';
+import { getAuth, clearAuth } from '../../utils/Auth.jsx';
 import { toast } from 'react-toastify';
 
 const axiosClient = axios.create({

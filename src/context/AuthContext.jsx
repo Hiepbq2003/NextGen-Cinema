@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { getAuth, setAuth, clearAuth } from '../utils/auth';
+import { getAuth, setAuth, clearAuth } from '../utils/Auth.jsx';
 
 const AuthContext = createContext();
 

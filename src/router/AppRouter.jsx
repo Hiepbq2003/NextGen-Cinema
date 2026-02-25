@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ROLE_ADMIN, ROLE_STAFF } from '../utils/constants';
+import { ROLE_ADMIN, ROLE_STAFF } from '../utils/Constants.jsx';
 
-import Login from '../pages/auth/login';
+import Login from '../pages/auth/Login.jsx';
 import AdminPage from '../pages/admin/adminPage.jsx';
 import StaffPage from '../pages/staff/staffPage.jsx';
 import HomePage from '../pages/common/homePage.jsx';
