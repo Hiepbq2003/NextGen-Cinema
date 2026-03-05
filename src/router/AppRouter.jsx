@@ -1,58 +1,80 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { ROLE_ADMIN, ROLE_STAFF } from '../utils/Constants.jsx';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { ROLE_ADMIN, ROLE_STAFF } from "../utils/Constants.jsx";
 
-import Login from '../pages/auth/Login.jsx';
-import AdminPage from '../pages/admin/AdminPage';
-import StaffPage from '../pages/staff/StaffPage';
-import HomePage from '../pages/common/HomePage';
-import ProtectedRoute from './ProtectedRoute';
+// Auth Components
+import Login from "../pages/auth/Login.jsx";
 import Register from "../pages/auth/Register.jsx";
+import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
+
+// Layout & Pages
+import ProtectedRoute from "./ProtectedRoute";
+import HomePage from "../pages/common/HomePage.jsx";
+import StaffPage from "../pages/staff/StaffPage.jsx"; 
+
+// Admin Components
+import AdminLayout from "../components/admin/AdminLayout.jsx";
+import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
+import AdminMovies from "../pages/admin/AdminMovies.jsx";
+import AdminRooms from "../pages/admin/AdminRooms.jsx";
 
 const AppRouter = () => {
-    const { auth } = useAuth();
+  const { auth } = useAuth();
 
-    const getRedirectPath = () => {
-        if (!auth) return '/login';
-        if (auth.role === ROLE_ADMIN) return '/admin';
-        if (auth.role === ROLE_STAFF) return '/staff';
-        return '/home';
-    };
+  // Hàm điều hướng khi user truy cập vào các đường dẫn không tồn tại
+  const getRedirectPath = () => {
+    if (!auth) return "/login"; 
+    if (auth.role === ROLE_ADMIN) return "/admin";
+    if (auth.role === ROLE_STAFF) return "/staff";
+    return "/home";
+  };
 
-    return (
-        <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-                path="/admin"
-                element={
-                    <ProtectedRoute>
-                        <AdminPage />
-                    </ProtectedRoute>
-                }
-            />
+  return (
+    <Routes>
+      {/* 1. Public Routes */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/home" element={<HomePage />} />
+      
+      {/* 2. Auth Routes */}
+      <Route 
+        path="/login" 
+        element={!auth ? <Login /> : <Navigate to={getRedirectPath()} />} 
+      />
+      <Route 
+        path="/register" 
+        element={!auth ? <Register /> : <Navigate to={getRedirectPath()} />} 
+      />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            <Route
-                path="/staff"
-                element={
-                    <ProtectedRoute>
-                        <StaffPage />
-                    </ProtectedRoute>
-                }
-            />
+      {/* 3. Admin Routes (Nested Routes) */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute allowedRoles={[ROLE_ADMIN]}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Các route con này sẽ được render tại <Outlet /> trong AdminLayout */}
+        <Route index element={<AdminDashboard />} />
+        <Route path="movies" element={<AdminMovies />} />
+        <Route path="rooms" element={<AdminRooms />} />
+      </Route>
 
-            <Route
-                path="/home"
-                element={
-                    <ProtectedRoute>
-                        <HomePage />
-                    </ProtectedRoute>
-                }
-            />
+      {/* 4. Staff Routes */}
+      <Route
+        path="/staff"
+        element={
+          <ProtectedRoute allowedRoles={[ROLE_STAFF]}>
+            <StaffPage />
+          </ProtectedRoute>
+        }
+      />
 
-            <Route path="*" element={<Navigate to={getRedirectPath()} />} />
-        </Routes>
-    );
+      {/* 5. Fallback - Xử lý 404 hoặc Redirect */}
+      <Route path="*" element={<Navigate to={getRedirectPath()} />} />
+    </Routes>
+  );
 };
 
 export default AppRouter;

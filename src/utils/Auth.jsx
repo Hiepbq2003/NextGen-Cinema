@@ -1,10 +1,24 @@
 export const getAuth = () => {
     const data = localStorage.getItem('auth');
-    return data ? JSON.parse(data) : null;
+    if (!data || data === 'undefined') {
+        return null;
+    }
+
+    try {
+        return JSON.parse(data);
+    } catch (error) {
+        console.error("Lỗi parse JSON từ localStorage:", error);
+        localStorage.removeItem('auth'); 
+        return null;
+    }
 };
 
 export const setAuth = (auth) => {
-    localStorage.setItem('auth', JSON.stringify(auth));
+    if (auth) {
+        localStorage.setItem('auth', JSON.stringify(auth));
+    } else {
+        localStorage.removeItem('auth');
+    }
 };
 
 export const clearAuth = () => {
