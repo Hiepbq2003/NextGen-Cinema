@@ -1,11 +1,8 @@
-import AdminHeader from "../../components/admin/AdminHeader"; 
-
-const AdminPage = () => {
+const AdminDashboard = () => {
     return (
-     <>
-         <AdminHeader />
+     <div className="admin-page-content">
          <h1>ADMIN PAGE</h1>
-     </>
+     </div>
     );
 };
-export default AdminPage;
+export default AdminDashboard;

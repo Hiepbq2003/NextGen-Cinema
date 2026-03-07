@@ -3,7 +3,6 @@ import { getMyProfile, updateProfile, changePassword } from '../../services/api/
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import Header from '../../components/common/Header'; 
-import AdminHeader from '../../components/admin/AdminHeader'; 
 import { ROLE_ADMIN } from '../../utils/Constants.jsx';
 import './ProfilePage.css';
 
@@ -87,7 +86,6 @@ const ProfilePage = () => {
 
     return (
         <div className="profile-container">
-            {auth?.role === ROLE_ADMIN ? <AdminHeader /> : <Header />}
 
             <div className="profile-content">
                 <h2 className="profile-title">Tài khoản cá nhân</h2>

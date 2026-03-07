@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import Header from '../common/Header';
+import AdminHeader from './AdminHeader';
 import './AdminStyle.css';
 
 const AdminLayout = () => {
@@ -8,14 +8,12 @@ const AdminLayout = () => {
         <div className="admin-container">
             <Sidebar />
             <div className="admin-main">
-                <Header />
+                <AdminHeader /> 
                 <div className="admin-content">
-                    {/* Outlet chính là nơi các component con (Dashboard, Movies, Rooms...) sẽ render vào */}
                     <Outlet />
                 </div>
             </div>
         </div>
     );
 };
-
 export default AdminLayout;

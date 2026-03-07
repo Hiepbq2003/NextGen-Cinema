@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getAllMovies, deleteMovie, createMovie, updateMovie } from '../../services/api/MovieApi';
 import { toast } from 'react-toastify';
-import './AdminPage.css'; // Sử dụng CSS đã có
+import './AdminPage.css'; 
 
 const AdminMovies = () => {
     const [movies, setMovies] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     
-    // State cho Modal/Form (Nếu bạn muốn làm thêm phần thêm mới)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMovie, setEditingMovie] = useState(null);
 
@@ -19,7 +18,6 @@ const AdminMovies = () => {
         setIsLoading(true);
         try {
             const res = await getAllMovies();
-            // Backend trả về BaseResponse, AxiosClient đã bóc tách lấy .data
             setMovies(res); 
         } catch (error) {
             toast.error("Không thể tải danh sách phim!");
@@ -31,7 +29,7 @@ const AdminMovies = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa phim này? (Trạng thái sẽ chuyển thành INACTIVE)")) {
             try {
-                await deleteMovie(id); // Gọi API DELETE của Backend
+                await deleteMovie(id);
                 toast.success("Cập nhật trạng thái phim thành công!");
                 fetchMovies();
             } catch (error) {

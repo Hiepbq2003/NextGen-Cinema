@@ -8,22 +8,26 @@ import Register from "../pages/auth/Register.jsx";
 import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 
 // Layout & Pages
+import OAuth2RedirectHandler from "../pages/auth/OAuth2RedirectHandler";
+import UserLayout from "../components/common/UserLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import HomePage from "../pages/common/HomePage.jsx";
-import StaffPage from "../pages/staff/StaffPage.jsx"; 
+import StaffPage from "../pages/staff/StaffPage.jsx";
 import ProfilePage from "../pages/common/ProfilePage.jsx";
+
 // Admin Components
 import AdminLayout from "../components/admin/AdminLayout.jsx";
 import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
 import AdminMovies from "../pages/admin/AdminMovies.jsx";
 import AdminRooms from "../pages/admin/AdminRooms.jsx";
+import AdminUsers from "../pages/admin/AdminUsers.jsx";
+import AdminStaffs from "../pages/admin/AdminStaffs.jsx";
 
 const AppRouter = () => {
   const { auth } = useAuth();
 
-  // Hàm điều hướng khi user truy cập vào các đường dẫn không tồn tại
   const getRedirectPath = () => {
-    if (!auth) return "/login"; 
+    if (!auth) return "/login";
     if (auth.role === ROLE_ADMIN) return "/admin";
     if (auth.role === ROLE_STAFF) return "/staff";
     return "/home";
@@ -31,39 +35,41 @@ const AppRouter = () => {
 
   return (
     <Routes>
-      {/* 1. Public Routes */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/profile" element={
-        <ProtectedRoute>
-            <ProfilePage />
-        </ProtectedRoute>
-    }
-/>
-      {/* 2. Auth Routes */}
-      <Route 
-        path="/login" 
-        element={!auth ? <Login /> : <Navigate to={getRedirectPath()} />} 
+      <Route element={<UserLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      {/* 2. Nhom Route Auth (Khong dung Layout) */}
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+      <Route
+        path="/login"
+        element={!auth ? <Login /> : <Navigate to={getRedirectPath()} />}
       />
-      <Route 
-        path="/register" 
-        element={!auth ? <Register /> : <Navigate to={getRedirectPath()} />} 
+      <Route
+        path="/register"
+        element={!auth ? <Register /> : <Navigate to={getRedirectPath()} />}
       />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* 3. Admin Routes (Nested Routes) */}
+      {/* 3. Nhom Route Admin (Dung AdminLayout rieng biet) */}
       <Route
-        path="/admin"
-        element={
-          <ProtectedRoute allowedRoles={[ROLE_ADMIN]}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        {/* Các route con này sẽ được render tại <Outlet /> trong AdminLayout */}
+        path="/admin" element={<ProtectedRoute allowedRoles={[ROLE_ADMIN]}><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="movies" element={<AdminMovies />} />
         <Route path="rooms" element={<AdminRooms />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="staffs" element={<AdminStaffs />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
       {/* 4. Staff Routes */}
@@ -76,7 +82,7 @@ const AppRouter = () => {
         }
       />
 
-      {/* 5. Fallback - Xử lý 404 hoặc Redirect */}
+      {/* 5. Fallback */}
       <Route path="*" element={<Navigate to={getRedirectPath()} />} />
     </Routes>
   );

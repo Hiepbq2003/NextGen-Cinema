@@ -1,26 +1,141 @@
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 40px;
-  background: #111;
-  color: white;
+/* Container chính - Cố định trên cùng */
+.header-container {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 70px;
+    background: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
-.user-info {
-  font-weight: 600;
+/* Logo */
+.header-left {
+    cursor: pointer;
 }
 
-.logout-btn {
-  background: #e71a0f;
-  border: none;
-  padding: 6px 14px;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: 0.3s;
+.logo-text {
+    font-size: 24px;
+    font-weight: 800;
+    color: #e71a0f; /* Màu đỏ thương hiệu */
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
-.logout-btn:hover {
-  background: #c4150c;
+/* Khu vực User */
+.user-section-wrapper {
+    position: relative;
+    padding: 10px 0;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 6px 15px;
+    border-radius: 30px;
+    border: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-section:hover {
+    background: #f1f3f5;
+    border-color: #dee2e6;
+}
+
+.user-avatar-icon {
+    font-size: 26px;
+    color: #e71a0f;
+}
+
+.user-name-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.chevron-icon {
+    font-size: 12px;
+    color: #888;
+    transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 8px 0;
+    margin-top: 10px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #fff5f5;
+    color: #e71a0f;
+}
+
+.menu-icon {
+    font-size: 16px;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 4px 0;
+}
+
+.logout-item:hover {
+    background-color: #fff0f0;
+    color: #dc3545;
+}
+
+.btn-login-header {
+    background: #e71a0f;
+    color: #ffffff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(231, 26, 15, 0.2);
+}
+
+.btn-login-header:hover {
+    background: #c4150c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(231, 26, 15, 0.3);
 }

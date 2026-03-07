@@ -9,7 +9,6 @@ const Sidebar = () => {
             </div>
             <ul className="sidebar-menu">
                 <li>
-                    {/* Thêm end để nó chỉ active khi url chính xác là /admin */}
                     <NavLink to="/admin" end>📊 Tổng quan</NavLink>
                 </li>
                 <li>
@@ -20,6 +19,14 @@ const Sidebar = () => {
                 </li>
                 <li>
                     <NavLink to="/admin/showtimes">📅 Quản lý Lịch chiếu</NavLink>
+                </li>
+
+                <li>
+                    <NavLink to="/admin/users">👥 Quản lý Khách hàng</NavLink>
+                </li>
+
+                <li>
+                    <NavLink to="/admin/staffs">🛠️ Quản lý Nhân viên</NavLink>
                 </li>
             </ul>
         </div>
