@@ -131,7 +131,7 @@ const Register = () => {
                                 className="form-control"
                                 type="text" 
                                 name="phone"
-                                placeholder="Nhập số điện thoại (Không bắt buộc)"
+                                placeholder="Nhập số điện thoại"
                                 value={form.phone}
                                 onChange={handleChange}
                             />

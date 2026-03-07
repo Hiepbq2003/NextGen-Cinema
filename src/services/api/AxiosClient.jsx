@@ -44,7 +44,7 @@ AxiosClient.interceptors.response.use(
         } 
         else if (status === 403) {
             // Lỗi 403: Không có quyền truy cập
-            toast.error("Bạn không có quyền thực hiện hành động này!");
+            toast.error("Tài khoản của bạn có vấn đề!");
         }
         else if (status === 500) {
          

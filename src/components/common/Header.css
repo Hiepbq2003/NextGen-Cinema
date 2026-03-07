@@ -82,7 +82,17 @@
     margin-top: 10px;
     border: 1px solid rgba(0,0,0,0.05);
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    animation: slideDown 0.2s ease-out;
+    animation: slideDown 0.3s ease-out;
+}
+
+.dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: transparent;
 }
 
 @keyframes slideDown {
@@ -98,7 +108,7 @@
     font-size: 14px;
     color: #444;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.3s;
 }
 
 .dropdown-item:hover {
