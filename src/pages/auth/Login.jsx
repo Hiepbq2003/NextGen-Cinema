@@ -26,14 +26,13 @@ const Login = () => {
             
             toast.success(`Chào mừng ${res.fullName || username} trở lại!`);
             
-            // KIỂM TRA ROLE ĐỂ CHUYỂN HƯỚNG ĐÚNG TRANG
-            const userRole = res.role;
+            const userRole = res.role?.toUpperCase();
             if (userRole === ROLE_ADMIN) {
-                navigate('/admin'); // Admin vào Dashboard
+                navigate('/admin'); 
             } else if (userRole === ROLE_STAFF) {
-                navigate('/staff'); // Staff vào trang của Staff
+                navigate('/staff'); 
             } else {
-                navigate('/home');  // User bình thường vào trang Home
+                navigate('/home'); 
             }
             
         } catch (err) {

@@ -1,9 +1,9 @@
-import Header from "../../components/common/Header.jsx";
+import AdminHeader from "../../components/admin/AdminHeader"; 
 
 const AdminPage = () => {
     return (
      <>
-         <Header />
+         <AdminHeader />
          <h1>ADMIN PAGE</h1>
      </>
     );

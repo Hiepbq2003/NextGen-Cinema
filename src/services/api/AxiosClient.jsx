@@ -28,7 +28,7 @@ AxiosClient.interceptors.request.use(
 AxiosClient.interceptors.response.use(
     (response) => {
 
-        return response.data.data;
+        return response.data?.data !== undefined ? response.data.data : response.data;
     },
     (error) => {
         // Xử lý các lỗi HTTP chung

@@ -11,7 +11,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 import ProtectedRoute from "./ProtectedRoute";
 import HomePage from "../pages/common/HomePage.jsx";
 import StaffPage from "../pages/staff/StaffPage.jsx"; 
-
+import ProfilePage from "../pages/common/ProfilePage.jsx";
 // Admin Components
 import AdminLayout from "../components/admin/AdminLayout.jsx";
 import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
@@ -34,7 +34,12 @@ const AppRouter = () => {
       {/* 1. Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<HomePage />} />
-      
+      <Route path="/profile" element={
+        <ProtectedRoute>
+            <ProfilePage />
+        </ProtectedRoute>
+    }
+/>
       {/* 2. Auth Routes */}
       <Route 
         path="/login" 
