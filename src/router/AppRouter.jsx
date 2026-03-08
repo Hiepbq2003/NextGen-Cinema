@@ -8,6 +8,13 @@ import StaffPage from '../pages/staff/StaffPage';
 import HomePage from '../pages/common/HomePage';
 import ProtectedRoute from './ProtectedRoute';
 import Register from "../pages/auth/Register.jsx";
+import MovieList from "../pages/common/OngoingMovies.jsx";
+import UpcomingMovieList from "../pages/common/UpcomingMovies.jsx";
+import MovieDetail from "../pages/common/MovieDetail.jsx";
+import SeatSelection from "../pages/common/SeatSelection.jsx";
+import BookingDetail from "../pages/common/BookingDetail.jsx";
+import Payment from "../pages/common/Payment.jsx";
+import QrPayment from "../pages/common/QrPayment.jsx";
 
 const AppRouter = () => {
     const { auth } = useAuth();
@@ -50,6 +57,54 @@ const AppRouter = () => {
                 }
             />
 
+            <Route
+                path="/movies"
+                element={
+                    <MovieList/>
+                }
+            />
+
+            <Route
+                path="/movies/upcoming"
+                element={
+                    <UpcomingMovieList/>
+                }
+            />
+
+            <Route
+                path="/movies/:id"
+                element={<MovieDetail/>}
+            />
+
+            <Route
+                path="/movies/booking/:showtimeId"
+                element={
+                    <SeatSelection/>
+                }
+            />
+
+            <Route
+                path="/payment"
+                element={
+                    <ProtectedRoute>
+                        <Payment />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/qr-payment"
+                element={<QrPayment />}
+            />
+
+            <Route
+                path="/booking-detail"
+                element={
+                    <ProtectedRoute>
+                        <BookingDetail/>
+                    </ProtectedRoute>
+                }
+            />
             <Route path="*" element={<Navigate to={getRedirectPath()} />} />
         </Routes>
     );
