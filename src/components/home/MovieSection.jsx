@@ -1,4 +1,3 @@
-// src/components/home/MovieSection.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getActiveMovies } from "../../services/api/MovieApi";

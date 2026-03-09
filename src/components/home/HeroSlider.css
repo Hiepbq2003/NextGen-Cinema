@@ -1,5 +1,107 @@
-.hero img {
+/* Khung chứa toàn bộ Banner */
+.hero-slider-container {
+  position: relative;
+  height: 550px; /* Độ cao của banner */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: #000; /* Nền đen chuẩn điện ảnh */
+}
+
+/* Ảnh Banner */
+.slider-image {
+  width: 100vw;
+  height: 100%;
+  object-fit: cover; /* Đảm bảo ảnh không bị méo */
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Khung chờ nhét Video */
+.video-placeholder {
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #1a1a1a;
+  color: #fff;
+  animation: fadeIn 0.8s ease-in-out;
+  border: 2px dashed #444; /* Viền nét đứt cho dễ nhìn */
+}
+
+/* Mũi tên điều hướng */
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  padding: 10px;
+}
+
+.slider-arrow:hover {
+  color: #fff;
+  transform: translateY(-50%) scale(1.2);
+}
+
+.left-arrow {
+  left: 30px;
+}
+
+.right-arrow {
+  right: 30px;
+}
+
+/* Slide ẩn/hiện */
+.slide {
+  opacity: 0;
+  transition-duration: 1s ease;
   width: 100%;
-  height: 500px;
-  object-fit: cover;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.slide.active {
+  opacity: 1;
+  transition-duration: 1s;
+  z-index: 1;
+}
+
+/* Dấu chấm dưới đáy (Dots) */
+.slider-dots {
+  position: absolute;
+  bottom: 25px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  z-index: 10;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  margin: 0 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dot.active-dot {
+  background-color: #e71a0f; /* Màu đỏ nổi bật cho chấm hiện tại */
+  transform: scale(1.4);
+}
+
+/* Hiệu ứng chuyển cảnh nhẹ nhàng */
+@keyframes fadeIn {
+  from { opacity: 0.3; }
+  to { opacity: 1; }
 }
