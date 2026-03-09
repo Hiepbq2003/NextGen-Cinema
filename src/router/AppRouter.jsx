@@ -14,6 +14,13 @@ import ProtectedRoute from "./ProtectedRoute";
 import HomePage from "../pages/common/HomePage.jsx";
 import StaffPage from "../pages/staff/StaffPage.jsx";
 import ProfilePage from "../pages/common/ProfilePage.jsx";
+import PolicyLayout from "../pages/info/InfoLayout.jsx";
+import TermsConditions from "../pages/info/TermsConditions.jsx";
+import PrivacyPolicy from "../pages/info/PrivacyPolicy.jsx";
+import RefundPolicy from "../pages/info/RefundPolicy.jsx";
+import Faq from "../pages/info/Faq.jsx";
+import AboutUs from "../pages/info/AboutUs";
+import Contact from "../pages/info/Contact";
 
 // Admin Components
 import AdminLayout from "../components/admin/AdminLayout.jsx";
@@ -40,6 +47,14 @@ const AppRouter = () => {
       <Route element={<UserLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/info" element={<PolicyLayout />}>
+          <Route path="about" element={<AboutUs />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="terms" element={<TermsConditions />} />
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="refund" element={<RefundPolicy />} />
+          <Route path="faq" element={<Faq />} />
+        </Route>
 
         <Route
           path="/profile"

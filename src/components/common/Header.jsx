@@ -16,12 +16,10 @@ const Header = () => {
 
   return (
     <nav className="header-container">
-      {/* Logo bên trái */}
       <div className="header-left" onClick={() => navigate("/")}>
         <span className="logo-text">NEXTGEN CINEMA</span>
       </div>
 
-      {/* Menu/User bên phải */}
       <div className="header-right">
         {auth ? (
           <div 
@@ -37,7 +35,6 @@ const Header = () => {
               <FaChevronDown className={`chevron-icon ${isDropdownOpen ? 'rotate' : ''}`} />
             </div>
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div className="dropdown-menu shadow-lg">
                 <div className="dropdown-item" onClick={() => navigate("/profile")}>

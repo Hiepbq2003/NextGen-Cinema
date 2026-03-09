@@ -4,12 +4,14 @@ import { BrowserRouter } from 'react-router-dom';
 import AppRouter from "./router/AppRouter.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ScrollToTop from './pages/common/ScrollToTop.jsx';
 
 function App() {
 
   return (
     <AuthProvider>
       <BrowserRouter>
+      <ScrollToTop />
         <AppRouter />
         <ToastContainer position="top-right" autoClose={3000} />
       </BrowserRouter>
