@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllVouchers, createVoucher, updateVoucher, deleteVoucher } from '../../services/api/VoucherApi';
+import { getAllVouchers, createVoucher, updateVoucher, deleteVoucher, getVoucherUsages } from '../../services/api/VoucherApi';
 import { toast } from 'react-toastify';
 
 const AdminVouchers = () => {
@@ -7,6 +7,10 @@ const AdminVouchers = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingVoucher, setEditingVoucher] = useState(null);
+
+    const [usageModalOpen, setUsageModalOpen] = useState(false);
+    const [voucherUsages, setVoucherUsages] = useState([]);
+    const [selectedVoucherCode, setSelectedVoucherCode] = useState('');
 
     const [formData, setFormData] = useState({
         code: '',
@@ -67,27 +71,36 @@ const AdminVouchers = () => {
         setIsModalOpen(true);
     };
 
-    // VALIDATE CHẶT CHẼ TẠI ĐÂY
+    const handleViewUsages = async (voucher) => {
+        try {
+            const res = await getVoucherUsages(voucher.id);
+            setVoucherUsages(res || []);
+            setSelectedVoucherCode(voucher.code);
+            setUsageModalOpen(true);
+        } catch (error) {
+            toast.error("Không thể tải lịch sử sử dụng!");
+        }
+    };
+
     const validateForm = () => {
-        if (!formData.code.trim()) { 
-            toast.error("Vui lòng nhập mã Voucher"); return false; 
+        if (!formData.code.trim()) {
+            toast.error("Vui lòng nhập mã Voucher"); return false;
         }
-        if (/\s/.test(formData.code)) { 
-            toast.error("Mã Voucher không được chứa khoảng trắng"); return false; 
+        if (/\s/.test(formData.code)) {
+            toast.error("Mã Voucher không được chứa khoảng trắng"); return false;
         }
-        if (!formData.discountPercent || formData.discountPercent <= 0 || formData.discountPercent > 100) { 
-            toast.error("Phần trăm giảm giá phải từ 1 đến 100"); return false; 
+        if (!formData.discountPercent || formData.discountPercent <= 0 || formData.discountPercent > 100) {
+            toast.error("Phần trăm giảm giá phải từ 1 đến 100"); return false;
         }
-        if (!formData.quantity || formData.quantity <= 0) { 
-            toast.error("Số lượng phải lớn hơn 0"); return false; 
+        if (!formData.quantity || formData.quantity <= 0) {
+            toast.error("Số lượng phải lớn hơn 0"); return false;
         }
-        
-        // Fix: Bắt buộc điền Đơn tối thiểu và Giảm tối đa (có thể điền 0 nếu không giới hạn)
-        if (formData.minOrderValue === '' || formData.minOrderValue === null || Number(formData.minOrderValue) < 0) { 
-            toast.error("Vui lòng nhập Đơn tối thiểu hợp lệ (lớn hơn hoặc bằng 0)"); return false; 
+
+        if (formData.minOrderValue === '' || formData.minOrderValue === null || Number(formData.minOrderValue) < 0) {
+            toast.error("Vui lòng nhập Đơn tối thiểu hợp lệ (lớn hơn hoặc bằng 0)"); return false;
         }
-        if (formData.maxDiscountAmount === '' || formData.maxDiscountAmount === null || Number(formData.maxDiscountAmount) < 0) { 
-            toast.error("Vui lòng nhập Giảm tối đa hợp lệ (lớn hơn hoặc bằng 0)"); return false; 
+        if (formData.maxDiscountAmount === '' || formData.maxDiscountAmount === null || Number(formData.maxDiscountAmount) < 0) {
+            toast.error("Vui lòng nhập Giảm tối đa hợp lệ (lớn hơn hoặc bằng 0)"); return false;
         }
 
         if (!formData.startDate) {
@@ -105,7 +118,6 @@ const AdminVouchers = () => {
             toast.error("Thời gian kết thúc phải lớn hơn Thời gian bắt đầu"); return false;
         }
 
-        // Nếu tạo mới, không cho phép tạo voucher bắt đầu trong quá khứ
         if (!editingVoucher && start < now) {
             toast.error("Thời gian bắt đầu không được ở trong quá khứ"); return false;
         }
@@ -117,7 +129,6 @@ const AdminVouchers = () => {
         e.preventDefault();
         if (!validateForm()) return;
 
-        // Chuẩn hóa dữ liệu sang dạng số trước khi gửi cho Backend
         const payload = {
             ...formData,
             discountPercent: Number(formData.discountPercent),
@@ -187,6 +198,15 @@ const AdminVouchers = () => {
                             </td>
                             <td>
                                 <button className="btn-edit" onClick={() => openModal(v)}>Sửa</button>
+
+                                <button
+                                    className="btn-info"
+                                    style={{ marginLeft: '10px' }}
+                                    onClick={() => handleViewUsages(v)}
+                                >
+                                    Lịch sử
+                                </button>
+
                                 <button className="btn-delete" style={{ marginLeft: '10px' }} onClick={() => handleDelete(v.id)}>Xóa</button>
                             </td>
                         </tr>
@@ -194,6 +214,7 @@ const AdminVouchers = () => {
                 </tbody>
             </table>
 
+            {/* MODAL THÊM / SỬA VOUCHER */}
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-container">
@@ -201,33 +222,33 @@ const AdminVouchers = () => {
                         <form onSubmit={handleSubmit} className="profile-form">
                             <div className="form-group">
                                 <label>Mã Voucher (Code) *</label>
-                                <input 
-                                    className="form-input" 
-                                    style={{textTransform: 'uppercase'}}
-                                    value={formData.code} 
-                                    onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})} 
+                                <input
+                                    className="form-input"
+                                    style={{ textTransform: 'uppercase' }}
+                                    value={formData.code}
+                                    onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                     placeholder="VD: SALE50, GIOVANG..."
-                                    required 
+                                    required
                                 />
                             </div>
 
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Giảm giá (%) *</label>
-                                    <input 
-                                        className="form-input" type="number" 
-                                        value={formData.discountPercent} 
-                                        onChange={e => setFormData({...formData, discountPercent: e.target.value})} 
-                                        required 
+                                    <input
+                                        className="form-input" type="number"
+                                        value={formData.discountPercent}
+                                        onChange={e => setFormData({ ...formData, discountPercent: e.target.value })}
+                                        required
                                     />
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Số lượng phát hành *</label>
-                                    <input 
-                                        className="form-input" type="number" 
-                                        value={formData.quantity} 
-                                        onChange={e => setFormData({...formData, quantity: e.target.value})} 
-                                        required 
+                                    <input
+                                        className="form-input" type="number"
+                                        value={formData.quantity}
+                                        onChange={e => setFormData({ ...formData, quantity: e.target.value })}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -235,19 +256,19 @@ const AdminVouchers = () => {
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Đơn tối thiểu (VNĐ) *</label>
-                                    <input 
-                                        className="form-input" type="number" 
-                                        value={formData.minOrderValue} 
-                                        onChange={e => setFormData({...formData, minOrderValue: e.target.value})} 
+                                    <input
+                                        className="form-input" type="number"
+                                        value={formData.minOrderValue}
+                                        onChange={e => setFormData({ ...formData, minOrderValue: e.target.value })}
                                         required
                                     />
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Giảm tối đa (VNĐ) *</label>
-                                    <input 
-                                        className="form-input" type="number" 
-                                        value={formData.maxDiscountAmount} 
-                                        onChange={e => setFormData({...formData, maxDiscountAmount: e.target.value})}
+                                    <input
+                                        className="form-input" type="number"
+                                        value={formData.maxDiscountAmount}
+                                        onChange={e => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
                                         required
                                     />
                                 </div>
@@ -256,20 +277,20 @@ const AdminVouchers = () => {
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Thời gian bắt đầu *</label>
-                                    <input 
-                                        className="form-input" type="datetime-local" 
-                                        value={formData.startDate} 
-                                        onChange={e => setFormData({...formData, startDate: e.target.value})} 
-                                        required 
+                                    <input
+                                        className="form-input" type="datetime-local"
+                                        value={formData.startDate}
+                                        onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+                                        required
                                     />
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Thời gian kết thúc *</label>
-                                    <input 
-                                        className="form-input" type="datetime-local" 
-                                        value={formData.expiryDate} 
-                                        onChange={e => setFormData({...formData, expiryDate: e.target.value})} 
-                                        required 
+                                    <input
+                                        className="form-input" type="datetime-local"
+                                        value={formData.expiryDate}
+                                        onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -279,6 +300,44 @@ const AdminVouchers = () => {
                                 <button type="submit" className="btn-save">Lưu Voucher</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {usageModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-container" style={{ maxWidth: '700px' }}>
+                        <div className="modal-header">
+                            <h3>Lịch sử dùng mã: <span style={{ color: '#d92d20' }}>{selectedVoucherCode}</span></h3>
+                        </div>
+
+                        <div style={{ maxHeight: '400px', overflowY: 'auto', marginTop: '15px' }}>
+                            {voucherUsages.length === 0 ? (
+                                <p style={{ textAlign: 'center', color: '#666', padding: '20px 0' }}>Chưa có người dùng nào sử dụng mã voucher này.</p>
+                            ) : (
+                                <table className="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Người dùng</th>
+                                            <th>Mã Booking</th>
+                                            <th>Thời gian dùng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {voucherUsages.map(usage => (
+                                            <tr key={usage.id}>
+                                                <td><strong>{usage.customerName}</strong></td>
+                                                <td><span className="status-badge ongoing">#{usage.bookingId}</span></td>
+                                                <td>{new Date(usage.usedAt).toLocaleString('vi-VN')}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn-cancel" onClick={() => setUsageModalOpen(false)}>Đóng</button>
+                        </div>
                     </div>
                 </div>
             )}

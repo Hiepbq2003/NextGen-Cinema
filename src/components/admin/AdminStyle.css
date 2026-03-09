@@ -159,6 +159,17 @@
     border: 1px solid #f5c6cb;
 }
 
-/* Nút Khóa/Mở linh hoạt */
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-info:hover { 
+    background-color: #138496; 
+}
 .btn-lock { background-color: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 .btn-unlock { background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }

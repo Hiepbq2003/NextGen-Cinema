@@ -24,6 +24,7 @@ import AdminUsers from "../pages/admin/AdminUsers.jsx";
 import AdminStaffs from "../pages/admin/AdminStaffs.jsx";
 import AdminVouchers from "../pages/admin/AdminVouchers.jsx";
 import AdminShowtimes from "../pages/admin/AdminShowtimes.jsx";
+import AdminBookings from "../pages/admin/AdminBookings.jsx";
 const AppRouter = () => {
   const { auth } = useAuth();
 
@@ -72,6 +73,7 @@ const AppRouter = () => {
         <Route path="staffs" element={<AdminStaffs />} />
         <Route path="vouchers" element={<AdminVouchers />} />
         <Route path="showtimes" element={<AdminShowtimes />} />
+        <Route path="bookings" element={<AdminBookings />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
