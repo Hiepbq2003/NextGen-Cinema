@@ -22,7 +22,8 @@ import AdminMovies from "../pages/admin/AdminMovies.jsx";
 import AdminRooms from "../pages/admin/AdminRooms.jsx";
 import AdminUsers from "../pages/admin/AdminUsers.jsx";
 import AdminStaffs from "../pages/admin/AdminStaffs.jsx";
-
+import AdminVouchers from "../pages/admin/AdminVouchers.jsx";
+import AdminShowtimes from "../pages/admin/AdminShowtimes.jsx";
 const AppRouter = () => {
   const { auth } = useAuth();
 
@@ -69,6 +70,8 @@ const AppRouter = () => {
         <Route path="rooms" element={<AdminRooms />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="staffs" element={<AdminStaffs />} />
+        <Route path="vouchers" element={<AdminVouchers />} />
+        <Route path="showtimes" element={<AdminShowtimes />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 

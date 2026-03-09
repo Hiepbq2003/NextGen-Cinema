@@ -24,6 +24,10 @@ const Sidebar = () => {
                 <li>
                     <NavLink to="/admin/users">👥 Quản lý Khách hàng</NavLink>
                 </li>
+                
+                <li>
+                    <NavLink to="/admin/vouchers">🎟️ Quản lý Voucher</NavLink>
+                </li>
 
                 <li>
                     <NavLink to="/admin/staffs">🛠️ Quản lý Nhân viên</NavLink>
