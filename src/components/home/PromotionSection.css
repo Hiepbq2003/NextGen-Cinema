@@ -1,0 +1,20 @@
+.promotion {
+  padding: 50px 80px;
+  background: white;
+}
+
+.promotion h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.promo-list {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.promo-list img {
+  width: 400px;
+  border-radius: 8px;
+}

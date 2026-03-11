@@ -1,57 +1,33 @@
-import {getAuth} from "../../utils/Auth.jsx";
+import AxiosClient from "./AxiosClient";
 
-const auth = getAuth();
+export const createBooking = (data) => {
+    return AxiosClient.post('/bookings', data);
+};
+
+export const confirmBooking = (bookingId) => {
+    return AxiosClient.post(`/bookings/${bookingId}/confirm`);
+};
+
+// Hủy đơn dành cho User 
+export const cancelBooking = (bookingId) => {
+    return AxiosClient.post(`/bookings/${bookingId}/cancel`);
+};
+
+export const getAllBookings = () => {
+    return AxiosClient.get('/admin/bookings');
+};
+
+// Hủy đơn dành cho Admin
+export const adminCancelBooking = (id) => {
+    return AxiosClient.put(`/admin/bookings/${id}/cancel`);
+};
+
 const BookingApi = {
-    createBooking: async (data) => {
-        let api = `http://localhost:8080/api/bookings`;
-        const response = await fetch(api, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${auth.token}`
-            },
-            body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    createBooking,
+    confirmBooking,
+    cancelBooking,
+    getAllBookings,
+    adminCancelBooking
+};
 
-        const json = await response.json();
-        return json.data;
-    },
-
-    confirmBooking: async (bookingId) => {
-        let api = `http://localhost:8080/api/bookings/${bookingId}/confirm`;
-        const response = await fetch(api, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${auth.token}`
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
-    },
-
-    cancelBooking: async (bookingId) => {
-        let api = `http://localhost:8080/api/bookings/${bookingId}/cancel`;
-        const response = await fetch(api, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${auth.token}`
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
-    },
-}
 export default BookingApi;

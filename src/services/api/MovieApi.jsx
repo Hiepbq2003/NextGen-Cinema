@@ -1,62 +1,46 @@
+import axiosClient from './AxiosClient';
+
+export const getActiveMovies = () => {
+    return axiosClient.get('/movies/public');
+};
+
+export const getUpcomingMovies = () => {
+    return axiosClient.get('/movies/public/upcoming');
+};
+
+export const getMovieById = (id) => {
+    return axiosClient.get(`/movies/public/${id}`);
+};
+
+export const getShowtimesByMovie = (movieId) => {
+    return axiosClient.get(`/showtimes/public/${movieId}`);
+};
+
+export const getAllMovies = () => {
+    return axiosClient.get('/movies');
+};
+
+export const createMovie = (data) => {
+    return axiosClient.post('/movies', data);
+};
+
+export const updateMovie = (id, data) => {
+    return axiosClient.put(`/movies/${id}`, data);
+};
+
+export const deleteMovie = (id) => {
+    return axiosClient.delete(`/movies/${id}`);
+};
+
 const MovieApi = {
-    getOngoingMovies: async () => {
-        let api = "http://localhost:8080/api/movies/public";
-        const response = await fetch(api, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    getOngoingMovies: getActiveMovies, 
+    getUpcomingMovies,
+    getMovieById,
+    getShowtimesByMovie,
+    getAllMovies,
+    createMovie,
+    updateMovie,
+    deleteMovie
+};
 
-        const json = await response.json();
-        return json.data;
-    },
-    getUpcomingMovies: async () => {
-        let api = "http://localhost:8080/api/movies/public/upcoming";
-        const response = await fetch(api, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
-    },
-    getMovieById: async (id) => {
-        let api = `http://localhost:8080/api/movies/public/${id}`;
-        const response = await fetch(api, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
-    },
-    getShowtimesByMovie: async (moviedId) => {
-        let api = `http://localhost:8080/api/showtimes/public/${moviedId}`;
-        const response = await fetch(api, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const json = await response.json();
-        return json.data;
-    }
-}
 export default MovieApi;

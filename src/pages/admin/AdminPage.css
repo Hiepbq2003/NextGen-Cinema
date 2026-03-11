@@ -1,0 +1,284 @@
+/* --- GIAO DIỆN ADMIN TỔNG THỂ --- */
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --bg-light: #f8f9fa;
+    --text-dark: #333;
+    --text-muted: #666;
+    --border-color: #eee;
+    --shadow-soft: 0 10px 25px rgba(0,0,0,0.1);
+    --shadow-heavy: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+/* --- MODAL SYSTEM --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px); /* Hiệu ứng mờ nền hiện đại */
+}
+
+.modal-container {
+    background: white;
+    width: 100%;
+    max-width: 650px; /* Mặc định cho Voucher/User */
+    padding: 30px;
+    border-radius: 16px; /* Bo góc lớn hơn */
+    box-shadow: var(--shadow-heavy);
+    animation: slideDown 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Modal rộng dành riêng cho Phim (Movie) */
+.movie-modal {
+    max-width: 950px !important; 
+    width: 95%;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Modal */
+.admin-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--bg-light);
+}
+
+.modal-container h3 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.close-x {
+    background: #f1f1f1;
+    border: none;
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-x:hover {
+    background: #e1e1e1;
+    color: #000;
+}
+
+/* --- FORM LAYOUT --- */
+.modal-body-split {
+    display: flex;
+    gap: 30px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.flex-1 { flex: 1; }
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-input {
+    padding: 11px 15px;
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14.5px;
+    transition: all 0.25s ease;
+    background-color: #fff;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* --- IMAGE & PREVIEW --- */
+.table-img {
+    width: 55px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+.poster-preview-area {
+    margin-top: 5px;
+}
+
+.preview-box {
+    width: 100%;
+    height: 220px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: 8px;
+    background: #fdfdfd;
+    transition: border-color 0.3s;
+}
+
+.preview-box:hover {
+    border-color: var(--primary-color);
+}
+
+.preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Giữ nguyên tỷ lệ ảnh poster */
+    background: #333;
+}
+
+.preview-box .no-image {
+    color: #a0aec0;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* --- BADGES & STATUS --- */
+/* Mã Voucher hiện nổi bật */
+.admin-table td strong {
+    color: #d92d20;
+    background: #fef3f2;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px dashed #fecdca;
+    letter-spacing: 1.2px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.time-badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    border: 1px solid transparent;
+}
+
+.time-badge.start-time {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+
+.time-badge.end-time {
+    background-color: #fefce8;
+    color: #854d0e;
+    border-color: #fef08a;
+}
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-badge.scheduled {
+    background-color: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.status-badge.cancelled {
+    background-color: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+    text-decoration: line-through;
+}
+
+/* --- FOOTER & BUTTONS --- */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.btn-cancel {
+    padding: 10px 22px;
+    background: #f1f3f5;
+    color: #495057;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #e9ecef;
+}
+
+.btn-save {
+    padding: 10px 25px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
