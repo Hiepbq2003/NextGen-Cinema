@@ -45,24 +45,24 @@ const AdminShowtimes = () => {
         setIsModalOpen(true);
     };
     const validateForm = () => {
-        if (!formData.movieId) { 
-            toast.error("Vui lòng chọn Phim"); return false; 
+        if (!formData.movieId) {
+            toast.error("Vui lòng chọn Phim"); return false;
         }
-        if (!formData.roomId) { 
-            toast.error("Vui lòng chọn Phòng chiếu"); return false; 
+        if (!formData.roomId) {
+            toast.error("Vui lòng chọn Phòng chiếu"); return false;
         }
-        if (!formData.startTime) { 
-            toast.error("Vui lòng chọn Giờ bắt đầu chiếu"); return false; 
+        if (!formData.startTime) {
+            toast.error("Vui lòng chọn Giờ bắt đầu chiếu"); return false;
         }
-        if (!formData.basePrice || Number(formData.basePrice) <= 0) { 
-            toast.error("Giá vé cơ bản phải lớn hơn 0"); return false; 
+        if (!formData.basePrice || Number(formData.basePrice) <= 0) {
+            toast.error("Giá vé cơ bản phải lớn hơn 0"); return false;
         }
 
         const startTimeDate = new Date(formData.startTime);
         const now = new Date();
 
         if (startTimeDate <= now) {
-            toast.error("Lỗi: Không thể xếp lịch chiếu cho thời gian trong quá khứ!"); 
+            toast.error("Lỗi: Không thể xếp lịch chiếu cho thời gian trong quá khứ!");
             return false;
         }
 
@@ -71,7 +71,7 @@ const AdminShowtimes = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         if (!validateForm()) return;
 
         try {
@@ -138,12 +138,15 @@ const AdminShowtimes = () => {
                             <td><span className="time-badge end-time">{new Date(st.endTime).toLocaleString('vi-VN')}</span></td>
                             <td style={{ color: '#e71a0f', fontWeight: 'bold' }}>{formatVND(st.basePrice)}</td>
                             <td>
-                                <span className={`status-badge ${st.status.toLowerCase()}`}>
-                                    {st.status === 'SCHEDULED' ? 'Đã xếp lịch' : st.status === 'CANCELLED' ? 'Đã hủy' : st.status}
+                                <span className={`status-badge ${(st.status || 'SCHEDULED').toLowerCase()}`}>
+                                    {(st.status || 'SCHEDULED') === 'SCHEDULED' && 'Đã xếp lịch'}
+                                    {st.status === 'NOW_SHOWING' && 'Đang chiếu'}
+                                    {st.status === 'ENDED' && 'Đã kết thúc'}
+                                    {st.status === 'CANCELLED' && 'Đã hủy'}
                                 </span>
                             </td>
                             <td>
-                                {st.status !== 'CANCELLED' && (
+                                {(st.status || 'SCHEDULED') === 'SCHEDULED' && (
                                     <button className="btn-delete" onClick={() => handleCancel(st.id)}>Hủy lịch</button>
                                 )}
                             </td>
@@ -159,17 +162,17 @@ const AdminShowtimes = () => {
                         <form onSubmit={handleSubmit} className="profile-form">
                             <div className="form-group">
                                 <label>Chọn Phim *</label>
-                                <select className="form-input" value={formData.movieId} onChange={e => setFormData({...formData, movieId: e.target.value})} required>
+                                <select className="form-input" value={formData.movieId} onChange={e => setFormData({ ...formData, movieId: e.target.value })} required>
                                     <option value="">-- Chọn phim --</option>
                                     {movies.map(m => (
                                         <option key={m.id} value={m.id}>{m.title} ({m.durationMinutes} phút)</option>
                                     ))}
                                 </select>
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Chọn Phòng chiếu *</label>
-                                <select className="form-input" value={formData.roomId} onChange={e => setFormData({...formData, roomId: e.target.value})} required>
+                                <select className="form-input" value={formData.roomId} onChange={e => setFormData({ ...formData, roomId: e.target.value })} required>
                                     <option value="">-- Chọn phòng --</option>
                                     {rooms.map(r => (
                                         <option key={r.id} value={r.id}>Phòng {r.name} ({r.totalSeats} ghế)</option>
@@ -180,24 +183,24 @@ const AdminShowtimes = () => {
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Giờ bắt đầu chiếu *</label>
-                                    <input 
-                                        className="form-input" 
-                                        type="datetime-local" 
-                                        value={formData.startTime} 
-                                        onChange={e => setFormData({...formData, startTime: e.target.value})} 
-                                        required 
+                                    <input
+                                        className="form-input"
+                                        type="datetime-local"
+                                        value={formData.startTime}
+                                        onChange={e => setFormData({ ...formData, startTime: e.target.value })}
+                                        required
                                     />
                                     <small style={{ color: '#888', marginTop: '4px' }}>Giờ kết thúc sẽ tự động tính = Thời lượng phim + 15p dọn rạp</small>
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Giá vé cơ bản (VNĐ) *</label>
-                                    <input 
-                                        className="form-input" 
-                                        type="number" 
+                                    <input
+                                        className="form-input"
+                                        type="number"
                                         placeholder="Ví dụ: 80000"
-                                        value={formData.basePrice} 
-                                        onChange={e => setFormData({...formData, basePrice: e.target.value})} 
-                                        required 
+                                        value={formData.basePrice}
+                                        onChange={e => setFormData({ ...formData, basePrice: e.target.value })}
+                                        required
                                     />
                                 </div>
                             </div>

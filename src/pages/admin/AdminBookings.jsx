@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllBookings, cancelBooking } from '../../services/api/BookingApi.jsx';
 import { toast } from 'react-toastify';
 import { FaTicketAlt, FaUser, FaFilm, FaDoorOpen, FaClock, FaMoneyBillWave, FaInfoCircle } from 'react-icons/fa';
-import '../../components/admin/AdminStyle.css';
+// import '../../asset/style/AdminLayoutStyle.css';
 
 const AdminBookings = () => {
     const [bookings, setBookings] = useState([]);

@@ -15,7 +15,7 @@ import HomePage from "../pages/common/HomePage.jsx";
 import ProfilePage from "../pages/common/ProfilePage.jsx";
 import StaffPage from "../pages/staff/StaffPage.jsx";
 
-// Movie & Booking Components (từ loclx)
+// Movie & Booking Components
 import MovieList from "../pages/common/OngoingMovies.jsx";
 import UpcomingMovieList from "../pages/common/UpcomingMovies.jsx";
 import MovieDetail from "../pages/common/MovieDetail.jsx";
@@ -24,7 +24,7 @@ import BookingDetail from "../pages/common/BookingDetail.jsx";
 import Payment from "../pages/common/Payment.jsx";
 import QrPayment from "../pages/common/QrPayment.jsx";
 
-// Info & Policy Pages (từ master)
+// Info & Policy Pages 
 import PolicyLayout from "../pages/info/InfoLayout.jsx";
 import TermsConditions from "../pages/info/TermsConditions.jsx";
 import PrivacyPolicy from "../pages/info/PrivacyPolicy.jsx";
@@ -66,9 +66,9 @@ const AppRouter = () => {
         <Route path="/movies/upcoming" element={<UpcomingMovieList />} />
         <Route path="/movies/:id" element={<MovieDetail />} />
         
-        {/* Các trang cần đăng nhập mới được vào */}
+        <Route path="/movies/booking/:showtimeId" element={<SeatSelection />} />
+        
         <Route element={<ProtectedRoute />}>
-            <Route path="/movies/booking/:showtimeId" element={<SeatSelection />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/qr-payment" element={<QrPayment />} />
             <Route path="/booking-detail" element={<BookingDetail />} />

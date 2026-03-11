@@ -168,6 +168,16 @@
     cursor: pointer;
 }
 
+.btn-edit, .btn-delete, .btn-info {
+    height: 32px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
 .btn-info:hover { 
     background-color: #138496; 
 }

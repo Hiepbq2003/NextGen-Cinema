@@ -20,6 +20,7 @@ const AdminVouchers = () => {
         quantity: '',
         startDate: '',
         expiryDate: '',
+        imageUrl: '',
     });
 
     useEffect(() => {
@@ -55,6 +56,7 @@ const AdminVouchers = () => {
                 quantity: voucher.quantity,
                 startDate: formatDateTimeForInput(voucher.startDate),
                 expiryDate: formatDateTimeForInput(voucher.expiryDate),
+                imageUrl: voucher.imageUrl || '',
             });
         } else {
             setEditingVoucher(null);
@@ -66,6 +68,7 @@ const AdminVouchers = () => {
                 quantity: '',
                 startDate: '',
                 expiryDate: '',
+                imageUrl: '',
             });
         }
         setIsModalOpen(true);
@@ -95,14 +98,12 @@ const AdminVouchers = () => {
         if (!formData.quantity || formData.quantity <= 0) {
             toast.error("Số lượng phải lớn hơn 0"); return false;
         }
-
         if (formData.minOrderValue === '' || formData.minOrderValue === null || Number(formData.minOrderValue) < 0) {
             toast.error("Vui lòng nhập Đơn tối thiểu hợp lệ (lớn hơn hoặc bằng 0)"); return false;
         }
         if (formData.maxDiscountAmount === '' || formData.maxDiscountAmount === null || Number(formData.maxDiscountAmount) < 0) {
             toast.error("Vui lòng nhập Giảm tối đa hợp lệ (lớn hơn hoặc bằng 0)"); return false;
         }
-
         if (!formData.startDate) {
             toast.error("Vui lòng chọn Thời gian bắt đầu"); return false;
         }
@@ -117,11 +118,9 @@ const AdminVouchers = () => {
         if (start >= end) {
             toast.error("Thời gian kết thúc phải lớn hơn Thời gian bắt đầu"); return false;
         }
-
         if (!editingVoucher && start < now) {
             toast.error("Thời gian bắt đầu không được ở trong quá khứ"); return false;
         }
-
         return true;
     };
 
@@ -174,10 +173,10 @@ const AdminVouchers = () => {
             <table className="admin-table">
                 <thead>
                     <tr>
+                        <th>Ảnh</th>
                         <th>Mã Voucher</th>
                         <th>Giảm giá (%)</th>
                         <th>Số lượng / Đã dùng</th>
-                        <th>Ngày bắt đầu</th>
                         <th>Ngày kết thúc</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
@@ -186,48 +185,68 @@ const AdminVouchers = () => {
                 <tbody>
                     {vouchers.map((v) => (
                         <tr key={v.id}>
+                            <td>
+                                <img 
+                                    src={v.imageUrl || "https://img.freepik.com/free-vector/special-offer-modern-sale-banner-template_1017-20667.jpg"} 
+                                    alt="thumb" 
+                                    style={{ width: '50px', height: '30px', objectFit: 'cover', borderRadius: '4px' }}
+                                />
+                            </td>
                             <td><strong>{v.code}</strong></td>
                             <td>{v.discountPercent}%</td>
                             <td>{v.quantity} / {v.usedCount}</td>
-                            <td>{new Date(v.startDate).toLocaleString('vi-VN')}</td>
-                            <td>{new Date(v.expiryDate).toLocaleString('vi-VN')}</td>
+                            <td>{new Date(v.expiryDate).toLocaleDateString('vi-VN')}</td>
                             <td>
                                 <span className={`status-badge ${v.status === 1 ? 'status-active' : 'status-inactive'}`}>
                                     {v.status === 1 ? 'Đang hoạt động' : 'Ngừng / Hết hạn'}
                                 </span>
                             </td>
                             <td>
-                                <button className="btn-edit" onClick={() => openModal(v)}>Sửa</button>
-
-                                <button
-                                    className="btn-info"
-                                    style={{ marginLeft: '10px' }}
-                                    onClick={() => handleViewUsages(v)}
-                                >
-                                    Lịch sử
-                                </button>
-
-                                <button className="btn-delete" style={{ marginLeft: '10px' }} onClick={() => handleDelete(v.id)}>Xóa</button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <button className="btn-edit" onClick={() => openModal(v)}>Sửa</button>
+                                    <button className="btn-info" onClick={() => handleViewUsages(v)}>Lịch sử</button>
+                                    <button className="btn-delete" onClick={() => handleDelete(v.id)}>Ngừng hoạt động</button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            {/* MODAL THÊM / SỬA VOUCHER */}
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-container">
                         <h3>{editingVoucher ? "Cập nhật Voucher" : "Thêm Voucher mới"}</h3>
                         <form onSubmit={handleSubmit} className="profile-form">
                             <div className="form-group">
-                                <label>Mã Voucher (Code) *</label>
+                                <label>Link ảnh Voucher</label>
+                                <input
+                                    className="form-input"
+                                    value={formData.imageUrl}
+                                    onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                                    placeholder="https://example.com/banner.jpg"
+                                />
+                                {formData.imageUrl && (
+                                    <div style={{ marginTop: '10px' }}>
+                                        <label style={{ fontSize: '12px', color: '#666' }}>Xem trước:</label>
+                                        <img 
+                                            src={formData.imageUrl} 
+                                            alt="Preview" 
+                                            style={{ display: 'block', height: '60px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                            onError={(e) => e.target.style.display = 'none'}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Mã Voucher *</label>
                                 <input
                                     className="form-input"
                                     style={{ textTransform: 'uppercase' }}
                                     value={formData.code}
                                     onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                                    placeholder="VD: SALE50, GIOVANG..."
+                                    placeholder="VD: SALE50..."
                                     required
                                 />
                             </div>
@@ -235,63 +254,33 @@ const AdminVouchers = () => {
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Giảm giá (%) *</label>
-                                    <input
-                                        className="form-input" type="number"
-                                        value={formData.discountPercent}
-                                        onChange={e => setFormData({ ...formData, discountPercent: e.target.value })}
-                                        required
-                                    />
+                                    <input className="form-input" type="number" value={formData.discountPercent} onChange={e => setFormData({ ...formData, discountPercent: e.target.value })} required />
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Số lượng phát hành *</label>
-                                    <input
-                                        className="form-input" type="number"
-                                        value={formData.quantity}
-                                        onChange={e => setFormData({ ...formData, quantity: e.target.value })}
-                                        required
-                                    />
+                                    <input className="form-input" type="number" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: e.target.value })} required />
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Đơn tối thiểu (VNĐ) *</label>
-                                    <input
-                                        className="form-input" type="number"
-                                        value={formData.minOrderValue}
-                                        onChange={e => setFormData({ ...formData, minOrderValue: e.target.value })}
-                                        required
-                                    />
+                                    <input className="form-input" type="number" value={formData.minOrderValue} onChange={e => setFormData({ ...formData, minOrderValue: e.target.value })} required />
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Giảm tối đa (VNĐ) *</label>
-                                    <input
-                                        className="form-input" type="number"
-                                        value={formData.maxDiscountAmount}
-                                        onChange={e => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
-                                        required
-                                    />
+                                    <input className="form-input" type="number" value={formData.maxDiscountAmount} onChange={e => setFormData({ ...formData, maxDiscountAmount: e.target.value })} required />
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', gap: '15px' }}>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Thời gian bắt đầu *</label>
-                                    <input
-                                        className="form-input" type="datetime-local"
-                                        value={formData.startDate}
-                                        onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                                        required
-                                    />
+                                    <input className="form-input" type="datetime-local" value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} required />
                                 </div>
                                 <div className="form-group" style={{ flex: 1 }}>
                                     <label>Thời gian kết thúc *</label>
-                                    <input
-                                        className="form-input" type="datetime-local"
-                                        value={formData.expiryDate}
-                                        onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
-                                        required
-                                    />
+                                    <input className="form-input" type="datetime-local" value={formData.expiryDate} onChange={e => setFormData({ ...formData, expiryDate: e.target.value })} required />
                                 </div>
                             </div>
 
@@ -304,13 +293,13 @@ const AdminVouchers = () => {
                 </div>
             )}
 
+            {/* MODAL LỊCH SỬ SỬ DỤNG GIỮ NGUYÊN */}
             {usageModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-container" style={{ maxWidth: '700px' }}>
                         <div className="modal-header">
                             <h3>Lịch sử dùng mã: <span style={{ color: '#d92d20' }}>{selectedVoucherCode}</span></h3>
                         </div>
-
                         <div style={{ maxHeight: '400px', overflowY: 'auto', marginTop: '15px' }}>
                             {voucherUsages.length === 0 ? (
                                 <p style={{ textAlign: 'center', color: '#666', padding: '20px 0' }}>Chưa có người dùng nào sử dụng mã voucher này.</p>

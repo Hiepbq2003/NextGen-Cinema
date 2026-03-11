@@ -2,15 +2,20 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import BookingApi from '../../services/api/BookingApi';
 import '../../asset/style/PaymentStyle.css';
-
+import { useEffect } from 'react';
 const Payment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const booking = location.state?.booking;
 
+    useEffect(() => {
+        if (!booking) {
+            navigate('/home');
+        }
+    }, [booking, navigate]);
+
     if (!booking) {
-        navigate('/home');
-        return null;
+        return null; 
     }
 
     const handleCancel = async () => {

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import './AdminStyle.css';
+import '../../asset/style/AdminLayoutStyle.css';
 
 const Sidebar = () => {
     return (

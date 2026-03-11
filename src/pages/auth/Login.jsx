@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login as loginApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -15,6 +15,7 @@ const Login = () => {
     
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,9 +26,15 @@ const Login = () => {
             login(res);
             
             toast.success(`Chào mừng ${res.fullName || username} trở lại!`);
-            
+
+            // ĐIỀU HƯỚNG THÔNG MINH: Ưu tiên trang cũ (from), sau đó mới tới Role
+            const from = location.state?.from; 
             const userRole = res.role?.toUpperCase();
-            if (userRole === ROLE_ADMIN) {
+
+            if (from) {
+                // Quay lại đúng trang dở dang (ví dụ: trang chọn ghế)
+                navigate(from, { replace: true });
+            } else if (userRole === ROLE_ADMIN) {
                 navigate('/admin'); 
             } else if (userRole === ROLE_STAFF) {
                 navigate('/staff'); 
@@ -107,9 +114,7 @@ const Login = () => {
                         </button>
                     </form>
 
-                    <div className="divider">
-                        <span>Hoặc</span>
-                    </div>
+                    <div className="divider"><span>Hoặc</span></div>
 
                     <button type="button" className="btn-google" onClick={handleGoogleLogin}>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" />
@@ -118,9 +123,7 @@ const Login = () => {
 
                     <p style={{ marginTop: '25px', textAlign: 'center', color: '#666' }}>
                         Chưa có tài khoản?{' '}
-                        <span className="link-register" onClick={() => navigate('/register')}>
-                            Đăng ký ngay
-                        </span>
+                        <span className="link-register" onClick={() => navigate('/register')}>Đăng ký ngay</span>
                     </p>
                 </div>
             </div>

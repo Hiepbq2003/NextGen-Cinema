@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getAllVouchers } from '../../services/api/VoucherApi'; // Giả sử bạn đã có hàm này
+import { getActiveVouchers } from '../../services/api/VoucherApi';
 import "./PromotionSection.css";
 
 const PromotionSection = () => {
     const [vouchers, setVouchers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const defaultPromoImages = [
         "https://iguov8nhvyobj.vcdn.cloud/media/wysiwyg/2025/122025/ONL_N_O_240x201.png",
@@ -16,16 +17,21 @@ const PromotionSection = () => {
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
-                const res = await getAllVouchers();
-           
-                const activeVouchers = res.filter(v => v.status === 1).slice(0, 3);
-                setVouchers(activeVouchers);
+                setLoading(true);
+    
+                const res = await getActiveVouchers();
+                
+                setVouchers(res.slice(0, 10));
             } catch (error) {
                 console.error("Lỗi tải voucher:", error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchVouchers();
     }, []);
+
+    if (loading) return null;
 
     return (
         <div className="promotion">
@@ -34,20 +40,30 @@ const PromotionSection = () => {
                 {vouchers.length > 0 ? (
                     vouchers.map((voucher, index) => (
                         <div key={voucher.id} className="promo-item">
-                            <img 
-                                src={defaultPromoImages[index % defaultPromoImages.length]} 
-                                alt={voucher.code} 
-                            />
+                            <div className="promo-image-wrapper">
+                                <img 
+                     
+                                    src={voucher.imageUrl || defaultPromoImages[index % defaultPromoImages.length]} 
+                                    alt={voucher.code}
+                                    onError={(e) => {
+                       
+                                        e.target.src = defaultPromoImages[index % defaultPromoImages.length];
+                                    }}
+                                />
+                            </div>
                             <div className="promo-info">
                                 <h3>{voucher.code}</h3>
                                 <p>Giảm ngay {voucher.discountPercent}%</p>
+                                <span className="promo-date">HSD: {new Date(voucher.expiryDate).toLocaleDateString('vi-VN')}</span>
                             </div>
                         </div>
                     ))
                 ) : (
-
+    
                     defaultPromoImages.map((img, index) => (
-                        <img key={index} src={img} alt="Promotion" />
+                        <div key={index} className="promo-item">
+                            <img src={img} alt="Promotion Default" />
+                        </div>
                     ))
                 )}
             </div>

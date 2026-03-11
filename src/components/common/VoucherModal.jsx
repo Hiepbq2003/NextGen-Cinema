@@ -28,7 +28,6 @@ const VoucherModal = ({
                         <span className="voucher-icon">🎟</span>
                         <h2 className="voucher-header-title">Chọn Voucher</h2>
                     </div>
-
                     <button className="close-btn" onClick={onClose}>✕</button>
                 </div>
                 <div className="voucher-list-container">
@@ -46,20 +45,20 @@ const VoucherModal = ({
                                     ${isSelected ? "selected" : ""}
                                 `}
                                 >
-
-                                    {/* LEFT ORANGE AREA */}
+                                    {/* LEFT AREA: Hiển thị ảnh voucher */}
                                     <div className="voucher-left">
                                         <img
-                                            src="https://cdn.luatvietnam.vn/uploaded/Images/Original/2019/09/24/huong-dan-lap-hoa-don-chung-tu-khi-su-dung-voucher-phieu-qua-tang_2409145930.jpg"
-                                            alt="voucher"
+                                            src={voucher.imageUrl || "https://img.freepik.com/free-vector/special-offer-modern-sale-banner-template_1017-20667.jpg"}
+                                            alt="voucher-thumb"
                                             className="voucher-image"
+                                            onError={(e) => {
+                                                e.target.src = "https://img.freepik.com/free-vector/special-offer-modern-sale-banner-template_1017-20667.jpg";
+                                            }}
                                         />
                                     </div>
 
                                     {/* RIGHT CONTENT */}
                                     <div className="voucher-content">
-
-                                        {/* TÊN VOUCHER */}
                                         <h3 className="voucher-name">
                                             {voucher.name || voucher.code}
                                         </h3>
@@ -85,9 +84,10 @@ const VoucherModal = ({
                                             ) : (
                                                 <button
                                                     className="apply-btn"
+                                                    disabled={isSelected}
                                                     onClick={() => onApply(voucher)}
                                                 >
-                                                    Áp dụng
+                                                    {isSelected ? "Đã chọn" : "Áp dụng"}
                                                 </button>
                                             )}
                                         </div>

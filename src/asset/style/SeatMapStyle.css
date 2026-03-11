@@ -145,7 +145,7 @@
 .seat.vip.selected,
 .seat.couple.selected,
 .seat.available.selected{
-    background:#bbdefb;
-    border-color:#1976d2;
-    color:#000;
+    background: #f44336 !important; /* Thêm !important để đảm bảo không bị ghi đè bởi màu gốc */
+    border-color: #c62828 !important;
+    color: white !important;
 }

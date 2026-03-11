@@ -9,7 +9,6 @@ const AdminHeader = () => {
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Hàm lấy tiêu đề dựa trên đường dẫn hiện tại
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === "/admin") return "Bảng điều khiển";
@@ -31,13 +30,12 @@ const AdminHeader = () => {
       </div>
 
       <div style={styles.right}>
-        {/* Thông báo giả lập */}
+
         <div style={styles.iconBadge}>
           <FaBell size={18} color="#666" />
           <span style={styles.badgeCount}>3</span>
         </div>
 
-        {/* Khu vực thông tin Admin */}
         <div 
           style={styles.adminProfile}
           onMouseEnter={() => setIsProfileOpen(true)}
