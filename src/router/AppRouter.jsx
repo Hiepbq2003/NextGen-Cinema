@@ -6,14 +6,25 @@ import { ROLE_ADMIN, ROLE_STAFF } from "../utils/Constants.jsx";
 import Login from "../pages/auth/Login.jsx";
 import Register from "../pages/auth/Register.jsx";
 import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
-
-// Layout & Pages
 import OAuth2RedirectHandler from "../pages/auth/OAuth2RedirectHandler";
+
+// Layout & Common Components
 import UserLayout from "../components/common/UserLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import HomePage from "../pages/common/HomePage.jsx";
-import StaffPage from "../pages/staff/StaffPage.jsx";
 import ProfilePage from "../pages/common/ProfilePage.jsx";
+import StaffPage from "../pages/staff/StaffPage.jsx";
+
+// Movie & Booking Components (từ loclx)
+import MovieList from "../pages/common/OngoingMovies.jsx";
+import UpcomingMovieList from "../pages/common/UpcomingMovies.jsx";
+import MovieDetail from "../pages/common/MovieDetail.jsx";
+import SeatSelection from "../pages/common/SeatSelection.jsx";
+import BookingDetail from "../pages/common/BookingDetail.jsx";
+import Payment from "../pages/common/Payment.jsx";
+import QrPayment from "../pages/common/QrPayment.jsx";
+
+// Info & Policy Pages (từ master)
 import PolicyLayout from "../pages/info/InfoLayout.jsx";
 import TermsConditions from "../pages/info/TermsConditions.jsx";
 import PrivacyPolicy from "../pages/info/PrivacyPolicy.jsx";
@@ -32,6 +43,7 @@ import AdminStaffs from "../pages/admin/AdminStaffs.jsx";
 import AdminVouchers from "../pages/admin/AdminVouchers.jsx";
 import AdminShowtimes from "../pages/admin/AdminShowtimes.jsx";
 import AdminBookings from "../pages/admin/AdminBookings.jsx";
+
 const AppRouter = () => {
   const { auth } = useAuth();
 
@@ -44,9 +56,26 @@ const AppRouter = () => {
 
   return (
     <Routes>
+      {/* 1. Nhóm Route Người dùng (Dùng UserLayout) */}
       <Route element={<UserLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
+        
+        {/* Phim và Đặt vé */}
+        <Route path="/movies" element={<MovieList />} />
+        <Route path="/movies/upcoming" element={<UpcomingMovieList />} />
+        <Route path="/movies/:id" element={<MovieDetail />} />
+        
+        {/* Các trang cần đăng nhập mới được vào */}
+        <Route element={<ProtectedRoute />}>
+            <Route path="/movies/booking/:showtimeId" element={<SeatSelection />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/qr-payment" element={<QrPayment />} />
+            <Route path="/booking-detail" element={<BookingDetail />} />
+            <Route path="/profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* Thông tin chính sách */}
         <Route path="/info" element={<PolicyLayout />}>
           <Route path="about" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
@@ -55,18 +84,9 @@ const AppRouter = () => {
           <Route path="refund" element={<RefundPolicy />} />
           <Route path="faq" element={<Faq />} />
         </Route>
-
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
       </Route>
 
-      {/* 2. Nhom Route Auth (Khong dung Layout) */}
+      {/* 2. Nhóm Route Auth */}
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route
         path="/login"
@@ -78,9 +98,11 @@ const AppRouter = () => {
       />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* 3. Nhom Route Admin (Dung AdminLayout rieng biet) */}
+      {/* 3. Nhóm Route Admin */}
       <Route
-        path="/admin" element={<ProtectedRoute allowedRoles={[ROLE_ADMIN]}><AdminLayout /></ProtectedRoute>}>
+        path="/admin"
+        element={<ProtectedRoute allowedRoles={[ROLE_ADMIN]}><AdminLayout /></ProtectedRoute>}
+      >
         <Route index element={<AdminDashboard />} />
         <Route path="movies" element={<AdminMovies />} />
         <Route path="rooms" element={<AdminRooms />} />
@@ -92,7 +114,7 @@ const AppRouter = () => {
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
-      {/* 4. Staff Routes */}
+      {/* 4. Nhóm Route Staff */}
       <Route
         path="/staff"
         element={
@@ -102,7 +124,7 @@ const AppRouter = () => {
         }
       />
 
-      {/* 5. Fallback */}
+      {/* 5. Điều hướng mặc định */}
       <Route path="*" element={<Navigate to={getRedirectPath()} />} />
     </Routes>
   );
