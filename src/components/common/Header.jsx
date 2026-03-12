@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { FaUserCircle, FaSignOutAlt, FaUser, FaChevronDown } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt, FaUser, FaChevronDown, FaUserShield, FaUserTie } from "react-icons/fa";
 import '@/asset/style/Header.css';
 
 const Header = () => {
@@ -41,6 +41,22 @@ const Header = () => {
                   <FaUser className="menu-icon" /> 
                   <span>Thông tin cá nhân</span>
                 </div>
+
+               
+                {(auth.role === 'ADMIN' || auth.role === 'ROLE_ADMIN') && (
+                  <div className="dropdown-item" onClick={() => navigate("/admin")}>
+                    <FaUserShield className="menu-icon" /> 
+                    <span>Trang Quản Trị</span>
+                  </div>
+                )}
+
+                {(auth.role === 'STAFF' || auth.role === 'ROLE_STAFF') && (
+                  <div className="dropdown-item" onClick={() => navigate("/staff/dashboard")}>
+                    <FaUserTie className="menu-icon" /> 
+                    <span>Cổng Nhân Viên</span>
+                  </div>
+                )}
+
                 
                 <div className="dropdown-divider"></div>
                 

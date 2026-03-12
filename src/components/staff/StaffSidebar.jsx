@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import '../../asset/style/StaffSidebar.css';
 
 const StaffSidebar = () => {
     const { logout } = useAuth();
@@ -18,11 +19,11 @@ const StaffSidebar = () => {
             
             <nav className="sidebar-nav">
                 <NavLink to="/staff/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    📊 Tổng quan (Dashboard)
+                    📊 Thống kê
                 </NavLink>
 
                 <NavLink to="/staff/bookings" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    🎟️ Quản lý & Soát vé
+                    🎟️ Soát vé
                 </NavLink>
 
                 <NavLink to="/staff/pos" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
@@ -30,14 +31,6 @@ const StaffSidebar = () => {
                 </NavLink>
             </nav>
 
-            <div style={{ position: 'absolute', bottom: '20px', width: '100%', padding: '0 20px' }}>
-                <button 
-                    onClick={handleLogout} 
-                    style={{ width: '100%', padding: '10px', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                >
-                    Đăng xuất
-                </button>
-            </div>
         </div>
     );
 };

@@ -1,34 +1,31 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import AxiosClient from '../../services/api/AxiosClient'; 
+import AxiosClient from '../../services/api/AxiosClient';
+import '../../asset/style/StaffBookings.css';
 
 const StaffBookings = () => {
     const [bookings, setBookings] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    // States cho Tìm kiếm và Lọc
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [appliedSearch, setAppliedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
 
-    // States cho Phân trang
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [qrCodeInput, setQrCodeInput] = useState('');
 
     useEffect(() => {
         fetchBookings();
     }, []);
 
-    // 1. Tải danh sách tất cả các đơn vé
     const fetchBookings = async () => {
         setIsLoading(true);
         try {
-            // Gọi API lấy danh sách vé (Staff & Admin có quyền truy cập)
-            const res = await AxiosClient.get('/admin/bookings'); 
-            
-            // Xử lý dữ liệu trả về 
+            const res = await AxiosClient.get('/admin/bookings');
             const data = res.data || res;
-            
-            // Sắp xếp vé mới nhất lên đầu
             const sortedData = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
             setBookings(sortedData);
         } catch (error) {
@@ -38,167 +35,209 @@ const StaffBookings = () => {
         }
     };
 
-    // 2. Hàm xử lý Check-in (Soát vé)
-    const handleCheckIn = async (booking) => {
-        if (window.confirm(`Xác nhận khách hàng [${booking.customerName}] đã đến rạp và nhận vé?`)) {
+    const handleQuickCheckIn = async (e) => {
+        e.preventDefault();
+        if (!qrCodeInput.trim()) return toast.warning("Vui lòng nhập mã vé!");
+        try {
+            await AxiosClient.patch(`/admin/tickets/check-in/${qrCodeInput.trim()}`);
+            toast.success("✅ Soát vé thành công!");
+            setQrCodeInput('');
+            
+            const res = await AxiosClient.get('/admin/bookings');
+            const data = res.data || res;
+            const sortedData = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
+            setBookings(sortedData);
+            
+            if (selectedBooking) {
+                const updatedBooking = sortedData.find(b => b.id === selectedBooking.id);
+                if (updatedBooking) setSelectedBooking(updatedBooking);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Mã vé không hợp lệ hoặc đã dùng!");
+        }
+    };
+
+    const handleCheckInSingleTicket = async (ticketQrCode, seatName) => {
+        if (window.confirm(`Xác nhận soát vé cho ghế [${seatName}]?`)) {
             try {
-                // Dùng ID của đơn vé (hoặc mã Code nếu có) để check-in
-                const codeToCheckIn = booking.ticketCode || booking.id; 
+                await AxiosClient.patch(`/admin/tickets/check-in/${ticketQrCode}`);
+                toast.success(`Đã soát vé ghế ${seatName}!`);
                 
-                await AxiosClient.patch(`/admin/tickets/check-in/${codeToCheckIn}`);
-                toast.success("Check-in thành công! Vé đã chuyển sang trạng thái ĐÃ SỬ DỤNG.");
-                fetchBookings(); // Tải lại bảng
+                const res = await AxiosClient.get('/admin/bookings');
+                const data = res.data || res;
+                const sortedData = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
+                setBookings(sortedData);
+                
+                const updatedBooking = sortedData.find(b => b.id === selectedBooking.id);
+                if (updatedBooking) {
+                    setSelectedBooking(updatedBooking);
+                }
             } catch (error) {
-                toast.error(error.response?.data?.message || "Check-in thất bại!");
+                toast.error(error.response?.data?.message || "Soát vé thất bại!");
             }
         }
     };
 
-    // 3. Hàm xử lý Hủy đơn & Giải phóng ghế
-    const handleCancel = async (id) => {
-        if (window.confirm("CẢNH BÁO: Bạn có chắc chắn muốn HỦY đơn vé này? Hệ thống sẽ giải phóng ghế ngay lập tức.")) {
+    // --- LOGIC HỦY VÉ: Cập nhật lại UI sau khi API chạy (Soft Delete) ---
+    const handleCancelSingleTicket = async (ticketQrCode, seatName) => {
+        if (window.confirm(`CẢNH BÁO: Bạn có chắc chắn muốn HỦY vé của ghế [${seatName}]? Ghế này sẽ bị hủy khỏi đơn và giải phóng chỗ.`)) {
             try {
-                // Gọi API PUT /admin/bookings/{id}/cancel
-                await AxiosClient.put(`/admin/bookings/${id}/cancel`);
-                toast.success("Đã hủy đơn vé và giải phóng ghế thành công!");
-                fetchBookings();
+                await AxiosClient.put(`/admin/tickets/cancel/${ticketQrCode}`);
+                toast.success(`Đã hủy vé ghế ${seatName} thành công!`);
+                
+                const res = await AxiosClient.get('/admin/bookings');
+                const data = res.data || res;
+                const sortedData = (Array.isArray(data) ? data : []).sort((a, b) => b.id - a.id);
+                setBookings(sortedData);
+                
+                const updatedBooking = sortedData.find(b => b.id === selectedBooking.id);
+                if (updatedBooking) {
+                    setSelectedBooking(updatedBooking);
+                }
             } catch (error) {
                 toast.error(error.response?.data?.message || "Hủy vé thất bại!");
             }
         }
     };
 
-    // --- LOGIC LỌC & TÌM KIẾM ---
-    const filteredBookings = bookings.filter((b) => {
-        // Tìm theo Tên khách, Số điện thoại, hoặc ID đơn
-        const matchSearch = 
-            b.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            b.customerPhone?.includes(searchTerm) ||
-            b.id?.toString().includes(searchTerm);
-            
-        // Lọc theo Trạng thái
-        const matchStatus = statusFilter === 'ALL' || b.status === statusFilter;
+    const handleApplyFilter = () => {
+        setAppliedSearch(searchInput);
+        setCurrentPage(1);
+    };
 
+    const filteredBookings = bookings.filter((b) => {
+        const matchSearch =
+            b.customerName?.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+            b.email?.toLowerCase().includes(appliedSearch.toLowerCase()) ||
+            b.id?.toString() === appliedSearch;
+        const matchStatus = statusFilter === 'ALL' || b.status === statusFilter;
         return matchSearch && matchStatus;
     });
 
-    // --- LOGIC PHÂN TRANG ---
     const totalPages = Math.ceil(filteredBookings.length / itemsPerPage) || 1;
     const paginatedBookings = filteredBookings.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
-    // Reset về trang 1 nếu đổi từ khóa tìm kiếm hoặc bộ lọc
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, statusFilter]);
-
-    const formatVND = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
-
     return (
-        <div className="admin-page" style={{ padding: '20px' }}>
-            <div className="admin-header-row" style={{ marginBottom: '20px', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>
-                <h2>🎟️ Quầy Soát Vé & Quản Lý Đơn</h2>
-                <button className="btn-add" onClick={fetchBookings} style={{ backgroundColor: '#17a2b8' }}>
-                    🔄 Làm mới dữ liệu
+        <div className="staff-bookings-container">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ margin: 0, fontSize: '24px', color: '#1e293b' }}>🎟️ Quầy Soát Vé</h2>
+                <button className="staff-btn staff-btn-primary" onClick={fetchBookings}>
+                    🔄 Làm mới
                 </button>
             </div>
 
-            {/* THANH TÌM KIẾM VÀ LỌC */}
-            <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', background: '#fff', padding: '15px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                <div style={{ flex: 2 }}>
-                    <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555' }}>Tìm kiếm Khách hàng / Mã vé:</label>
-                    <input 
-                        type="text" 
-                        placeholder="Nhập tên, SĐT hoặc ID đơn vé..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', marginTop: '5px' }}
+            <div className="staff-filter-card" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
+                <form onSubmit={handleQuickCheckIn} style={{ display: 'flex', gap: '12px', width: '100%', alignItems: 'flex-end' }}>
+                    <div className="staff-filter-group" style={{ flex: 1 }}>
+                        <label style={{ color: '#166534' }}>⚡ SOÁT VÉ NHANH BẰNG MÃ VÉ / MÃ QR</label>
+                        <input
+                            className="staff-input"
+                            type="text"
+                            placeholder="Dùng máy quét QR hoặc nhập mã vé vào đây..."
+                            value={qrCodeInput}
+                            onChange={(e) => setQrCodeInput(e.target.value)}
+                            style={{ borderColor: '#86efac' }}
+                            autoFocus
+                        />
+                    </div>
+                    <button type="submit" className="staff-btn staff-btn-success" style={{ height: '46px', padding: '0 24px' }}>
+                        XÁC NHẬN SOÁT VÉ
+                    </button>
+                </form>
+            </div>
+
+            <div className="staff-filter-card">
+                <div className="staff-filter-group" style={{ flex: 2 }}>
+                    <label>Tra cứu Đơn hàng (Khách / Mã đơn / Email)</label>
+                    <input
+                        className="staff-input"
+                        type="text"
+                        placeholder="Nhập tên, email hoặc mã đơn..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleApplyFilter()}
                     />
                 </div>
-                <div style={{ flex: 1 }}>
-                    <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555' }}>Trạng thái đơn:</label>
-                    <select 
+                <div className="staff-filter-group" style={{ flex: 1 }}>
+                    <label>Trạng thái đơn</label>
+                    <select
+                        className="staff-input"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', marginTop: '5px' }}
                     >
                         <option value="ALL">Tất cả trạng thái</option>
-                        <option value="PENDING">Chờ thanh toán</option>
-                        <option value="CONFIRMED">Đã thanh toán (Chờ soát vé)</option>
-                        <option value="COMPLETED">Đã sử dụng (Đã xem)</option>
+                        <option value="PENDING">Chưa thanh toán</option>
+                        <option value="PAID">Chờ duyệt</option>
+                        <option value="COMPLETED">Đã duyệt</option>
                         <option value="CANCELLED">Đã hủy</option>
                     </select>
                 </div>
+                <div className="staff-filter-group" style={{ justifyContent: 'flex-end' }}>
+                    <button className="staff-btn staff-btn-primary" onClick={handleApplyFilter} style={{ height: '46px' }}>
+                        🔍 LỌC DỮ LIỆU
+                    </button>
+                </div>
             </div>
 
-            {/* BẢNG DỮ LIỆU */}
-            <div style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                <table className="admin-table" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                    <thead style={{ background: '#f4f6f9' }}>
+            <div className="staff-table-card">
+                <table className="staff-table">
+                    <thead>
                         <tr>
-                            <th style={{ padding: '12px 15px' }}>Mã Đơn</th>
-                            <th style={{ padding: '12px 15px' }}>Khách hàng</th>
-                            <th style={{ padding: '12px 15px' }}>Phim & Suất chiếu</th>
-                            <th style={{ padding: '12px 15px' }}>Ghế</th>
-                            <th style={{ padding: '12px 15px' }}>Tổng tiền</th>
-                            <th style={{ padding: '12px 15px' }}>Trạng thái</th>
-                            <th style={{ padding: '12px 15px', textAlign: 'center' }}>Thao tác</th>
+                            <th>Mã Đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Phim & Suất chiếu</th>
+                            <th>Các ghế</th>
+                            <th>Trạng thái</th>
+                            <th style={{ textAlign: 'center' }}>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         {isLoading ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Đang tải...</td></tr>
                         ) : paginatedBookings.length === 0 ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px', color: '#888' }}>Không tìm thấy đơn vé nào phù hợp!</td></tr>
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px' }}>Không tìm thấy đơn vé nào!</td></tr>
                         ) : (
                             paginatedBookings.map((b) => (
-                                <tr key={b.id} style={{ borderBottom: '1px solid #eee' }}>
-                                    <td style={{ padding: '12px 15px' }}><strong>#{b.id}</strong></td>
-                                    <td style={{ padding: '12px 15px' }}>
-                                        <div><strong>{b.customerName}</strong></div>
-                                        <div style={{ fontSize: '12px', color: '#666' }}>{b.customerPhone}</div>
+                                <tr key={b.id}>
+                                    <td><strong>#{b.id}</strong></td>
+                                    <td>
+                                        <div style={{ fontWeight: '600' }}>{b.customerName}</div>
+                                        <div style={{ fontSize: '12px', color: '#64748b' }}>{b.email}</div>
                                     </td>
-                                    <td style={{ padding: '12px 15px' }}>
-                                        <div style={{ fontWeight: 'bold', color: '#007bff' }}>{b.movieTitle || 'Tên phim'}</div>
-                                        <div style={{ fontSize: '12px' }}>
-                                            {b.showtime ? new Date(b.showtime).toLocaleString('vi-VN') : 'Giờ chiếu'}
+                                    <td>
+                                        <div style={{ fontWeight: '600', color: '#3b82f6' }}>{b.movieTitle}</div>
+                                        <div style={{ fontSize: '13px' }}>
+                                            {b.showtimeStart ? new Date(b.showtimeStart).toLocaleString('vi-VN') : ''}
                                         </div>
                                     </td>
-                                    <td style={{ padding: '12px 15px', color: '#d92d20', fontWeight: 'bold' }}>
-                                        {b.seatNames || 'A1, A2'}
-                                    </td>
-                                    <td style={{ padding: '12px 15px', fontWeight: 'bold' }}>{formatVND(b.totalPrice)}</td>
-                                    <td style={{ padding: '12px 15px' }}>
-                                        <span className={`status-badge ${(b.status || 'PENDING').toLowerCase()}`}>
-                                            {b.status === 'CONFIRMED' ? 'Chờ soát vé' : 
-                                             b.status === 'COMPLETED' ? 'Đã sử dụng' : 
-                                             b.status === 'CANCELLED' ? 'Đã hủy' : 'Chờ TT'}
+                                    <td>
+                                        {/* ----- XỬ LÝ GẠCH NGANG CÁC GHẾ ĐÃ HỦY TẠI ĐÂY ----- */}
+                                        <span style={{ background: '#fef2f2', padding: '4px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+                                            {b.tickets?.length > 0 ? (
+                                                b.tickets.map((t, index) => (
+                                                    <span key={t.id} style={{
+                                                        color: t.isCancelled ? '#94a3b8' : '#ef4444', 
+                                                        textDecoration: t.isCancelled ? 'line-through' : 'none',
+                                                        marginRight: '4px'
+                                                    }}>
+                                                        {t.seatName}{index < b.tickets.length - 1 ? ',' : ''}
+                                                    </span>
+                                                ))
+                                            ) : 'Chưa xếp ghế'}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                            {/* Nút CHECK-IN (Chỉ hiện khi vé đã thanh toán xong) */}
-                                            {b.status === 'CONFIRMED' && (
-                                                <button 
-                                                    onClick={() => handleCheckIn(b)}
-                                                    style={{ background: '#28a745', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                                                >
-                                                    ✅ Soát vé
-                                                </button>
-                                            )}
-
-                                            {/* Nút HỦY (Chỉ hiện khi vé chưa bị hủy hoặc chưa xem) */}
-                                            {(b.status === 'PENDING' || b.status === 'CONFIRMED') && (
-                                                <button 
-                                                    onClick={() => handleCancel(b.id)}
-                                                    style={{ background: '#dc3545', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
-                                                >
-                                                    Hủy đơn
-                                                </button>
-                                            )}
-                                        </div>
+                                    <td>
+                                        <span className={`staff-badge ${(b.status || 'PENDING').toLowerCase()}`}>
+                                            {b.status === 'PAID' ? 'Chờ soát vé' : b.status === 'COMPLETED' ? 'Đã duyệt' : b.status === 'CANCELLED' ? 'Đã hủy' : 'Chờ TT'}
+                                        </span>
+                                    </td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <button className="staff-btn staff-btn-primary" onClick={() => setSelectedBooking(b)}>
+                                            Chi tiết vé
+                                        </button>
                                     </td>
                                 </tr>
                             ))
@@ -207,24 +246,92 @@ const StaffBookings = () => {
                 </table>
             </div>
 
-            {/* ĐIỀU KHIỂN PHÂN TRANG */}
+            {selectedBooking && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+                }}>
+                    <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '650px', maxWidth: '95%', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+                        <h3 style={{ marginTop: 0 }}>Chi tiết đơn vé #{selectedBooking.id}</h3>
+                        <p style={{ color: '#475569', marginBottom: '16px' }}>Khách hàng: <strong>{selectedBooking.customerName}</strong></p>
+                        
+                        <table className="staff-table" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '16px' }}>
+                            <thead style={{ background: '#f8fafc' }}>
+                                <tr>
+                                    <th>Ghế</th>
+                                    <th>Mã vé (QR)</th>
+                                    <th>Trạng thái</th>
+                                    <th style={{ textAlign: 'center' }}>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {selectedBooking.tickets?.map(t => (
+                                    <tr key={t.id} style={{ opacity: t.isCancelled ? 0.6 : 1, background: t.isCancelled ? '#f8fafc' : 'transparent' }}>
+                                        <td>
+                                            <strong style={{ 
+                                                color: t.isCancelled ? '#94a3b8' : '#ef4444', 
+                                                textDecoration: t.isCancelled ? 'line-through' : 'none' 
+                                            }}>
+                                                {t.seatName}
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            <small style={{ 
+                                                color: '#64748b', 
+                                                textDecoration: t.isCancelled ? 'line-through' : 'none' 
+                                            }}>
+                                                {t.qrCode?.substring(0, 13)}...
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {/* ----- XỬ LÝ BADGE TRẠNG THÁI TRONG MODAL ----- */}
+                                            {t.isCancelled ? (
+                                                <span className="staff-badge" style={{ background: '#e2e8f0', color: '#475569', border: '1px solid #cbd5e1' }}>Đã hủy vé</span>
+                                            ) : t.checkInStatus ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span className="staff-badge completed" style={{ width: 'fit-content' }}>Đã vào rạp</span>
+                                                    <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>
+                                                        ⏱️ {t.checkInTime ? new Date(t.checkInTime).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Chưa rõ'}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="staff-badge pending">Chưa dùng</span>
+                                            )}
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            {/* ----- ẨN NÚT THAO TÁC NẾU VÉ ĐÃ HỦY HOẶC ĐÃ SOÁT ----- */}
+                                            {!t.checkInStatus && !t.isCancelled && selectedBooking.status !== 'CANCELLED' && (
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                    <button className="staff-btn staff-btn-success" style={{ padding: '6px 10px', fontSize: '12px' }}
+                                                        onClick={() => handleCheckInSingleTicket(t.qrCode, t.seatName)}>
+                                                        ✅ Cho vào
+                                                    </button>
+                                                    
+                                                    <button className="staff-btn staff-btn-danger" style={{ padding: '6px 10px', fontSize: '12px' }}
+                                                        onClick={() => handleCancelSingleTicket(t.qrCode, t.seatName)}>
+                                                        ❌ Hủy vé
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <div style={{ textAlign: 'right', marginTop: '16px' }}>
+                            <button className="staff-btn" style={{ background: '#e2e8f0', color: '#334155' }} onClick={() => setSelectedBooking(null)}>
+                                Đóng cửa sổ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {!isLoading && totalPages > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '15px', marginTop: '20px' }}>
-                    <button 
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        style={{ padding: '8px 15px', borderRadius: '5px', border: '1px solid #ccc', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
-                    >
-                        Trang trước
-                    </button>
-                    <span style={{ fontWeight: 'bold' }}>Trang {currentPage} / {totalPages}</span>
-                    <button 
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        style={{ padding: '8px 15px', borderRadius: '5px', border: '1px solid #ccc', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
-                    >
-                        Trang tiếp
-                    </button>
+                <div className="staff-pagination">
+                    <button className="staff-page-btn" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>Trang trước</button>
+                    <span className="staff-page-info">Trang {currentPage} / {totalPages}</span>
+                    <button className="staff-page-btn" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>Trang tiếp</button>
                 </div>
             )}
         </div>

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getAllBookings, cancelBooking } from '../../services/api/BookingApi.jsx';
 import { toast } from 'react-toastify';
-import { FaTicketAlt, FaUser, FaFilm, FaDoorOpen, FaClock, FaMoneyBillWave, FaInfoCircle } from 'react-icons/fa';
-import '../../asset/style/AdminLayoutStyle.css';
+import { FaTicketAlt, FaUser, FaFilm, FaDoorOpen, FaClock, FaSearch, FaFilter, FaInfoCircle } from 'react-icons/fa';
+import '../../asset/style/AdminBooking.css';
 
 const AdminBookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -10,6 +10,11 @@ const AdminBookings = () => {
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         fetchBookings();
@@ -19,7 +24,8 @@ const AdminBookings = () => {
         setLoading(true);
         try {
             const res = await getAllBookings();
-            setBookings(res);
+            const sortedData = (Array.isArray(res) ? res : []).sort((a, b) => b.id - a.id);
+            setBookings(sortedData);
         } catch (error) {
             toast.error("Không thể tải danh sách đặt vé");
         } finally {
@@ -33,7 +39,7 @@ const AdminBookings = () => {
     };
 
     const handleCancelBooking = async (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn hủy đơn vé này không? Ghế sẽ được giải phóng cho khách khác.")) {
+        if (window.confirm("CẢNH BÁO: Bạn có chắc chắn muốn hủy đơn vé này không? Toàn bộ ghế sẽ được giải phóng cho khách khác.")) {
             try {
                 await cancelBooking(id);
                 toast.success("Hủy đơn đặt vé thành công!");
@@ -45,179 +51,289 @@ const AdminBookings = () => {
         }
     };
 
+    const filteredBookings = bookings.filter((b) => {
+        const matchSearch = 
+            b.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            b.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            b.id?.toString().includes(searchTerm);
+            
+        const matchStatus = statusFilter === 'ALL' || b.status === statusFilter;
+        return matchSearch && matchStatus;
+    });
+
+    const totalPages = Math.ceil(filteredBookings.length / itemsPerPage) || 1;
+    const paginatedBookings = filteredBookings.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const getPageNumbers = () => {
+        const pages = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) {
+                pages.push(1, 2, 3, 4, '...', totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+            } else {
+                pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+            }
+        }
+        return pages;
+    };
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);
+
     const getStatusClass = (status) => {
         switch (status) {
-            case 'PAID': return 'status-badge scheduled'; // Đã thanh toán (Xanh lá)
-            case 'CANCELLED': return 'status-badge cancelled'; // Đã hủy (Đỏ/Gạch ngang)
-            case 'PENDING': return 'status-badge upcoming'; // Chờ thanh toán (Vàng)
-            default: return 'status-badge';
+            case 'PAID': 
+            case 'CONFIRMED': return 'ab-badge ab-badge-scheduled';
+            case 'COMPLETED': return 'ab-badge ab-badge-active';
+            case 'CANCELLED': return 'ab-badge ab-badge-cancelled';
+            case 'PENDING': return 'ab-badge ab-badge-upcoming';
+            default: return 'ab-badge';
+        }
+    };
+
+    const getStatusText = (status) => {
+        switch (status) {
+            case 'PAID': 
+            case 'CONFIRMED': return 'Đã thanh toán';
+            case 'COMPLETED': return 'Đã sử dụng';
+            case 'CANCELLED': return 'Đã hủy';
+            case 'PENDING': return 'Chờ thanh toán';
+            default: return status;
         }
     };
 
     return (
-        <div className="admin-page">
-            <div className="admin-header-row">
-                <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
-                    <FaTicketAlt color="#007bff" /> Quản lý Đặt vé
-                </h2>
-                {/* Đã bỏ nút "Làm mới" theo yêu cầu */}
+        <div className="ab-page">
+   
+            <div className="ab-header">
+                <div>
+                    <h2 className="ab-title">
+                        <FaTicketAlt color="#3b82f6" /> Quản lý Đơn Đặt Vé
+                    </h2>
+                    <p className="ab-desc">Quản lý, tra cứu và xử lý các giao dịch mua vé của khách hàng.</p>
+                </div>
+                <button className="ab-refresh-btn" onClick={fetchBookings}>
+                    🔄 Làm mới dữ liệu
+                </button>
             </div>
 
-            <div className="admin-card" style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-                <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', margin: 0 }}>
-                    <thead style={{ background: '#f8f9fa', borderBottom: '2px solid #e9ecef' }}>
-                        <tr>
-                            <th style={{ padding: '16px', color: '#495057' }}>Mã Đơn</th>
-                            <th style={{ color: '#495057' }}>Khách hàng</th>
-                            <th style={{ color: '#495057' }}>Phim / Phòng</th>
-                            <th style={{ color: '#495057' }}>Thời gian chiếu</th>
-                            <th style={{ color: '#495057' }}>Tổng tiền</th>
-                            <th style={{ color: '#495057' }}>Trạng thái</th>
-                            <th style={{ textAlign: 'center', color: '#495057' }}>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bookings.map(b => (
-                            <tr key={b.id} style={{ borderBottom: '1px solid #f1f3f5', transition: 'background 0.2s' }}>
-                                <td style={{ padding: '16px' }}>
-                                    <span style={{ background: '#eef2f5', padding: '6px 10px', borderRadius: '6px', fontWeight: 'bold', color: '#333' }}>
-                                        #{b.id}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: '600', color: '#2b2b2b' }}>{b.customerName}</div>
-                                    <div style={{ fontSize: '13px', color: '#868e96', marginTop: '4px' }}>{b.email}</div>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: '600', color: '#2b2b2b' }}>{b.movieTitle}</div>
-                                    <div style={{ fontSize: '13px', color: '#007bff', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <FaDoorOpen /> {b.roomName}
-                                    </div>
-                                </td>
-                                <td>
-                                    <span style={{ fontSize: '14px', color: '#495057', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <FaClock color="#adb5bd" /> {new Date(b.showtimeStart).toLocaleString('vi-VN')}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span style={{ color: '#d92d20', fontWeight: '700', fontSize: '15px' }}>
-                                        {b.totalAmount.toLocaleString()} đ
-                                    </span>
-                                </td>
-                                <td><span className={getStatusClass(b.status)}>{b.status}</span></td>
-                                <td style={{ textAlign: 'center' }}>
-                                    <button 
-                                        onClick={() => handleViewDetails(b)}
-                                        style={{ background: '#e0f2fe', color: '#0284c7', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px', transition: '0.2s' }}
-                                        onMouseOver={(e) => e.currentTarget.style.background = '#bae6fd'}
-                                        onMouseOut={(e) => e.currentTarget.style.background = '#e0f2fe'}
-                                    >
-                                        <FaInfoCircle /> Chi tiết
-                                    </button>
-                                </td>
+            <div className="ab-filter-card">
+                <div className="ab-filter-group" style={{ flex: 2, minWidth: '250px' }}>
+                    <label>Tra cứu giao dịch</label>
+                    <div className="ab-input-wrapper">
+                        <FaSearch className="ab-input-icon" />
+                        <input 
+                            type="text" 
+                            className="ab-input"
+                            placeholder="Nhập tên khách hàng, email hoặc mã đơn (#ID)..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="ab-filter-group" style={{ flex: 1, minWidth: '200px' }}>
+                    <label>Trạng thái đơn</label>
+                    <div className="ab-input-wrapper">
+                        <FaFilter className="ab-input-icon" />
+                        <select 
+                            className="ab-select"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <option value="ALL">Tất cả trạng thái</option>
+                            <option value="PENDING">Chờ thanh toán</option>
+                            <option value="PAID">Đã thanh toán (Chờ soát vé)</option>
+                            <option value="COMPLETED">Đã sử dụng</option>
+                            <option value="CANCELLED">Đã hủy</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div className="ab-table-card">
+                <div className="ab-table-wrapper">
+                    <table className="ab-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Phim & Suất chiếu</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th style={{ textAlign: 'center' }}>Thao tác</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                
-                {bookings.length === 0 && !loading && (
-                    <div style={{ textAlign: 'center', padding: '50px 20px', color: '#adb5bd' }}>
-                        <FaTicketAlt size={48} style={{ marginBottom: '15px', opacity: 0.5 }} />
-                        <p style={{ fontSize: '16px', margin: 0 }}>Chưa có giao dịch đặt vé nào trong hệ thống.</p>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>Đang tải dữ liệu...</td>
+                                </tr>
+                            ) : paginatedBookings.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
+                                        <FaTicketAlt size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
+                                        <div style={{ fontSize: '16px', fontWeight: '500' }}>Không tìm thấy đơn vé nào phù hợp!</div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                paginatedBookings.map(b => (
+                                    <tr key={b.id}>
+                                        <td><span className="ab-order-id">#{b.id}</span></td>
+                                        <td>
+                                            <div className="ab-customer-name">{b.customerName}</div>
+                                            <div className="ab-customer-email">{b.email}</div>
+                                        </td>
+                                        <td>
+                                            <div className="ab-movie-title">{b.movieTitle}</div>
+                                            <div className="ab-movie-info">
+                                                <span><FaDoorOpen color="#94a3b8" /> {b.roomName}</span>
+                                                <span><FaClock color="#94a3b8" /> {new Date(b.showtimeStart).toLocaleString('vi-VN')}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className="ab-total-amount">{b.totalAmount.toLocaleString()} đ</span>
+                                        </td>
+                                        <td>
+                                            <span className={getStatusClass(b.status)}>
+                                                {getStatusText(b.status)}
+                                            </span>
+                                        </td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <button className="ab-action-btn" onClick={() => handleViewDetails(b)}>
+                                                <FaInfoCircle /> Chi tiết
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {!loading && totalPages > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                        <span style={{ fontSize: '14px', color: '#64748b' }}>
+                            Hiển thị <b>{(currentPage - 1) * itemsPerPage + 1}</b> - <b>{Math.min(currentPage * itemsPerPage, filteredBookings.length)}</b> trong tổng số <b>{filteredBookings.length}</b> đơn
+                        </span>
+                        
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                style={{ padding: '6px 12px', background: currentPage === 1 ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px', transition: 'all 0.2s' }}
+                            >
+                                Trước
+                            </button>
+                            
+                            {getPageNumbers().map((page, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                                    disabled={page === '...'}
+                                    style={{
+                                        padding: '6px 12px',
+                                        background: currentPage === page ? '#3b82f6' : (page === '...' ? 'transparent' : '#fff'),
+                                        color: currentPage === page ? '#fff' : (page === '...' ? '#94a3b8' : '#475569'),
+                                        border: page === '...' ? 'none' : (currentPage === page ? '1px solid #3b82f6' : '1px solid #cbd5e1'),
+                                        borderRadius: '6px',
+                                        fontWeight: currentPage === page ? 'bold' : '600',
+                                        cursor: page === '...' ? 'default' : 'pointer',
+                                        fontSize: '13px',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                style={{ padding: '6px 12px', background: currentPage === totalPages ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px', transition: 'all 0.2s' }}
+                            >
+                                Sau
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* MODAL CHI TIẾT ĐƠN HÀNG (DẠNG BIÊN LAI) */}
+            {/* CHI TIẾT ĐƠN HÀNG */}
             {isModalOpen && selectedBooking && (
-                <div className="modal-overlay">
-                    <div className="modal-container" style={{ maxWidth: '550px', padding: 0, overflow: 'hidden' }}>
+                <div className="ab-modal-overlay">
+                    <div className="ab-modal-content">
                         
-                        <div style={{ background: '#f8f9fa', padding: '20px 25px', borderBottom: '1px solid #e9ecef', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, color: '#343a40', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                Biên lai vé <span style={{ color: '#e71a0f' }}>#{selectedBooking.id}</span>
-                            </h3>
-                            <button className="close-x" onClick={() => setIsModalOpen(false)}>&times;</button>
+                        <div className="ab-modal-header">
+                            <h3>Biên lai thanh toán <span className="ab-modal-id">#{selectedBooking.id}</span></h3>
+                            <button className="ab-modal-close" onClick={() => setIsModalOpen(false)}>&times;</button>
                         </div>
                         
-                        <div style={{ padding: '25px' }}>
-                            {/* Khối Khách Hàng */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
-                                <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#adb5bd' }}>
-                                    <FaUser size={20} />
+                        <div className="ab-modal-body">
+                            <div className="ab-modal-customer">
+                                <div className="ab-modal-avatar"><FaUser size={22} /></div>
+                                <div>
+                                    <div className="ab-modal-cus-name">{selectedBooking.customerName}</div>
+                                    <div className="ab-modal-cus-email">{selectedBooking.email}</div>
+                                </div>
+                            </div>
+
+                            <div className="ab-modal-movie">
+                                <div className="ab-modal-movie-title">
+                                    <div className="ab-modal-movie-icon"><FaFilm size={16} /></div>
+                                    <span>{selectedBooking.movieTitle}</span>
+                                </div>
+                                <div className="ab-modal-movie-details">
+                                    <span><FaDoorOpen color="#3b82f6" /> <b>{selectedBooking.roomName}</b></span>
+                                    <span><FaClock color="#f59e0b" /> <b>{new Date(selectedBooking.showtimeStart).toLocaleString('vi-VN')}</b></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="ab-modal-seats-title">DANH SÁCH GHẾ ĐẶT ({selectedBooking.seats?.length || 0})</div>
+                                <div className="ab-modal-seats-list">
+                                    {selectedBooking.seats && selectedBooking.seats.length > 0 ? (
+                                        selectedBooking.seats.map(s => (
+                                            <span key={s} className="ab-modal-seat-tag">{s}</span>
+                                        ))
+                                    ) : (
+                                        <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Chưa có thông tin ghế</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="ab-modal-divider"></div>
+
+                            <div className="ab-modal-summary">
+                                <div>
+                                    <div className="ab-summary-date">
+                                        Ngày tạo: <b>{new Date(selectedBooking.createdAt).toLocaleString('vi-VN')}</b>
+                                    </div>
+                                    <div className="ab-summary-status">
+                                        Trạng thái: <span className={getStatusClass(selectedBooking.status)}>{getStatusText(selectedBooking.status)}</span>
+                                    </div>
                                 </div>
                                 <div>
-                                    <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#212529' }}>{selectedBooking.customerName}</div>
-                                    <div style={{ fontSize: '14px', color: '#6c757d' }}>{selectedBooking.email}</div>
-                                </div>
-                            </div>
-
-                            {/* Khối Thông tin Suất chiếu */}
-                            <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '10px', padding: '20px', marginBottom: '20px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                                    <FaFilm color="#e71a0f" size={18} />
-                                    <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#343a40' }}>{selectedBooking.movieTitle}</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#495057' }}>
-                                    <FaDoorOpen color="#007bff" />
-                                    <span>Phòng chiếu: <b>{selectedBooking.roomName}</b></span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#495057' }}>
-                                    <FaClock color="#fd7e14" />
-                                    <span>Thời gian: <b>{new Date(selectedBooking.showtimeStart).toLocaleString('vi-VN')}</b></span>
-                                </div>
-                            </div>
-
-                            {/* Khối Ghế ngồi */}
-                            <div style={{ marginBottom: '25px' }}>
-                                <div style={{ fontSize: '14px', color: '#6c757d', marginBottom: '10px', fontWeight: '600' }}>GHẾ ĐÃ ĐẶT</div>
-                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                    {selectedBooking.seats.map(s => (
-                                        <span key={s} style={{ 
-                                            background: '#fff', border: '2px solid #007bff', color: '#007bff', 
-                                            padding: '6px 14px', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px' 
-                                        }}>
-                                            {s}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Đường gạch ngang nét đứt */}
-                            <div style={{ borderTop: '2px dashed #dee2e6', margin: '20px 0' }}></div>
-
-                            {/* Tổng kết tiền */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                <div>
-                                    <div style={{ fontSize: '13px', color: '#6c757d', marginBottom: '6px' }}>
-                                        Ngày tạo: {new Date(selectedBooking.createdAt).toLocaleString('vi-VN')}
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        Trạng thái: <span className={getStatusClass(selectedBooking.status)} style={{ margin: 0 }}>{selectedBooking.status}</span>
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '14px', color: '#6c757d', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                                        <FaMoneyBillWave /> TỔNG CỘNG
-                                    </div>
-                                    <h2 style={{ margin: 0, color: '#d92d20', fontSize: '26px' }}>
-                                        {selectedBooking.totalAmount.toLocaleString()} VNĐ
+                                    <div className="ab-summary-total-title">TỔNG THANH TOÁN</div>
+                                    <h2 className="ab-summary-total-price">
+                                        {selectedBooking.totalAmount.toLocaleString()} <span style={{ fontSize: '16px' }}>VNĐ</span>
                                     </h2>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Footer nút bấm */}
-                        <div style={{ background: '#f8f9fa', padding: '15px 25px', borderTop: '1px solid #e9ecef', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                            <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Đóng lại</button>
+                        <div className="ab-modal-footer">
+                            <button className="ab-btn-close" onClick={() => setIsModalOpen(false)}>Đóng</button>
                             
-                            {selectedBooking.status !== 'CANCELLED' && (
-                                <button 
-                                    className="btn-delete" 
-                                    onClick={() => handleCancelBooking(selectedBooking.id)}
-                                    style={{ padding: '10px 20px', fontWeight: 'bold' }}
-                                >
-                                    Hủy Đơn Vé
+                            {selectedBooking.status !== 'CANCELLED' && selectedBooking.status !== 'COMPLETED' && (
+                                <button className="ab-btn-danger" onClick={() => handleCancelBooking(selectedBooking.id)}>
+                                    Hủy Đơn Vé Này
                                 </button>
                             )}
                         </div>

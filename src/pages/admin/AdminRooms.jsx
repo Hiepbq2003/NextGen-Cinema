@@ -8,8 +8,8 @@ import {
     updateSeatType
 } from '../../services/api/RoomApi.jsx';
 import { toast } from 'react-toastify';
-// IMPORT CSS dùng chung với User
-import '../../asset/style/SeatMapStyle.css'; 
+import '../../asset/style/SeatMapStyle.css';
+import '../../asset/style/AdminRooms.css';
 
 const AdminRooms = () => {
     const [rooms, setRooms] = useState([]);
@@ -23,34 +23,14 @@ const AdminRooms = () => {
 
     const [showSeatMap, setShowSeatMap] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
+    
     const [seats, setSeats] = useState([]);
+    const [originalSeats, setOriginalSeats] = useState([]);
 
     const [isEditingMap, setIsEditingMap] = useState(false);
     const [editRoomName, setEditRoomName] = useState('');
     const [activeType, setActiveType] = useState('NORMAL');
     const [modifiedSeatIds, setModifiedSeatIds] = useState(new Set());
-
-    // Đã lược bỏ các style inline thừa thãi do đã dùng SeatMapStyle.css
-    const styles = {
-        container: { padding: '24px', backgroundColor: '#f8f9fa', minHeight: '100vh', fontFamily: 'Inter, sans-serif' },
-        headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' },
-        card: { background: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginBottom: '24px' },
-        formGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '20px' },
-        input: { width: '100%', padding: '10px 12px', border: '1px solid #ced4da', borderRadius: '6px', boxSizing: 'border-box' },
-        label: { fontWeight: '600', color: '#495057', display: 'block', marginBottom: '8px' },
-        btnPrimary: { backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' },
-        btnSave: { backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' },
-        btnCancel: { backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' },
-        btnEdit: { backgroundColor: '#ffc107', color: '#000', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' },
-        legendItem: (isActive) => ({
-            display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '6px 12px', borderRadius: '20px',
-            border: isActive ? '2px solid #007bff' : '2px solid transparent',
-            backgroundColor: isActive ? '#e7f1ff' : 'transparent',
-            transition: '0.2s'
-        }),
-        table: { width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' },
-        td: { padding: '16px', backgroundColor: 'white', borderBottom: '1px solid #eee' }
-    };
 
     useEffect(() => { fetchRooms(); }, []);
 
@@ -77,6 +57,7 @@ const AdminRooms = () => {
         try {
             const res = await getSeatsByRoomId(room.id);
             setSeats(res);
+            setOriginalSeats(res);
             setSelectedRoom(room);
             setEditRoomName(room.name);
             setShowSeatMap(true);
@@ -87,8 +68,27 @@ const AdminRooms = () => {
 
     const handleSeatClick = (seat) => {
         if (!isEditingMap) return;
-        setSeats(seats.map(s => s.id === seat.id ? { ...s, seatType: activeType } : s));
-        setModifiedSeatIds(prev => new Set(prev).add(seat.id));
+
+        const originalType = originalSeats.find(s => s.id === seat.id).seatType;
+        let newType;
+
+        if (seat.seatType === activeType) {
+            newType = originalType;
+        } else {
+            newType = activeType;
+        }
+
+        setSeats(seats.map(s => s.id === seat.id ? { ...s, seatType: newType } : s));
+
+        setModifiedSeatIds(prev => {
+            const newSet = new Set(prev);
+            if (newType === originalType) {
+                newSet.delete(seat.id);
+            } else {
+                newSet.add(seat.id);
+            }
+            return newSet;
+        });
     };
 
     const handleSaveEdit = async () => {
@@ -108,9 +108,11 @@ const AdminRooms = () => {
             await Promise.all(updatePromises);
 
             toast.success("Đã lưu thay đổi!");
-            fetchRooms();
-            setIsEditingMap(false);
+            
+            setOriginalSeats([...seats]);
             setModifiedSeatIds(new Set());
+            setIsEditingMap(false);
+            fetchRooms();
         } catch (error) {
             toast.error(error.response?.data?.message || "Lỗi khi lưu!");
         }
@@ -122,71 +124,67 @@ const AdminRooms = () => {
         return acc;
     }, {});
 
-    // Dùng chung logic Class CSS với SeatMap của User
     const getAdminSeatClass = (seatType, isModified) => {
-        let baseClass = 'seat available'; // Ở màn layout gốc, mặc định hiển thị màu xanh (available)
+        let baseClass = 'seat available'; 
         
         if (seatType === 'VIP') baseClass += ' vip';
         else if (seatType === 'COUPLE') baseClass += ' couple';
 
         if (isModified) {
-            baseClass += ' selected'; // Đỏ lên khi Admin tick vào để sửa
+            baseClass += ' admin-modified';
         }
         return baseClass;
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.headerRow}>
+        <div className="admin-rooms-container">
+            <div className="admin-rooms-header-row">
                 <h2 style={{ margin: 0 }}>🚪 Quản lý Phòng Chiếu</h2>
                 {!showSeatMap && !showForm && (
-                    <button style={styles.btnPrimary} onClick={() => {
+                    <button className="admin-rooms-btn-primary" onClick={() => {
                         setCurrentRoom({ name: '', totalSeats: 0, vipSeatsCount: 0, coupleSeatsCount: 0 });
                         setShowForm(true);
                     }}>+ Thêm Phòng</button>
                 )}
             </div>
 
-            {/* FORM THÊM MỚI (Giữ nguyên) */}
             {showForm && (
-                <div style={styles.card}>
-                    {/* ... (Giữ nguyên form thêm mới của bạn) ... */}
+                <div className="admin-rooms-card">
                     <h3 style={{ marginTop: 0 }}>Tạo phòng chiếu mới</h3>
                     <form onSubmit={handleCreateRoom}>
-                        <div style={styles.formGrid}>
+                        <div className="admin-rooms-form-grid">
                             <div className="form-group">
-                                <label style={styles.label}>Tên phòng</label>
-                                <input style={styles.input} type="text" value={currentRoom.name}
+                                <label className="admin-rooms-label">Tên phòng</label>
+                                <input className="admin-rooms-input" type="text" value={currentRoom.name}
                                     onChange={e => setCurrentRoom({ ...currentRoom, name: e.target.value })} required />
                             </div>
                             <div className="form-group">
-                                <label style={styles.label}>Tổng số ghế</label>
-                                <input style={styles.input} type="number" value={currentRoom.totalSeats}
+                                <label className="admin-rooms-label">Tổng số ghế</label>
+                                <input className="admin-rooms-input" type="number" value={currentRoom.totalSeats}
                                     onChange={e => setCurrentRoom({ ...currentRoom, totalSeats: parseInt(e.target.value) })} required />
                             </div>
                             <div className="form-group">
-                                <label style={styles.label}>Số ghế VIP</label>
-                                <input style={styles.input} type="number" value={currentRoom.vipSeatsCount}
+                                <label className="admin-rooms-label">Số ghế VIP</label>
+                                <input className="admin-rooms-input" type="number" value={currentRoom.vipSeatsCount}
                                     onChange={e => setCurrentRoom({ ...currentRoom, vipSeatsCount: parseInt(e.target.value) })} />
                             </div>
                             <div className="form-group">
-                                <label style={styles.label}>Số ghế Couple</label>
-                                <input style={styles.input} type="number" value={currentRoom.coupleSeatsCount}
+                                <label className="admin-rooms-label">Số ghế Couple</label>
+                                <input className="admin-rooms-input" type="number" value={currentRoom.coupleSeatsCount}
                                     onChange={e => setCurrentRoom({ ...currentRoom, coupleSeatsCount: parseInt(e.target.value) })} />
                             </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                            <button type="submit" style={styles.btnSave}>Lưu dữ liệu</button>
-                            <button type="button" style={styles.btnCancel} onClick={() => setShowForm(false)}>Hủy</button>
+                            <button type="submit" className="admin-rooms-btn-save" style={{ marginRight: '10px' }}>Lưu dữ liệu</button>
+                            <button type="button" className="admin-rooms-btn-cancel" onClick={() => setShowForm(false)}>Hủy</button>
                         </div>
                     </form>
                 </div>
             )}
 
-            {/* SƠ ĐỒ GHẾ & CHẾ ĐỘ SỬA - ĐÃ ĐỒNG BỘ UI */}
             {showSeatMap && (
-                <div style={{ ...styles.card, borderTop: '5px solid #007bff' }}>
-                    <div style={styles.headerRow}>
+                <div className="admin-rooms-card" style={{ borderTop: '5px solid #007bff' }}>
+                    <div className="admin-rooms-header-row">
                         {isEditingMap ? (
                             <input
                                 style={{ fontSize: '1.2rem', padding: '8px', border: '1px solid #007bff', borderRadius: '4px' }}
@@ -198,23 +196,23 @@ const AdminRooms = () => {
                         )}
                         <div style={{ display: 'flex', gap: '10px' }}>
                             {!isEditingMap ? (
-                                <button style={styles.btnEdit} onClick={() => setIsEditingMap(true)}>Sửa Layout</button>
+                                <button className="admin-rooms-btn-edit" onClick={() => setIsEditingMap(true)}>Sửa Layout</button>
                             ) : (
-                                <button style={styles.btnSave} onClick={handleSaveEdit}>Lưu</button>
+                                <button className="admin-rooms-btn-save" onClick={handleSaveEdit}>Lưu</button>
                             )}
-                            <button style={styles.btnCancel} onClick={() => setShowSeatMap(false)}>Đóng</button>
+                            <button className="admin-rooms-btn-cancel" onClick={() => setShowSeatMap(false)}>Đóng</button>
                         </div>
                     </div>
 
-                    {/* Legend cho phép chọn loại ghế khi đang sửa */}
                     {isEditingMap && (
                         <div className="seat-legend" style={{ marginBottom: '30px' }}>
                             {['NORMAL', 'VIP', 'COUPLE'].map(type => {
                                 const mapTypeClass = type === 'NORMAL' ? 'available' : type.toLowerCase();
+                                const isActive = activeType === type;
                                 return (
                                     <div
                                         key={type}
-                                        style={styles.legendItem(activeType === type)}
+                                        className={`admin-seat-legend-item ${isActive ? 'active' : ''}`}
                                         onClick={() => setActiveType(type)}
                                     >
                                         <span className={`seat-demo ${mapTypeClass}`}></span>
@@ -253,10 +251,9 @@ const AdminRooms = () => {
                 </div>
             )}
 
-            {/* DANH SÁCH PHÒNG (Giữ nguyên) */}
             {!showSeatMap && !showForm && (
                 <div style={{ overflowX: 'auto' }}>
-                    <table style={styles.table}>
+                    <table className="admin-rooms-table">
                         <thead>
                             <tr>
                                 <th style={{ textAlign: 'left', padding: '10px' }}>Tên Phòng</th>
@@ -267,7 +264,7 @@ const AdminRooms = () => {
                         <tbody>
                             {rooms.map(room => (
                                 <tr key={room.id} style={{ opacity: room.status === 'INACTIVE' ? 0.7 : 1 }}>
-                                    <td style={styles.td}>
+                                    <td className="admin-rooms-td">
                                         <strong>{room.name}</strong>
                                         {room.status === 'INACTIVE' && (
                                             <span style={{
@@ -276,23 +273,21 @@ const AdminRooms = () => {
                                             }}>ĐANG ẨN</span>
                                         )}
                                     </td>
-                                    <td style={styles.td}>{room.totalSeats} ghế</td>
-                                    <td style={{ ...styles.td, textAlign: 'center' }}>
+                                    <td className="admin-rooms-td">{room.totalSeats} ghế</td>
+                                    <td className="admin-rooms-td" style={{ textAlign: 'center' }}>
                                         <button
-                                            style={{
-                                                ...styles.btnPrimary, backgroundColor: '#17a2b8', marginRight: '10px',
-                                                borderRadius: '20px', padding: '8px 16px'
-                                            }}
+                                            className="admin-rooms-btn-primary"
+                                            style={{ backgroundColor: '#17a2b8', marginRight: '10px', borderRadius: '20px', padding: '8px 16px' }}
                                             onClick={() => handleOpenMap(room)}
                                         >
                                             Sơ đồ
                                         </button>
 
                                         <button
+                                            className="admin-rooms-btn-primary"
                                             style={{
-                                                ...styles.btnPrimary, backgroundColor: room.status === 'ACTIVE' ? '#dc3545' : '#28a745',
-                                                color: 'white', borderRadius: '20px', padding: '8px 16px', border: 'none',
-                                                cursor: 'pointer', fontWeight: '600', transition: 'all 0.3s'
+                                                backgroundColor: room.status === 'ACTIVE' ? '#dc3545' : '#28a745',
+                                                borderRadius: '20px', padding: '8px 16px'
                                             }}
                                             onClick={() => {
                                                 const actionName = room.status === 'ACTIVE' ? "Ngừng hoạt động" : "Kích hoạt lại";

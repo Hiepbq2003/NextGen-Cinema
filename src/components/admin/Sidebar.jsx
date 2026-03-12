@@ -29,7 +29,7 @@ const Sidebar = () => {
                 </li>
 
                 <li>
-                    <NavLink to="/admin/bookings">🧾 Quản lý Đặt vé</NavLink>
+                    <NavLink to="/admin/bookings">🧾 Quản lý Đơn</NavLink>
                 </li>
 
                 <li>
