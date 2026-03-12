@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getActiveVouchers } from '../../services/api/VoucherApi';
-import "./PromotionSection.css";
+import '@/asset/style/PromotionSection.css';
 
 const PromotionSection = () => {
     const [vouchers, setVouchers] = useState([]);

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import Header from '../../components/common/Header'; 
 import { ROLE_ADMIN } from '../../utils/Constants.jsx';
-import './ProfilePage.css';
+import '@/asset/style/ProfilePage.css';
 
 const ProfilePage = () => {
     const { auth, login } = useAuth();

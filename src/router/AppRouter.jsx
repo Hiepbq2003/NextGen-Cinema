@@ -13,7 +13,6 @@ import UserLayout from "../components/common/UserLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import HomePage from "../pages/common/HomePage.jsx";
 import ProfilePage from "../pages/common/ProfilePage.jsx";
-import StaffPage from "../pages/staff/StaffPage.jsx";
 
 // Movie & Booking Components
 import MovieList from "../pages/common/OngoingMovies.jsx";
@@ -44,6 +43,11 @@ import AdminVouchers from "../pages/admin/AdminVouchers.jsx";
 import AdminShowtimes from "../pages/admin/AdminShowtimes.jsx";
 import AdminBookings from "../pages/admin/AdminBookings.jsx";
 
+//Staff Components
+import StaffLayout from '../components/staff/StaffLayout';
+import StaffDashboard from '../pages/staff/StaffDashboard';
+import StaffBookings from '../pages/staff/StaffBookings';
+import StaffPOS from '../pages/staff/StaffPOS';
 const AppRouter = () => {
   const { auth } = useAuth();
 
@@ -60,19 +64,19 @@ const AppRouter = () => {
       <Route element={<UserLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/home" element={<HomePage />} />
-        
+
         {/* Phim và Đặt vé */}
         <Route path="/movies" element={<MovieList />} />
         <Route path="/movies/upcoming" element={<UpcomingMovieList />} />
         <Route path="/movies/:id" element={<MovieDetail />} />
-        
+
         <Route path="/movies/booking/:showtimeId" element={<SeatSelection />} />
-        
+
         <Route element={<ProtectedRoute />}>
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/qr-payment" element={<QrPayment />} />
-            <Route path="/booking-detail" element={<BookingDetail />} />
-            <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/qr-payment" element={<QrPayment />} />
+          <Route path="/booking-detail" element={<BookingDetail />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         {/* Thông tin chính sách */}
@@ -114,15 +118,14 @@ const AppRouter = () => {
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
-      {/* 4. Nhóm Route Staff */}
-      <Route
-        path="/staff"
-        element={
-          <ProtectedRoute allowedRoles={[ROLE_STAFF]}>
-            <StaffPage />
-          </ProtectedRoute>
-        }
-      />
+      {/* 4. Staff */}
+
+      <Route path="/staff" element={<ProtectedRoute allowedRoles={['STAFF', 'ADMIN']}><StaffLayout /></ProtectedRoute>}>
+        <Route index element={<Navigate to="/staff/dashboard" replace />} />
+        <Route path="dashboard" element={<StaffDashboard />} />
+        <Route path="bookings" element={<StaffBookings />} />
+        {/* <Route path="pos" element={<StaffPOS />} /> */}
+      </Route>
 
       {/* 5. Điều hướng mặc định */}
       <Route path="*" element={<Navigate to={getRedirectPath()} />} />

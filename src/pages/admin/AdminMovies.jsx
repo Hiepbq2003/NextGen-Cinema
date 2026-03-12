@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAllMovies, deleteMovie, createMovie, updateMovie } from '../../services/api/MovieApi';
 import { toast } from 'react-toastify';
-import './AdminPage.css'; 
+import '@/asset/style/AdminPage.css';
 
 const AdminMovies = () => {
     const [movies, setMovies] = useState([]);

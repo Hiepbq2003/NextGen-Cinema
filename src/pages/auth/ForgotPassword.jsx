@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgotPassword, resetPassword } from "../../services/api/AuthApi";
 import { toast } from 'react-toastify';
-import './Login.css';
+import '@/asset/style/Login.css';
 
 const ForgotPassword = () => {
     const [step, setStep] = useState(1);

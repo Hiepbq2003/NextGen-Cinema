@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getActiveMovies, getShowtimesByMovie } from "../../services/api/MovieApi"; // Import thêm hàm getShowtimes
+import { getActiveMovies, getShowtimesByMovie } from "../../services/api/MovieApi";
 import { toast } from 'react-toastify';
-import "./MovieSection.css";
+import '@/asset/style/MovieSection.css';
 
 const MovieSection = () => {
     const [movies, setMovies] = useState([]);

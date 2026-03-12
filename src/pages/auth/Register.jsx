@@ -4,7 +4,7 @@ import { register as registerApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { toast } from 'react-toastify'; 
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
-import './Login.css';
+import '@/asset/style/Login.css';
 
 const Register = () => {
     const [form, setForm] = useState({

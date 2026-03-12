@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { FaUserCircle, FaSignOutAlt, FaUser, FaChevronDown } from "react-icons/fa";
-import "./Header.css";
+import '@/asset/style/Header.css';
 
 const Header = () => {
   const { auth, logout } = useAuth();

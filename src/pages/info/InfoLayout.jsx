@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import "./Info.css"; // Đảm bảo đã đổi tên file CSS
+import '@/asset/style/Info.css';
 
 const InfoLayout = () => {
   return (

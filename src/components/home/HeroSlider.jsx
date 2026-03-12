@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'; 
-import "./HeroSlider.css";
+import '@/asset/style/HeroSlider.css';
 
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
