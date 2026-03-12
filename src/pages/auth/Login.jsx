@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { login as loginApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { FaEye, FaEyeSlash, FaHome } from 'react-icons/fa';
 import { ROLE_ADMIN, ROLE_STAFF } from '../../utils/Constants.jsx';
 import '@/asset/style/Login.css';
 
@@ -27,12 +27,10 @@ const Login = () => {
             
             toast.success(`Chào mừng ${res.fullName || username} trở lại!`);
 
-            // ĐIỀU HƯỚNG THÔNG MINH: Ưu tiên trang cũ (from), sau đó mới tới Role
             const from = location.state?.from; 
             const userRole = res.role?.toUpperCase();
 
             if (from) {
-                // Quay lại đúng trang dở dang (ví dụ: trang chọn ghế)
                 navigate(from, { replace: true });
             } else if (userRole === ROLE_ADMIN) {
                 navigate('/admin'); 
@@ -58,7 +56,12 @@ const Login = () => {
         <div className="login-wrapper">
             <div className="login-side-image"></div>
             <div className="login-side-form">
-                <div className="form-content">
+                <div className="form-content" style={{ position: 'relative' }}>
+                    
+                    <div className="back-home-btn" onClick={() => navigate('/home')}>
+    <FaHome /> Trang chủ
+</div>
+
                     <h3 className="form-title">Đăng Nhập</h3>
                     <p className="form-subtitle">Chào mừng bạn đến với NextGen Cinema.</p>
 

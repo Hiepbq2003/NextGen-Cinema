@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { forgotPassword, resetPassword } from "../../services/api/AuthApi";
 import { toast } from 'react-toastify';
+import { FaHome } from 'react-icons/fa';
 import '@/asset/style/Login.css';
 
 const ForgotPassword = () => {
@@ -27,6 +28,7 @@ const ForgotPassword = () => {
             setIsLoading(false);
         }
     }
+    
     const handleResetPassword = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -48,7 +50,26 @@ const ForgotPassword = () => {
                 backgroundImage: "url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop')"
             }}></div>
             <div className="login-side-form">
-                <div className="form-content">
+                <div className="form-content" style={{ position: 'relative' }}>
+                    
+                    <div 
+                        onClick={() => navigate('/home')} 
+                        style={{ 
+                            position: 'absolute', 
+                            top: '-30px', 
+                            left: '0', 
+                            cursor: 'pointer', 
+                            color: '#007bff', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '5px',
+                            fontWeight: '500',
+                            fontSize: '14px'
+                        }}
+                    >
+                        <FaHome /> Trang chủ
+                    </div>
+
                     <h3 className="form-title">Khôi Phục Mật Khẩu</h3>
                     
                     {step === 1 ? (

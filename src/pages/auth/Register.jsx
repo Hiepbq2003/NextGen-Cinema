@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register as registerApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { toast } from 'react-toastify'; 
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { toast } from 'react-toastify';
+import { FaEye, FaEyeSlash, FaHome } from 'react-icons/fa';
 import '@/asset/style/Login.css';
 
 const Register = () => {
@@ -14,7 +14,7 @@ const Register = () => {
         email: '',
         phone: ''
     });
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -35,12 +35,12 @@ const Register = () => {
         try {
             const res = await registerApi(form);
             login(res);
-            
+
             toast.success(`Đăng ký thành công! Chào mừng ${form.fullName}`);
             navigate('/home');
         } catch (err) {
             const errorMsg = err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại!';
-       
+
             toast.error(errorMsg);
         } finally {
             setIsLoading(false);
@@ -54,7 +54,13 @@ const Register = () => {
             }}></div>
 
             <div className="login-side-form">
-                <div className="form-content" style={{ maxWidth: '500px' }}>
+
+                <div className="form-content" style={{ maxWidth: '500px', position: 'relative' }}>
+
+                    <div className="back-home-btn" onClick={() => navigate('/home')}>
+                        <FaHome /> Trang chủ
+                    </div>
+
                     <h3 className="form-title">Đăng Ký Mới</h3>
                     <p className="form-subtitle">Tạo tài khoản để trải nghiệm dịch vụ đặt vé tốt nhất.</p>
 
@@ -62,9 +68,9 @@ const Register = () => {
                         <div style={{ display: 'flex', gap: '15px' }}>
                             <div className="form-group" style={{ flex: 1 }}>
                                 <label>Tên đăng nhập *</label>
-                                <input 
+                                <input
                                     className="form-control"
-                                    type="text" 
+                                    type="text"
                                     name="username"
                                     placeholder="Ví dụ: abc123"
                                     value={form.username}
@@ -72,19 +78,19 @@ const Register = () => {
                                     required
                                 />
                             </div>
-                            
+
                             <div className="form-group" style={{ flex: 1, position: 'relative' }}>
                                 <label>Mật khẩu *</label>
-                                <input 
+                                <input
                                     className="form-control"
-                                    type={showPassword ? "text" : "password"} 
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     placeholder="Mật khẩu"
                                     value={form.password}
                                     onChange={handleChange}
                                     required
                                 />
-                                <span 
+                                <span
                                     onClick={() => setShowPassword(!showPassword)}
                                     style={{
                                         position: 'absolute',
@@ -101,9 +107,9 @@ const Register = () => {
 
                         <div className="form-group">
                             <label>Họ và tên *</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type="text" 
+                                type="text"
                                 name="fullName"
                                 placeholder="Nhập đầy đủ họ tên của bạn"
                                 value={form.fullName}
@@ -114,9 +120,9 @@ const Register = () => {
 
                         <div className="form-group">
                             <label>Địa chỉ Email *</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type="email" 
+                                type="email"
                                 name="email"
                                 placeholder="name@example.com"
                                 value={form.email}
@@ -127,9 +133,9 @@ const Register = () => {
 
                         <div className="form-group">
                             <label>Số điện thoại</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type="text" 
+                                type="text"
                                 name="phone"
                                 placeholder="Nhập số điện thoại"
                                 value={form.phone}
