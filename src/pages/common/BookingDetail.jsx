@@ -1,5 +1,5 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import '../../asset/style/BookingDetailStyle.css';
 
 const BookingDetail = () => {
@@ -7,12 +7,15 @@ const BookingDetail = () => {
     const navigate = useNavigate();
     const booking = location.state?.booking;
 
-    if (!booking) {
-        navigate('/home');
-        return null;
-    }
+    useEffect(() => {
+        if (!booking || !booking.bookingId) {
+            navigate('/home', {replace: true});
+        }
+    }, [booking, navigate]);
 
-    const { bookingId, totalAmount, createdAt, tickets } = booking;
+    if (!booking) return <div>Đang tải...</div>;
+
+    const {bookingId, totalAmount, createdAt, tickets} = booking;
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleString('vi-VN');
@@ -24,18 +27,22 @@ const BookingDetail = () => {
                 <h1>🎉 Đặt vé thành công!</h1>
                 <p>Mã đặt vé: <strong>{bookingId}</strong></p>
                 <p>Ngày đặt: {formatDate(createdAt)}</p>
-                <p>Tổng tiền: <strong>{totalAmount.toLocaleString()}đ</strong></p>
-                <p>Trạng thái: <span className="status-pending">Chờ thanh toán</span></p>
+                <p>Tổng tiền: <strong>{totalAmount?.toLocaleString()}đ</strong></p>
+                <p>Trạng thái:
+                    <span className={booking.status === 'PAID' ? 'status-paid' : 'status-pending'}>
+                        {booking.status === 'PAID' ? 'Đã thanh toán' : 'Chờ thanh toán'}
+                    </span>
+                </p>
             </div>
 
             <div className="tickets-section">
                 <h2>🎫 Thông tin vé</h2>
                 <div className="tickets-grid">
-                    {tickets.map(ticket => (
+                    {tickets?.map(ticket => (
                         <div key={ticket.ticketId} className="ticket-card">
                             <div className="ticket-info">
                                 <p><strong>Ghế:</strong> {ticket.seatName}</p>
-                                <p><strong>Giá:</strong> {ticket.price.toLocaleString()}đ</p>
+                                <p><strong>Giá:</strong> {ticket.price?.toLocaleString()}đ</p>
                             </div>
                             <div className="qr-code">
                                 <img

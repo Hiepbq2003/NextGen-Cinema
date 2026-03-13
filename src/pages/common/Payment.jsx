@@ -14,6 +14,35 @@ const Payment = () => {
         }
     }, [booking, navigate]);
 
+    useEffect(() => {
+
+        if (!booking) return;
+
+        const interval = setInterval(async () => {
+
+            try {
+                const updated = await BookingApi.getBookingById(booking.bookingId);
+
+                if (updated.status === "PAID") {
+
+                    clearInterval(interval);
+
+                    navigate('/booking-detail', {
+                        state: { booking: updated }
+                    });
+
+                }
+
+            } catch (e) {
+                console.error(e);
+            }
+
+        }, 3000);
+
+        return () => clearInterval(interval);
+
+    }, [booking, navigate]);
+
     if (!booking) {
         return null; 
     }

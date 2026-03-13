@@ -25,6 +25,7 @@ const SeatSelection = () => {
             const { seats, voucher } = JSON.parse(savedData);
             setSelectedSeats(seats || []);
             setAppliedVoucher(voucher || null);
+
             sessionStorage.removeItem(`pending_booking_${showtimeId}`);
         }
     }, [showtimeId]);
@@ -93,7 +94,7 @@ const SeatSelection = () => {
         try {
             // Bước 1: Giữ ghế tạm thời
             await SeatApi.reserveSeats(parseInt(showtimeId), selectedSeats.map(s => s.id));
-            
+
             // Bước 2: Tạo đơn hàng
             const request = {
                 showtimeId: parseInt(showtimeId),
@@ -101,7 +102,7 @@ const SeatSelection = () => {
                 voucherId: appliedVoucher?.id
             };
             const response = await BookingApi.createBooking(request);
-            
+
             toast.success("Đang chuyển đến trang thanh toán...");
             navigate('/payment', { state: { booking: response } });
         } catch (error) {
@@ -162,9 +163,9 @@ const SeatSelection = () => {
                             <strong>{finalPrice.toLocaleString()}đ</strong>
                         </div>
                     </div>
-                    <button 
-                        className="payment-btn" 
-                        disabled={selectedSeats.length === 0} 
+                    <button
+                        className="payment-btn"
+                        disabled={selectedSeats.length === 0}
                         onClick={handlePayment}
                     >
                         Tiến hành thanh toán
