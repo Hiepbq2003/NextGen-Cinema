@@ -4,7 +4,6 @@ import { ROLE_ADMIN, ROLE_STAFF } from "../utils/Constants.jsx";
 
 import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
 import Login from "../pages/auth/Login.jsx";
-import StaffPage from "../pages/staff/staffPage.jsx";
 import HomePage from "../pages/common/HomePage.jsx";
 import ProtectedRoute from "./ProtectedRoute";
 import Register from "../pages/auth/Register.jsx";
@@ -13,6 +12,11 @@ import AdminLayout from "../components/admin/AdminLayout.jsx";
 import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
 import AdminMovies from "../pages/admin/AdminMovies.jsx";
 import AdminRooms from "../pages/admin/AdminRooms.jsx";
+
+import StaffDashboard from "../pages/staff/StaffDashBoard.jsx";
+import CheckIn from "../pages/staff/CheckIn.jsx";
+import StaffSupport from "../pages/staff/StaffSupport.jsx";
+import StaffLayout from "../components/staff/StaffLayout";
 
 const AppRouter = () => {
   const { auth } = useAuth();
@@ -53,12 +57,15 @@ const AppRouter = () => {
       <Route
         path="/staff"
         element={
-          <ProtectedRoute>
-            <StaffPage />
-          </ProtectedRoute>
+          
+            <StaffLayout />
+         
         }
-      />
-
+      >
+        <Route index element={<StaffDashboard />} />
+        <Route path="checkin" element={<CheckIn />} />
+        <Route path="support" element={<StaffSupport />} />
+      </Route>
       {/* Fallback */}
       <Route path="*" element={<Navigate to={getRedirectPath()} />} />
     </Routes>

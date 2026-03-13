@@ -1,26 +1,34 @@
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 12px 40px;
   background: #111;
   color: white;
 }
 
-.user-info {
+.left {
   font-weight: 600;
 }
 
-.logout-btn {
-  background: #e71a0f;
-  border: none;
-  padding: 6px 14px;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: 0.3s;
+.menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 30px;
 }
 
-.logout-btn:hover {
-  background: #c4150c;
+.menu-item {
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  color: #e71a0f;
+}
+
+.right {
+  font-weight: 600;
+  cursor: pointer;
 }
