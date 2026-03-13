@@ -10,7 +10,6 @@ const AxiosClient = axios.create({
     timeout: 10000,
 });
 
-// 2. REQUEST INTERCEPTOR: Can thiệp vào request trước khi gửi đi
 AxiosClient.interceptors.request.use(
     (config) => {
         const auth = getAuth();
@@ -24,14 +23,13 @@ AxiosClient.interceptors.request.use(
     }
 );
 
-// 3. RESPONSE INTERCEPTOR: Can thiệp vào response trước khi trả về cho Component
 AxiosClient.interceptors.response.use(
     (response) => {
 
         return response.data?.data !== undefined ? response.data.data : response.data;
     },
     (error) => {
-        // Xử lý các lỗi HTTP chung
+
         const status = error.response ? error.response.status : null;
 
         if (status === 401) {
@@ -39,7 +37,6 @@ AxiosClient.interceptors.response.use(
             toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
             clearAuth();
             
-            // Đá người dùng về trang login
             window.location.href = '/login';
         } 
         else if (status === 403) {

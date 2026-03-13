@@ -230,7 +230,7 @@ const AdminShowtimes = () => {
                         </div>
                         <form onSubmit={handleSubmit}>
                             <div className="as-modal-body" style={{ display: 'flex', gap: '20px' }}>
-                                {/* Cột Form (bên trái) */}
+                                {/* Cột Form */}
                                 <div style={{ flex: 1 }}>
                                     <div className="as-form-group">
                                         <label>Chọn Phim *</label>
@@ -256,7 +256,7 @@ const AdminShowtimes = () => {
                                     </div>
                                 </div>
                                 
-                                {/* Cột Hiển thị Poster (bên phải) */}
+                                {/* Cột Hiển thị Poster */}
                                 <div style={{ width: '180px', display: 'flex', flexDirection: 'column' }}>
                                     <label style={{ fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Poster Phim</label>
                                     <div style={{ flex: 1, border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>

@@ -34,7 +34,17 @@ const AdminVouchers = () => {
         setIsLoading(true);
         try {
             const res = await getAllVouchers();
-            setVouchers(res || []);
+            const now = new Date();
+
+            const processedVouchers = (res || []).map(voucher => {
+         
+                if (new Date(voucher.expiryDate) < now && voucher.status === 1) {
+                    return { ...voucher, status: 0 };
+                }
+                return voucher;
+            });
+
+            setVouchers(processedVouchers);
         } catch (error) {
             toast.error("Không thể tải danh sách Voucher!");
         } finally {
