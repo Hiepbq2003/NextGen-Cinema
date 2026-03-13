@@ -12,7 +12,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -24,22 +24,22 @@ const Login = () => {
         try {
             const res = await loginApi({ username, password });
             login(res);
-            
+
             toast.success(`Chào mừng ${res.fullName || username} trở lại!`);
 
-            const from = location.state?.from; 
+            const from = location.state?.from;
             const userRole = res.role?.toUpperCase();
 
             if (from) {
                 navigate(from, { replace: true });
             } else if (userRole === ROLE_ADMIN) {
-                navigate('/admin'); 
+                navigate('/admin');
             } else if (userRole === ROLE_STAFF) {
-                navigate('/staff'); 
+                navigate('/staff');
             } else {
-                navigate('/home'); 
+                navigate('/home');
             }
-            
+
         } catch (err) {
             const errorMsg = err.response?.data?.message || 'Sai tên đăng nhập hoặc mật khẩu!';
             toast.error(errorMsg);
@@ -57,10 +57,10 @@ const Login = () => {
             <div className="login-side-image"></div>
             <div className="login-side-form">
                 <div className="form-content" style={{ position: 'relative' }}>
-                    
+
                     <div className="back-home-btn" onClick={() => navigate('/home')}>
-    <FaHome /> Trang chủ
-</div>
+                        <FaHome /> Trang chủ
+                    </div>
 
                     <h3 className="form-title">Đăng Nhập</h3>
                     <p className="form-subtitle">Chào mừng bạn đến với NextGen Cinema.</p>
@@ -68,9 +68,9 @@ const Login = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label>Tên đăng nhập</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type="text" 
+                                type="text"
                                 placeholder="Nhập username của bạn"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -80,15 +80,15 @@ const Login = () => {
 
                         <div className="form-group" style={{ position: 'relative' }}>
                             <label>Mật khẩu</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type={showPassword ? "text" : "password"} 
+                                type={showPassword ? "text" : "password"}
                                 placeholder="Nhập mật khẩu"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                            <span 
+                            <span
                                 onClick={() => setShowPassword(!showPassword)}
                                 style={{
                                     position: 'absolute',
@@ -103,8 +103,8 @@ const Login = () => {
                         </div>
 
                         <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-                            <span 
-                                className="link-register" 
+                            <span
+                                className="link-register"
                                 onClick={() => navigate('/forgot-password')}
                                 style={{ fontSize: '14px' }}
                             >

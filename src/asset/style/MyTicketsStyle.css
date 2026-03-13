@@ -1,0 +1,184 @@
+/* Container: Nới rộng chiều rộng tối đa để chứa 3 cột */
+.my-tickets-container {
+    max-width: 1200px; /* Tăng max-width để chứa 3 vé */
+    margin: 30px auto;
+    padding: 0 15px;
+}
+
+.my-tickets-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    border-left: 4px solid #e50914;
+    padding-left: 12px;
+    color: #333;
+}
+
+/* Tabs: Tối giản */
+.ticket-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.ticket-tab {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #777;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.ticket-tab.active {
+    color: #e50914;
+    border-bottom-color: #e50914;
+}
+
+/* Danh sách vé: Chuyển sang Grid 3 cột */
+.ticket-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 vé trên mỗi hàng */
+    gap: 20px; /* Khoảng cách giữa các vé */
+}
+
+/* Card vé: Chuyển sang dạng dọc */
+.ticket-card {
+    display: flex;
+    flex-direction: column; /* Bố cục dọc */
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #eee;
+    overflow: hidden;
+    position: relative;
+    transition: 0.2s;
+}
+
+/* Hiệu ứng phân chia vé: Dấu chấm lửng ngang với lỗ đục ở 2 đầu */
+.ticket-separator {
+    position: relative;
+    height: 1px;
+    border-top: 2px dashed #eee;
+    margin: 0 -15px; /* Giãn rộng dashed line */
+    z-index: 2;
+}
+
+.hole {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: #f4f4f4; /* Trùng màu nền web */
+    border-radius: 50%;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* Shadow nhẹ tạo độ sâu */
+    top: -9px; /* Canh giữa dashed line */
+    z-index: 3;
+}
+.hole-left { left: 0px; }
+.hole-right { right: 0px; }
+
+
+/* Phần thông tin phim bên trên */
+.ticket-body {
+    padding: 15px;
+    flex: 1; /* Chiếm tối đa không gian còn lại */
+}
+
+
+.ticket-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+.movie-title {
+    font-size: 20px !important;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #222;
+    text-align: center;
+    /* Thêm các thuộc tính này để chống tràn chữ */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn tối đa 2 dòng, bạn có thể đổi thành 1 nếu muốn */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word; /* Đảm bảo các từ quá dài tự động xuống dòng */
+    line-height: 1.4; /* Tạo khoảng cách dòng cho dễ đọc */
+    min-height: 50px; /* (Tùy chọn) Giữ chiều cao cố định để các card đều nhau kể cả khi tên phim chỉ có 1 dòng */
+}
+.info-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.info-label i { color: #e50914; margin-right: 4px; } /* Icon màu đỏ */
+
+.info-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+.seats-highlight { color: #e50914; } /* Ghế nổi bật */
+
+
+/* Phần stub vé bên dưới */
+.ticket-stub {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fafafa;
+    border-top: none;
+    gap: 10px;
+}
+
+.qr-placeholder img {
+    width: 70px; /* QR nhỏ vừa phải */
+    height: 70px;
+}
+
+.stub-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+}
+
+.order-id { font-size: 11px; color: #888; }
+.total-amount { font-size: 14px; font-weight: 700; color: #e50914; } /* Giá màu đỏ */
+
+.ticket-status {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    width: 100%;
+    text-align: center;
+}
+
+
+/* Màu sắc trạng thái */
+.status-PAID { background: #e6f4ea; color: #1e7e34; }
+.status-COMPLETED { background: #f1f3f4; color: #5f6368; }
+.status-CANCELLED { background: #fce8e6; color: #d93025; }
+.status-PENDING { background: #fff7e0; color: #b05a00; }
+
+/* Responsive cho Mobile: Trở về 1 vé trên hàng, stacked dọc */
+@media (max-width: 768px) {
+    .ticket-list {
+        grid-template-columns: repeat(1, 1fr); /* 1 vé trên hàng trên mobile */
+    }
+}

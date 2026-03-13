@@ -13,6 +13,7 @@ import UserLayout from "../components/common/UserLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import HomePage from "../pages/common/HomePage.jsx";
 import ProfilePage from "../pages/common/ProfilePage.jsx";
+import MyTickets from "../pages/common/MyTickets.jsx";
 
 // Movie & Booking Components
 import MovieList from "../pages/common/OngoingMovies.jsx";
@@ -77,6 +78,7 @@ const AppRouter = () => {
           <Route path="/qr-payment" element={<QrPayment />} />
           <Route path="/booking-detail" element={<BookingDetail />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/my-tickets" element={<MyTickets />} />
         </Route>
 
         {/* Thông tin chính sách */}

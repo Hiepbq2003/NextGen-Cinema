@@ -22,12 +22,17 @@ export const adminCancelBooking = (id) => {
     return AxiosClient.put(`/admin/bookings/${id}/cancel`);
 };
 
+export const getMyBookings = () => {
+    return AxiosClient.get('/bookings/my-bookings'); 
+};
+
 const BookingApi = {
     createBooking,
     confirmBooking,
     cancelBooking,
     getAllBookings,
-    adminCancelBooking
+    adminCancelBooking,
+    getMyBookings
 };
 
 export default BookingApi;

@@ -106,6 +106,11 @@ const AdminShowtimes = () => {
 
     const formatVND = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
+    // Tìm object phim đang được chọn để lấy ảnh Poster
+    const selectedMoviePreview = formData.movieId 
+        ? movies.find(m => m.id.toString() === formData.movieId.toString()) 
+        : null;
+
     return (
         <div className="as-page">
 
@@ -218,35 +223,58 @@ const AdminShowtimes = () => {
 
             {isModalOpen && (
                 <div className="as-modal-overlay">
-                    <div className="as-modal-content">
+                    <div className="as-modal-content" style={{ maxWidth: '650px' }}>
                         <div className="as-modal-header">
                             <h3>🎬 Xếp lịch chiếu mới</h3>
                             <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>&times;</button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <div className="as-modal-body">
-                                <div className="as-form-group">
-                                    <label>Chọn Phim *</label>
-                                    <select className="as-form-input" value={formData.movieId} onChange={e => setFormData({ ...formData, movieId: e.target.value })} required>
-                                        <option value="">-- Chọn phim --</option>
-                                        {movies.map(m => <option key={m.id} value={m.id}>{m.title} ({m.durationMinutes}p)</option>)}
-                                    </select>
+                            <div className="as-modal-body" style={{ display: 'flex', gap: '20px' }}>
+                                {/* Cột Form (bên trái) */}
+                                <div style={{ flex: 1 }}>
+                                    <div className="as-form-group">
+                                        <label>Chọn Phim *</label>
+                                        <select className="as-form-input" value={formData.movieId} onChange={e => setFormData({ ...formData, movieId: e.target.value })} required>
+                                            <option value="">-- Chọn phim --</option>
+                                            {movies.map(m => <option key={m.id} value={m.id}>{m.title} ({m.durationMinutes}p)</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="as-form-group">
+                                        <label>Chọn Phòng *</label>
+                                        <select className="as-form-input" value={formData.roomId} onChange={e => setFormData({ ...formData, roomId: e.target.value })} required>
+                                            <option value="">-- Chọn phòng --</option>
+                                            {rooms.map(r => <option key={r.id} value={r.id}>Phòng {r.name} ({r.totalSeats} ghế)</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="as-form-group">
+                                        <label>Giờ bắt đầu *</label>
+                                        <input className="as-form-input" type="datetime-local" value={formData.startTime} onChange={e => setFormData({ ...formData, startTime: e.target.value })} required />
+                                    </div>
+                                    <div className="as-form-group" style={{ marginBottom: 0 }}>
+                                        <label>Giá vé cơ bản (VNĐ) *</label>
+                                        <input className="as-form-input" type="number" value={formData.basePrice} onChange={e => setFormData({ ...formData, basePrice: e.target.value })} placeholder="VD: 85000" required />
+                                    </div>
                                 </div>
-                                <div className="as-form-group">
-                                    <label>Chọn Phòng *</label>
-                                    <select className="as-form-input" value={formData.roomId} onChange={e => setFormData({ ...formData, roomId: e.target.value })} required>
-                                        <option value="">-- Chọn phòng --</option>
-                                        {rooms.map(r => <option key={r.id} value={r.id}>Phòng {r.name} ({r.totalSeats} ghế)</option>)}
-                                    </select>
+                                
+                                {/* Cột Hiển thị Poster (bên phải) */}
+                                <div style={{ width: '180px', display: 'flex', flexDirection: 'column' }}>
+                                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '8px' }}>Poster Phim</label>
+                                    <div style={{ flex: 1, border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', overflow: 'hidden' }}>
+                                        {selectedMoviePreview && selectedMoviePreview.posterUrl ? (
+                                            <img 
+                                                src={selectedMoviePreview.posterUrl} 
+                                                alt="Preview" 
+                                                style={{ width: '100%', height: '100%', minHeight: '260px', objectFit: 'cover' }} 
+                                                onError={e => e.target.src='https://via.placeholder.com/200x300?text=No+Img'} 
+                                            />
+                                        ) : (
+                                            <span style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '10px' }}>
+                                                {formData.movieId ? 'Phim không có ảnh' : 'Vui lòng chọn phim'}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="as-form-group">
-                                    <label>Giờ bắt đầu *</label>
-                                    <input className="as-form-input" type="datetime-local" value={formData.startTime} onChange={e => setFormData({ ...formData, startTime: e.target.value })} required />
-                                </div>
-                                <div className="as-form-group">
-                                    <label>Giá vé cơ bản (VNĐ) *</label>
-                                    <input className="as-form-input" type="number" value={formData.basePrice} onChange={e => setFormData({ ...formData, basePrice: e.target.value })} placeholder="VD: 85000" required />
-                                </div>
+
                             </div>
                             <div className="as-modal-footer">
                                 <button type="button" className="as-btn-cancel" style={{ border: '1px solid #cbd5e1', color: '#475569' }} onClick={() => setIsModalOpen(false)}>Đóng</button>

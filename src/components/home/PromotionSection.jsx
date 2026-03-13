@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getActiveVouchers } from '../../services/api/VoucherApi';
-import '@/asset/style/PromotionSection.css';
+import '../../asset/style/PromotionSection.css';
 
 const PromotionSection = () => {
     const [vouchers, setVouchers] = useState([]);
@@ -35,7 +35,7 @@ const PromotionSection = () => {
 
     return (
         <div className="promotion">
-            <h2>KHUYẾN MÃI</h2>
+            <h2 className="promo-title">KHUYẾN MÃI</h2>
             <div className="promo-list">
                 {vouchers.length > 0 ? (
                     vouchers.map((voucher, index) => (

@@ -1,94 +1,75 @@
-.movie-card {
+.movie-card-v2 {
     background: white;
     border-radius: 16px;
     overflow: hidden;
-    transition: 0.3s ease;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.movie-card:hover {
-    transform: translateY(-8px);
+.movie-card-v2:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
-.poster-wrapper {
+.poster-container {
     position: relative;
-    height: 380px;
+    aspect-ratio: 2/3;
     overflow: hidden;
-    border-radius: 16px;
 }
 
-.poster-wrapper img {
+.main-poster {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: 0.5s;
 }
 
-.badge-hot {
+.movie-card-v2:hover .main-poster {
+    transform: scale(1.1);
+}
+
+.poster-overlay {
     position: absolute;
-    top: 12px;
-    right: -40px;
-    background: orange;
-    color: white;
-    font-weight: bold;
-    padding: 6px 40px;
-    transform: rotate(45deg);
-    font-size: 12px;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; transition: 0.3s;
 }
 
-.movie-info {
-    padding: 12px 4px;
+.movie-card-v2:hover .poster-overlay {
+    opacity: 1;
 }
 
-.movie-info h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e3a8a;
-    margin-bottom: 6px;
+.quick-book-btn {
+    background: #2d5aee; color: white; border: none;
+    padding: 12px 20px; border-radius: 30px;
+    font-weight: 700; display: flex; align-items: center; gap: 8px;
+    transform: translateY(20px); transition: 0.4s;
 }
 
-.movie-info p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 12px;
+.movie-card-v2:hover .quick-book-btn {
+    transform: translateY(0);
 }
 
-.btn-book {
-    width: 100%;
-    padding: 12px;
-    background-color: #1e3a8a;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s ease;
+.hot-tag {
+    position: absolute; top: 12px; left: 12px;
+    background: #ef4444; color: white;
+    padding: 4px 12px; border-radius: 6px;
+    font-weight: 800; font-size: 12px;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
 }
 
-.btn-book:hover {
-    background-color: #0f2560;
+.movie-details { padding: 16px; background: white; }
+
+.movie-title {
+    font-size: 18px; font-weight: 700; color: #1e293b;
+    margin: 0 0 8px 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.movie-title-click {
-    cursor: pointer;
-    display: inline-block;
-    position: relative;
-    transition: color 0.2s ease;
-}
+.movie-meta { display: flex; justify-content: space-between; align-items: center; }
 
-.movie-title-click::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -3px;
-    width: 0%;
-    height: 2px;
-    background: #2d5aee;
-    transition: width 0.25s ease;
-}
+.movie-meta span { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #64748b; }
 
-.movie-title-click:hover {
-    color: #2d5aee;
-}
-
-.movie-title-click:hover::after {
-    width: 100%;
-}
+.category-tag { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: 600; }

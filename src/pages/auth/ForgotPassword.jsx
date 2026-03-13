@@ -7,10 +7,10 @@ import '@/asset/style/Login.css';
 
 const ForgotPassword = () => {
     const [step, setStep] = useState(1);
-    const [email , setEmail] = useState("");
-    const [otp , setOtp] = useState("");
-    const [newPassword , setNewPassword] = useState("");
-    const [isLoading , setIsLoading] = useState(false);
+    const [email, setEmail] = useState("");
+    const [otp, setOtp] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -18,24 +18,24 @@ const ForgotPassword = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await forgotPassword({email}) ;
+            await forgotPassword({ email });
             toast.success('Mã OTP đã được gửi đến email của bạn!');
             setStep(2);
-        }catch(err){
+        } catch (err) {
             const errorMsg = err.response?.data?.message || 'Có lỗi xảy ra khi gửi email!';
             toast.error(errorMsg);
         } finally {
             setIsLoading(false);
         }
     }
-    
+
     const handleResetPassword = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         try {
             await resetPassword({ email, otp, newPassword });
             toast.success('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
-            navigate('/login'); 
+            navigate('/login');
         } catch (err) {
             const errorMsg = err.response?.data?.message || 'Mã OTP không hợp lệ!';
             toast.error(errorMsg);
@@ -51,36 +51,22 @@ const ForgotPassword = () => {
             }}></div>
             <div className="login-side-form">
                 <div className="form-content" style={{ position: 'relative' }}>
-                    
-                    <div 
-                        onClick={() => navigate('/home')} 
-                        style={{ 
-                            position: 'absolute', 
-                            top: '-30px', 
-                            left: '0', 
-                            cursor: 'pointer', 
-                            color: '#007bff', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '5px',
-                            fontWeight: '500',
-                            fontSize: '14px'
-                        }}
-                    >
+
+                    <div className="back-home-btn" onClick={() => navigate('/home')}>
                         <FaHome /> Trang chủ
                     </div>
 
                     <h3 className="form-title">Khôi Phục Mật Khẩu</h3>
-                    
+
                     {step === 1 ? (
                         <>
                             <p className="form-subtitle">Nhập email của bạn để nhận mã OTP khôi phục.</p>
                             <form onSubmit={handleSendEmail}>
                                 <div className="form-group">
                                     <label>Địa chỉ Email</label>
-                                    <input 
+                                    <input
                                         className="form-control"
-                                        type="email" 
+                                        type="email"
                                         placeholder="Nhập email đã đăng ký"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
@@ -98,9 +84,9 @@ const ForgotPassword = () => {
                             <form onSubmit={handleResetPassword}>
                                 <div className="form-group">
                                     <label>Mã OTP</label>
-                                    <input 
+                                    <input
                                         className="form-control"
-                                        type="text" 
+                                        type="text"
                                         placeholder="Nhập 6 số OTP"
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value)}
@@ -109,9 +95,9 @@ const ForgotPassword = () => {
                                 </div>
                                 <div className="form-group">
                                     <label>Mật khẩu mới</label>
-                                    <input 
+                                    <input
                                         className="form-control"
-                                        type="password" 
+                                        type="password"
                                         placeholder="Nhập mật khẩu mới"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}

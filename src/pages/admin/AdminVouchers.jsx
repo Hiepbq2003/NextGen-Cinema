@@ -7,7 +7,7 @@ import '../../asset/style/AdminVoucher.css';
 const AdminVouchers = () => {
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingVoucher, setEditingVoucher] = useState(null);
 
@@ -64,7 +64,7 @@ const AdminVouchers = () => {
         } else {
             setEditingVoucher(null);
             setFormData({
-                code: '', discountPercent: '', maxDiscountAmount: '', minOrderValue: '', 
+                code: '', discountPercent: '', maxDiscountAmount: '', minOrderValue: '',
                 quantity: '', startDate: '', expiryDate: '', imageUrl: '',
             });
         }
@@ -142,7 +142,7 @@ const AdminVouchers = () => {
 
     return (
         <div className="av-page">
- 
+
             <div className="av-header">
                 <div>
                     <h2 className="av-title">
@@ -178,9 +178,9 @@ const AdminVouchers = () => {
                                 vouchers.map((v) => (
                                     <tr key={v.id}>
                                         <td>
-                                            <img 
-                                                src={v.imageUrl || "https://img.freepik.com/free-vector/special-offer-modern-sale-banner-template_1017-20667.jpg"} 
-                                                alt="thumb" 
+                                            <img
+                                                src={v.imageUrl || "https://img.freepik.com/free-vector/special-offer-modern-sale-banner-template_1017-20667.jpg"}
+                                                alt="thumb"
                                                 style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }}
                                             />
                                         </td>
@@ -203,9 +203,15 @@ const AdminVouchers = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`av-badge ${v.status === 1 ? 'av-badge-active' : 'av-badge-inactive'}`}>
-                                                {v.status === 1 ? 'Đang hoạt động' : 'Ngừng / Hết hạn'}
-                                            </span>
+                                            {new Date(v.expiryDate) < new Date() ? (
+                                                <span className="av-badge av-badge-inactive">
+                                                    Đã hết hạn
+                                                </span>
+                                            ) : (
+                                                 <span className={`av-badge ${v.status === 1 ? 'av-badge-active' : 'av-badge-inactive'}`}>
+                                                    {v.status === 1 ? 'Đang hoạt động' : 'Ngừng hoạt động'}
+                                                </span>
+                                            )}
                                         </td>
                                         <td style={{ textAlign: 'center' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -215,8 +221,8 @@ const AdminVouchers = () => {
                                                 <button className="av-action-btn av-btn-history" onClick={() => handleViewUsages(v)} title="Xem lịch sử dùng">
                                                     <FaHistory /> Lịch sử
                                                 </button>
-                                                
-                                                {v.status === 1 && (
+
+                                                {v.status === 1 && new Date(v.expiryDate) >= new Date() && (
                                                     <button className="av-action-btn av-btn-danger" onClick={() => handleDelete(v.id)} title="Ngừng hoạt động">
                                                         <FaBan /> Ngừng
                                                     </button>
@@ -239,7 +245,7 @@ const AdminVouchers = () => {
                             <h3>{editingVoucher ? "Cập nhật mã khuyến mãi" : "Tạo mã khuyến mãi mới"}</h3>
                             <button className="av-modal-close" onClick={() => setIsModalOpen(false)}>&times;</button>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit}>
                             <div className="av-modal-body">
                                 <div className="av-form-group">
@@ -251,9 +257,9 @@ const AdminVouchers = () => {
                                         placeholder="https://domain.com/image.jpg"
                                     />
                                     {formData.imageUrl && (
-                                        <img 
-                                            src={formData.imageUrl} 
-                                            alt="Preview" 
+                                        <img
+                                            src={formData.imageUrl}
+                                            alt="Preview"
                                             style={{ display: 'block', height: '80px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px', objectFit: 'cover' }}
                                             onError={(e) => e.target.style.display = 'none'}
                                         />
@@ -304,7 +310,7 @@ const AdminVouchers = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="av-modal-footer">
                                 <button type="button" className="av-btn-cancel" onClick={() => setIsModalOpen(false)}>Hủy bỏ</button>
                                 <button type="submit" className="av-btn-submit">Lưu Voucher</button>
@@ -322,7 +328,7 @@ const AdminVouchers = () => {
                             <h3>Lịch sử dùng mã: <span className="av-code-badge" style={{ marginLeft: '10px' }}>{selectedVoucherCode}</span></h3>
                             <button className="av-modal-close" onClick={() => setUsageModalOpen(false)}>&times;</button>
                         </div>
-                        
+
                         <div className="av-modal-body" style={{ padding: '0' }}>
                             {voucherUsages.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '50px', color: '#94a3b8' }}>
@@ -352,7 +358,7 @@ const AdminVouchers = () => {
                                 </table>
                             )}
                         </div>
-                        
+
                         <div className="av-modal-footer">
                             <button className="av-btn-cancel" onClick={() => setUsageModalOpen(false)}>Đóng</button>
                         </div>
