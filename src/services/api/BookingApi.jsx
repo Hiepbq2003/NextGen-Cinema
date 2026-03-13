@@ -4,6 +4,10 @@ export const createBooking = (data) => {
     return AxiosClient.post('/bookings', data);
 };
 
+export const getBookingById = (id) => {
+    return AxiosClient.get(`/bookings/${id}`);
+}
+
 export const confirmBooking = (bookingId) => {
     return AxiosClient.post(`/bookings/${bookingId}/confirm`);
 };
@@ -27,7 +31,8 @@ const BookingApi = {
     confirmBooking,
     cancelBooking,
     getAllBookings,
-    adminCancelBooking
+    adminCancelBooking,
+    getBookingById,
 };
 
 export default BookingApi;

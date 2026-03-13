@@ -7,6 +7,7 @@ import VoucherModal from "../../components/common/VoucherModal.jsx";
 import '../../asset/style/SeatSelectionStyle.css';
 import VoucherApi from "../../services/api/VoucherApi.jsx";
 import { getAuth } from "../../utils/Auth.jsx";
+import { toast } from 'react-toastify';
 
 const SeatSelection = () => {
     const { showtimeId } = useParams();
@@ -24,7 +25,6 @@ const SeatSelection = () => {
             const { seats, voucher } = JSON.parse(savedData);
             setSelectedSeats(seats || []);
             setAppliedVoucher(voucher || null);
-
             sessionStorage.removeItem(`pending_booking_${showtimeId}`);
         }
     }, [showtimeId]);
@@ -63,18 +63,19 @@ const SeatSelection = () => {
     };
 
     const handleApplyVoucher = (voucher) => {
+        if (totalPrice < voucher.minOrderValue) {
+            toast.warning(`Đơn hàng chưa đủ tối thiểu ${voucher.minOrderValue.toLocaleString()}đ để áp dụng mã này`);
+        }
         setAppliedVoucher(voucher);
         setVoucherModalOpen(false);
     };
 
     const handleConfirmLogin = () => {
-
         const bookingData = {
             seats: selectedSeats,
             voucher: appliedVoucher
         };
         sessionStorage.setItem(`pending_booking_${showtimeId}`, JSON.stringify(bookingData));
-
         navigate('/login', { state: { from: location.pathname } });
     };
 
@@ -85,21 +86,26 @@ const SeatSelection = () => {
         }
 
         if (appliedVoucher && totalPrice < appliedVoucher.minOrderValue) {
-            alert(`Mã ${appliedVoucher.code} yêu cầu đơn tối thiểu ${appliedVoucher.minOrderValue.toLocaleString()}đ`);
+            toast.error(`Mã ${appliedVoucher.code} yêu cầu đơn tối thiểu ${appliedVoucher.minOrderValue.toLocaleString()}đ`);
             return;
         }
 
         try {
+            // Bước 1: Giữ ghế tạm thời
             await SeatApi.reserveSeats(parseInt(showtimeId), selectedSeats.map(s => s.id));
+
+            // Bước 2: Tạo đơn hàng
             const request = {
                 showtimeId: parseInt(showtimeId),
                 seatIds: selectedSeats.map(s => s.id),
                 voucherId: appliedVoucher?.id
             };
             const response = await BookingApi.createBooking(request);
+
+            toast.success("Đang chuyển đến trang thanh toán...");
             navigate('/payment', { state: { booking: response } });
         } catch (error) {
-            alert('Đặt vé thất bại: ' + error.message);
+            toast.error(error.message || 'Đặt vé thất bại, vui lòng thử lại');
         }
     };
 
@@ -113,60 +119,76 @@ const SeatSelection = () => {
                 <div className="booking-summary">
                     <h3>Thông tin đặt vé</h3>
                     <div className="selected-seats">
-                        <p>Số ghế đã chọn: {selectedSeats.length}</p>
+                        <p>Số ghế đã chọn: <strong>{selectedSeats.length}</strong></p>
                         <ul>
                             {selectedSeats.map(seat => (
                                 <li key={seat.id}>
-                                    {seat.rowName}{seat.seatNumber} - {seat.price.toLocaleString()}đ
+                                    {seat.rowName}{seat.seatNumber} - <span className="price-tag">{seat.price.toLocaleString()}đ</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
                     <div className="voucher-section">
-                        <button onClick={() => setVoucherModalOpen(true)}>Chọn voucher</button>
+                        <button className="btn-secondary" onClick={() => setVoucherModalOpen(true)}>
+                            {appliedVoucher ? "Thay đổi Voucher" : "Chọn Voucher giảm giá"}
+                        </button>
                         {appliedVoucher && (
                             <div className="applied-voucher">
-                                <p>
-                                    Đã áp dụng: <strong>{appliedVoucher.code}</strong> 
+                                <div>
+                                    <p>Mã: <strong>{appliedVoucher.code}</strong></p>
                                     {totalPrice < appliedVoucher.minOrderValue ? (
-                                        <span style={{color: 'red', display: 'block', fontSize: '12px', marginTop: '5px'}}>
-                                            (Chưa đủ điều kiện: tối thiểu {appliedVoucher.minOrderValue.toLocaleString()}đ)
-                                        </span>
+                                        <span className="error-text">Chưa đủ điều kiện</span>
                                     ) : (
-                                        <span> - giảm {discountAmount.toLocaleString()}đ</span>
+                                        <span className="success-text">- giảm {discountAmount.toLocaleString()}đ</span>
                                     )}
-                                </p>
-                                <button className="remove-voucher-btn" onClick={() => setAppliedVoucher(null)}>Bỏ chọn</button>
+                                </div>
+                                <button className="remove-voucher-btn" onClick={() => setAppliedVoucher(null)}>✕</button>
                             </div>
                         )}
                     </div>
-                    <div className="total">
-                        <p>Tổng tiền: {totalPrice.toLocaleString()}đ</p>
+                    <div className="total-container">
+                        <div className="total-row">
+                            <span>Tạm tính:</span>
+                            <span>{totalPrice.toLocaleString()}đ</span>
+                        </div>
                         {appliedVoucher && discountAmount > 0 && (
-                            <p>Thành tiền: <strong>{finalPrice.toLocaleString()}đ</strong></p>
+                            <div className="total-row discount">
+                                <span>Giảm giá:</span>
+                                <span>-{discountAmount.toLocaleString()}đ</span>
+                            </div>
                         )}
+                        <div className="total-row final">
+                            <span>Thành tiền:</span>
+                            <strong>{finalPrice.toLocaleString()}đ</strong>
+                        </div>
                     </div>
-                    <button className="payment-btn" disabled={selectedSeats.length === 0} onClick={handlePayment}>
-                        Thanh toán
+                    <button
+                        className="payment-btn"
+                        disabled={selectedSeats.length === 0}
+                        onClick={handlePayment}
+                    >
+                        Tiến hành thanh toán
                     </button>
                 </div>
-                <VoucherModal
-                    isOpen={voucherModalOpen}
-                    onClose={() => setVoucherModalOpen(false)}
-                    onApply={handleApplyVoucher}
-                    vouchers={vouchers}
-                    selectedVoucher={appliedVoucher}
-                />
             </div>
+
+            <VoucherModal
+                isOpen={voucherModalOpen}
+                onClose={() => setVoucherModalOpen(false)}
+                onApply={handleApplyVoucher}
+                vouchers={vouchers}
+                selectedVoucher={appliedVoucher}
+                totalPrice={totalPrice}
+            />
 
             {loginAlertOpen && (
                 <div className="custom-alert-overlay">
                     <div className="custom-alert-box">
                         <h3>Yêu cầu đăng nhập</h3>
-                        <p>Vui lòng đăng nhập để thực hiện thanh toán và giữ ghế.</p>
+                        <p>Bạn cần đăng nhập để thực hiện đặt vé và thanh toán.</p>
                         <div className="alert-actions">
-                            <button className="btn-confirm" onClick={handleConfirmLogin}>Đăng nhập</button>
-                            <button className="btn-cancel" onClick={() => setLoginAlertOpen(false)}>Hủy</button>
+                            <button className="btn-confirm" onClick={handleConfirmLogin}>Đăng nhập ngay</button>
+                            <button className="btn-cancel" onClick={() => setLoginAlertOpen(false)}>Quay lại</button>
                         </div>
                         <span className="alert-close" onClick={() => setLoginAlertOpen(false)}>✕</span>
                     </div>
