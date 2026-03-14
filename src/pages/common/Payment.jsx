@@ -3,10 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import BookingApi from '../../services/api/BookingApi';
 import '../../asset/style/PaymentStyle.css';
 import { useEffect } from 'react';
+import {useBookingTimer} from "@/hooks/UseBookingTimer.jsx";
+
 const Payment = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const booking = location.state?.booking;
+    const { timeLeft, formatTime } = useBookingTimer(booking?.bookingId);
 
     useEffect(() => {
         if (!booking) {
@@ -26,7 +29,8 @@ const Payment = () => {
                 if (updated.status === "PAID") {
 
                     clearInterval(interval);
-
+                    localStorage.removeItem('bookingTimer');
+                    localStorage.removeItem('bookingExpiry');
                     navigate('/booking-detail', {
                         state: { booking: updated }
                     });
@@ -51,6 +55,8 @@ const Payment = () => {
         if (window.confirm('Bạn có chắc muốn hủy đơn đặt vé này?')) {
             try {
                 await BookingApi.cancelBooking(booking.bookingId);
+                localStorage.removeItem('bookingTimer');
+                localStorage.removeItem('bookingExpiry');
                 alert('Đã hủy đơn thành công');
                 navigate('/movies');
             } catch (error) {
@@ -62,6 +68,9 @@ const Payment = () => {
     return (
         <div className="payment-simulation-container">
             <h2>💳 Thanh toán</h2>
+            {timeLeft !== null && (
+                <p className="timer">⏳ Thời gian còn lại: {formatTime(timeLeft)}</p>
+            )}
             <p>Mã đặt vé: <strong>{booking.bookingId}</strong></p>
             <p>Tổng tiền: <strong>{booking.totalAmount.toLocaleString()}đ</strong></p>
 

@@ -182,3 +182,26 @@
         grid-template-columns: repeat(1, 1fr); /* 1 vé trên hàng trên mobile */
     }
 }
+
+.pending-timer {
+    text-align: center;
+    margin-bottom: 10px;
+}
+.timer-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e67e22;
+}
+.cancel-pending-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 5px;
+}
+.cancel-pending-btn:hover {
+    background: #c0392b;
+}

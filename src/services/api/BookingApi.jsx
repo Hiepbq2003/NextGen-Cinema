@@ -21,6 +21,10 @@ export const getAllBookings = () => {
     return AxiosClient.get('/admin/bookings');
 };
 
+export const checkExistPendingBooking = () => {
+    return AxiosClient.get('/user/checkBookings');
+}
+
 // Hủy đơn dành cho Admin
 export const adminCancelBooking = (id) => {
     return AxiosClient.put(`/admin/bookings/${id}/cancel`);
@@ -37,7 +41,8 @@ const BookingApi = {
     getAllBookings,
     adminCancelBooking,
     getBookingById,
-    getMyBookings
+    getMyBookings,
+    checkExistPendingBooking
 };
 
 export default BookingApi;

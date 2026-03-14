@@ -92,16 +92,27 @@ const SeatSelection = () => {
         }
 
         try {
-            // Bước 1: Giữ ghế tạm thời
+            // Kiểm tra xem có vé nào đang pending không
+            const responseCheck = await BookingApi.checkExistPendingBooking();
+            if(responseCheck) {
+                toast.error("Bạn đang có đơn đặt vé chưa thanh toán. Vui lòng hoàn tất hoặc hủy đơn trước.");
+                return;
+            }
+
+            //  Giữ ghế tạm thời
             await SeatApi.reserveSeats(parseInt(showtimeId), selectedSeats.map(s => s.id));
 
-            // Bước 2: Tạo đơn hàng
+            //  Tạo đơn hàng
             const request = {
                 showtimeId: parseInt(showtimeId),
                 seatIds: selectedSeats.map(s => s.id),
                 voucherId: appliedVoucher?.id
             };
             const response = await BookingApi.createBooking(request);
+
+            // Đặt thời gian đếm ngược thanh toán
+            localStorage.setItem('bookingExpiry', (Date.now() + 5 * 60 * 1000).toString());
+            localStorage.setItem('bookingTimer', response.bookingId.toString());
 
             toast.success("Đang chuyển đến trang thanh toán...");
             navigate('/payment', { state: { booking: response } });
