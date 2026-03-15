@@ -4,9 +4,6 @@ import { toast } from 'react-toastify';
 
 const AxiosClient = axios.create({
     baseURL: 'http://localhost:8080/api',
-    headers: {
-        'Content-Type': 'multipart/form-data'
-    },
     timeout: 10000,
 });
 
