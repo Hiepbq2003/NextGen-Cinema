@@ -3,6 +3,7 @@ import { getAllVouchers, createVoucher, updateVoucher, deleteVoucher, getVoucher
 import { toast } from 'react-toastify';
 import { FaTicketAlt, FaPlus, FaEdit, FaHistory, FaBan, FaCalendarAlt } from 'react-icons/fa';
 import '../../asset/style/AdminVoucher.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AdminVouchers = () => {
     const [vouchers, setVouchers] = useState([]);
@@ -15,6 +16,11 @@ const AdminVouchers = () => {
     const [voucherUsages, setVoucherUsages] = useState([]);
     const [selectedVoucherCode, setSelectedVoucherCode] = useState('');
 
+    const [imageFile, setImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const [formData, setFormData] = useState({
         code: '',
         discountPercent: '',
@@ -23,7 +29,6 @@ const AdminVouchers = () => {
         quantity: '',
         startDate: '',
         expiryDate: '',
-        imageUrl: '',
     });
 
     useEffect(() => {
@@ -69,14 +74,17 @@ const AdminVouchers = () => {
                 quantity: voucher.quantity,
                 startDate: formatDateTimeForInput(voucher.startDate),
                 expiryDate: formatDateTimeForInput(voucher.expiryDate),
-                imageUrl: voucher.imageUrl || '',
             });
+            setPreviewUrl(voucher.imageUrl || '');
+            setImageFile(null);
         } else {
             setEditingVoucher(null);
             setFormData({
                 code: '', discountPercent: '', maxDiscountAmount: '', minOrderValue: '',
-                quantity: '', startDate: '', expiryDate: '', imageUrl: '',
+                quantity: '', startDate: '', expiryDate: '',
             });
+            setPreviewUrl('');
+            setImageFile(null);
         }
         setIsModalOpen(true);
     };
@@ -91,6 +99,19 @@ const AdminVouchers = () => {
             toast.error("Không thể tải lịch sử sử dụng!");
         }
     };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setImageFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setPreviewUrl(reader.result);
+            reader.readAsDataURL(file);
+        } else {
+            setPreviewUrl(editingVoucher ? editingVoucher.imageUrl : '');
+        }
+    };
+
 
     const validateForm = () => {
         if (!formData.code.trim()) { toast.error("Vui lòng nhập mã Voucher"); return false; }
@@ -114,27 +135,37 @@ const AdminVouchers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
+        setIsSubmitting(true);
 
-        const payload = {
-            ...formData,
+        const formDataToSend = new FormData();
+        const voucherData = {
+            code: formData.code,
             discountPercent: Number(formData.discountPercent),
-            quantity: Number(formData.quantity),
+            maxDiscountAmount: Number(formData.maxDiscountAmount),
             minOrderValue: Number(formData.minOrderValue),
-            maxDiscountAmount: Number(formData.maxDiscountAmount)
+            quantity: Number(formData.quantity),
+            startDate: formData.startDate,
+            expiryDate: formData.expiryDate,
         };
+        formDataToSend.append('voucher', new Blob([JSON.stringify(voucherData)], { type: 'application/json' }));
+        if (imageFile) {
+            formDataToSend.append('imageFile', imageFile);
+        }
 
         try {
             if (editingVoucher) {
-                await updateVoucher(editingVoucher.id, payload);
+                await updateVoucher(editingVoucher.id, formDataToSend);
                 toast.success("Cập nhật Voucher thành công!");
             } else {
-                await createVoucher(payload);
+                await createVoucher(formDataToSend);
                 toast.success("Thêm Voucher mới thành công!");
             }
             setIsModalOpen(false);
             fetchVouchers();
         } catch (error) {
             toast.error(error.response?.data?.message || "Thao tác thất bại");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -259,20 +290,28 @@ const AdminVouchers = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="av-modal-body">
                                 <div className="av-form-group">
-                                    <label>Banner / Link ảnh minh họa</label>
+                                    <label>Ảnh đại diện (không bắt buộc)</label>
                                     <input
+                                        type="file"
+                                        accept="image/*"
                                         className="av-input"
-                                        value={formData.imageUrl}
-                                        onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                                        placeholder="https://domain.com/image.jpg"
+                                        onChange={handleFileChange}
                                     />
-                                    {formData.imageUrl && (
-                                        <img
-                                            src={formData.imageUrl}
-                                            alt="Preview"
-                                            style={{ display: 'block', height: '80px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px', objectFit: 'cover' }}
-                                            onError={(e) => e.target.style.display = 'none'}
-                                        />
+                                    {previewUrl && (
+                                        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                            <img
+                                                src={previewUrl}
+                                                alt="Preview"
+                                                style={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: '150px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #e2e8f0',
+                                                    objectFit: 'contain',
+                                                    backgroundColor: '#f8fafc'
+                                                }}
+                                            />
+                                        </div>
                                     )}
                                 </div>
 
@@ -323,7 +362,14 @@ const AdminVouchers = () => {
 
                             <div className="av-modal-footer">
                                 <button type="button" className="av-btn-cancel" onClick={() => setIsModalOpen(false)}>Hủy bỏ</button>
-                                <button type="submit" className="av-btn-submit">Lưu Voucher</button>
+                                <button type="submit" className="av-btn-submit" disabled={isSubmitting}>
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '5px' }}></span>
+                                            Đang xử lý...
+                                        </>
+                                    ) : 'Lưu Voucher'}
+                                </button>
                             </div>
                         </form>
                     </div>

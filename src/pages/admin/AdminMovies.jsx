@@ -3,6 +3,7 @@ import { getAllMovies, deleteMovie, createMovie, updateMovie } from '../../servi
 import { toast } from 'react-toastify';
 import { FaFilm, FaPlus, FaSearch, FaFilter, FaEdit, FaBan, FaClock, FaCalendarAlt } from 'react-icons/fa';
 import '../../asset/style/AdminMovies.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AdminMovies = () => {
     const [movies, setMovies] = useState([]);
@@ -13,6 +14,10 @@ const AdminMovies = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [currentPage, setCurrentPage] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [posterFile, setPosterFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
     const itemsPerPage = 6;
 
     const [formData, setFormData] = useState({
@@ -20,7 +25,6 @@ const AdminMovies = () => {
         description: '',
         durationMinutes: '',
         releaseDate: '',
-        posterUrl: '',
         status: 'UPCOMING'
     });
 
@@ -50,15 +54,18 @@ const AdminMovies = () => {
                 description: movie.description || '',
                 durationMinutes: movie.durationMinutes,
                 releaseDate: movie.releaseDate,
-                posterUrl: movie.posterUrl,
                 status: movie.status
             });
+            setPreviewUrl(movie.posterUrl); // ảnh cũ
+            setPosterFile(null);
         } else {
             setEditingMovie(null);
             setFormData({
-                title: '', description: '', durationMinutes: '', 
-                releaseDate: '', posterUrl: '', status: 'UPCOMING'
+                title: '', description: '', durationMinutes: '',
+                releaseDate: '', status: 'UPCOMING'
             });
+            setPreviewUrl('');
+            setPosterFile(null);
         }
         setIsModalOpen(true);
     };
@@ -67,26 +74,59 @@ const AdminMovies = () => {
         if (!formData.title.trim()) { toast.error("Vui lòng nhập tiêu đề"); return false; }
         if (!formData.durationMinutes || formData.durationMinutes <= 0) { toast.error("Thời lượng phải lớn hơn 0"); return false; }
         if (!formData.releaseDate) { toast.error("Vui lòng chọn ngày phát hành"); return false; }
-        if (!formData.posterUrl.trim()) { toast.error("Vui lòng nhập link poster"); return false; }
+        // Nếu là thêm mới và không có file
+        if (!editingMovie && !posterFile) {
+            toast.error("Vui lòng chọn ảnh poster");
+            return false;
+        }
         return true;
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setPosterFile(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setPreviewUrl(editingMovie ? editingMovie.posterUrl : '');
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateMovieForm()) return;
+        setIsSubmitting(true);
+        const formDataToSend = new FormData();
+        const movieData = {
+            title: formData.title,
+            description: formData.description,
+            durationMinutes: formData.durationMinutes,
+            releaseDate: formData.releaseDate,
+            status: formData.status
+        };
+        formDataToSend.append('movie', new Blob([JSON.stringify(movieData)], { type: 'application/json' }));
+        if (posterFile) {
+            formDataToSend.append('posterFile', posterFile);
+        }
 
         try {
             if (editingMovie) {
-                await updateMovie(editingMovie.id, formData);
+                await updateMovie(editingMovie.id, formDataToSend);
                 toast.success("Cập nhật phim thành công!");
             } else {
-                await createMovie(formData);
+                await createMovie(formDataToSend);
                 toast.success("Thêm phim mới thành công!");
             }
             setIsModalOpen(false);
             fetchMovies();
         } catch (error) {
             toast.error(error.response?.data?.message || "Thao tác thất bại");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -226,7 +266,7 @@ const AdminMovies = () => {
                                 paginatedMovies.map((movie) => (
                                     <tr key={movie.id}>
                                         <td>
-                                            <img src={movie.posterUrl} alt="poster" className="am-poster-img" onError={(e) => e.target.src = 'https://via.placeholder.com/150x220?text=No+Image'} />
+                                            <img src={movie.posterUrl} alt="poster" className="am-poster-img" onError={(e) => e.target.src = 'https://png.pngtree.com/template/20220118/ourmid/pngtree-movie-poster-background-psd-template-image_811769.jpg'} />
                                         </td>
                                         <td>
                                             <div className="am-movie-title">{movie.title}</div>
@@ -319,52 +359,28 @@ const AdminMovies = () => {
                             <h3>{editingMovie ? <><FaEdit color="#3b82f6" /> Cập nhật thông tin Phim</> : <><FaPlus color="#3b82f6" /> Thêm Phim Mới</>}</h3>
                             <button className="am-modal-close" onClick={() => setIsModalOpen(false)}>&times;</button>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit}>
                             <div className="am-modal-body">
-                         
                                 <div className="am-modal-col-left">
+                                    {/* Các trường text giữ nguyên */}
                                     <div className="am-form-group">
                                         <label>Tiêu đề phim *</label>
-                                        <input 
-                                            className="am-form-input" 
-                                            value={formData.title} 
-                                            onChange={e => setFormData({...formData, title: e.target.value})} 
-                                            placeholder="VD: Avengers: Endgame"
-                                            required 
-                                        />
+                                        <input className="am-form-input" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="VD: Avengers: Endgame" required />
                                     </div>
                                     <div style={{ display: 'flex', gap: '16px' }}>
                                         <div className="am-form-group" style={{ flex: 1 }}>
                                             <label>Thời lượng (phút) *</label>
-                                            <input 
-                                                type="number" 
-                                                className="am-form-input" 
-                                                value={formData.durationMinutes} 
-                                                onChange={e => setFormData({...formData, durationMinutes: e.target.value})} 
-                                                placeholder="VD: 120"
-                                                required 
-                                            />
+                                            <input type="number" className="am-form-input" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: e.target.value})} placeholder="VD: 120" required />
                                         </div>
                                         <div className="am-form-group" style={{ flex: 1 }}>
                                             <label>Ngày phát hành *</label>
-                                            <input 
-                                                type="date" 
-                                                className="am-form-input" 
-                                                value={formData.releaseDate} 
-                                                onChange={e => setFormData({...formData, releaseDate: e.target.value})} 
-                                                required 
-                                            />
+                                            <input type="date" className="am-form-input" value={formData.releaseDate} onChange={e => setFormData({...formData, releaseDate: e.target.value})} required />
                                         </div>
                                     </div>
                                     <div className="am-form-group">
                                         <label>Trạng thái</label>
-                                        <select 
-                                            className="am-form-input" 
-                                            value={formData.status} 
-                                            onChange={e => setFormData({...formData, status: e.target.value})}
-                                            style={{ cursor: 'pointer' }}
-                                        >
+                                        <select className="am-form-input" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} style={{ cursor: 'pointer' }}>
                                             <option value="UPCOMING">Sắp chiếu (Chỉ hiện Trailer)</option>
                                             <option value="ONGOING">Đang chiếu (Cho phép đặt vé)</option>
                                             <option value="INACTIVE">Ngừng hoạt động (Ẩn khỏi web)</option>
@@ -372,32 +388,26 @@ const AdminMovies = () => {
                                     </div>
                                     <div className="am-form-group" style={{ marginBottom: 0 }}>
                                         <label>Mô tả nội dung</label>
-                                        <textarea 
-                                            className="am-form-input" 
-                                            style={{ height: '110px', resize: 'none' }} 
-                                            value={formData.description} 
-                                            onChange={e => setFormData({...formData, description: e.target.value})} 
-                                            placeholder="Nhập tóm tắt nội dung phim..."
-                                        />
+                                        <textarea className="am-form-input" style={{ height: '110px', resize: 'none' }} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Nhập tóm tắt nội dung phim..." />
                                     </div>
                                 </div>
 
                                 <div className="am-modal-col-right">
+                                    {/* Thay input text bằng input file */}
                                     <div className="am-form-group">
-                                        <label>Link ảnh Poster *</label>
-                                        <input 
-                                            className="am-form-input" 
-                                            value={formData.posterUrl} 
-                                            onChange={e => setFormData({...formData, posterUrl: e.target.value})} 
-                                            placeholder="https://domain.com/poster.jpg"
-                                            required 
+                                        <label>Ảnh Poster *</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="am-form-input"
+                                            onChange={handleFileChange}
                                         />
                                     </div>
                                     <div className="am-poster-preview">
-                                        {formData.posterUrl ? (
-                                            <img src={formData.posterUrl} alt="Preview" onError={(e) => e.target.style.display = 'none'} />
+                                        {previewUrl ? (
+                                            <img src={previewUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
                                         ) : (
-                                            <span style={{ color: '#94a3b8', fontSize: '13px' }}>Chưa có Poster</span>
+                                            <span style={{ color: '#94a3b8', fontSize: '13px' }}>Chưa có ảnh</span>
                                         )}
                                     </div>
                                 </div>
@@ -405,7 +415,14 @@ const AdminMovies = () => {
 
                             <div className="am-modal-footer">
                                 <button type="button" className="am-btn-cancel" onClick={() => setIsModalOpen(false)}>Hủy bỏ</button>
-                                <button type="submit" className="am-btn-submit">{editingMovie ? 'Lưu thay đổi' : 'Thêm phim'}</button>
+                                <button type="submit" className="am-btn-submit" disabled={isSubmitting}>
+                                    {isSubmitting ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '5px' }}></span>
+                                            Đang xử lý...
+                                        </>
+                                    ) : (editingMovie ? 'Lưu thay đổi' : 'Thêm phim')}
+                                </button>
                             </div>
                         </form>
                     </div>
