@@ -31,8 +31,11 @@ const Navbar = () => {
                 </ul>
 
                 <div className="nav-right">
-                    <button className="btn-buy-now" onClick={() => navigate("/schedule")}>
-                        MUA VÉ NGAY
+                    <button
+                        className="btn-buy-now"
+                        onClick={() => navigate("/schedule")}
+                    >
+                        🎬 MUA VÉ NGAY
                     </button>
                 </div>
             </div>
