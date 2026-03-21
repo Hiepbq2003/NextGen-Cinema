@@ -9,7 +9,7 @@ A comprehensive Full-stack application designed for cinema management and online
 The system is designed with 3 main roles:
 
 ### 👤 Customer (User)
-* **Authentication:** Register, Login (Local & OAuth2 via Google/Facebook), Forgot/Change Password.
+* **Authentication:** Register, Login (Local & OAuth2 via Google), Forgot/Change Password.
 * **Movie Discovery:** Browse ongoing and upcoming movies, view detailed movie information.
 * **Booking & Seat Selection:** Select showtimes and pick seats via a real-time interactive Seat Map to prevent double-booking.
 * **Payment & Promotions:** Integrated QR code payment, apply discount codes (Vouchers).
