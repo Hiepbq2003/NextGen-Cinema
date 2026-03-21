@@ -2,6 +2,10 @@
 
 A comprehensive Full-stack application designed for cinema management and online ticket booking. This system provides a seamless experience for customers to browse movies, select seats, and make payments, while offering powerful management tools for Staff and Administrators.
 
+Link Deploy:
+
+Link BE:https://github.com/XuanLocLuong/be-sba/tree/main
+
 ---
 
 ## 🌟 Features
