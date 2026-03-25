@@ -99,9 +99,6 @@ const SeatSelection = () => {
                 return;
             }
 
-            //  Giữ ghế tạm thời
-            await SeatApi.reserveSeats(parseInt(showtimeId), selectedSeats.map(s => s.id));
-
             //  Tạo đơn hàng
             const request = {
                 showtimeId: parseInt(showtimeId),

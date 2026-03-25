@@ -61,13 +61,26 @@ const StaffPOS = () => {
     };
 
     // Chọn / Bỏ chọn ghế
-    const toggleSeat = (seat) => {
-        if (seat.status !== 'AVAILABLE') return;
+    const toggleSeat = async (seat) => {
+        if (seat.status !== 'AVAILABLE' && !(seat.status === 'RESERVED' && selectedSeats.some(s => s.id === seat.id))) return;
         
-        if (selectedSeats.find(s => s.id === seat.id)) {
-            setSelectedSeats(selectedSeats.filter(s => s.id !== seat.id));
-        } else {
-            setSelectedSeats([...selectedSeats, seat]);
+        try {
+            await AxiosClient.post('/seats/toggle-hold', {
+                showtimeId: selectedShowtime.id,
+                seatId: seat.id
+            });
+
+            if (selectedSeats.find(s => s.id === seat.id)) {
+                setSelectedSeats(selectedSeats.filter(s => s.id !== seat.id));
+                seat.status = 'AVAILABLE';
+            } else {
+                setSelectedSeats([...selectedSeats, seat]);
+                seat.status = 'RESERVED';
+            }
+            setSeats([...seats]);
+        } catch (error) {
+            toast.error("Không thể giữ ghế: " + (error.response?.data?.message || error.message));
+            handleSelectShowtime(selectedShowtime); // Lấy lại sơ đồ ghế
         }
     };
 
@@ -115,8 +128,9 @@ const StaffPOS = () => {
                 paymentMethod: "CASH"
             };
             
+            // Reservation was already done per seat click
             const createRes = await AxiosClient.post('/bookings', bookingRequest);
-            const bookingId = createRes.data?.id || createRes.id;
+            const bookingId = createRes.data?.bookingId || createRes.bookingId || createRes.data?.id || createRes.id;
 
             await AxiosClient.post(`/bookings/${bookingId}/confirm`);
 

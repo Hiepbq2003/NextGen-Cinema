@@ -52,5 +52,26 @@ const SeatApi = {
         const json = await response.json();
         return json.data;
     },
+
+    toggleSeatHold: async (showtimeId, seatId) => {
+        const auth = getAuth();
+        let api = `http://localhost:8080/api/seats/toggle-hold`;
+        const response = await fetch(api, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${auth?.token}`
+            },
+            body: JSON.stringify({showtimeId: showtimeId, seatId: seatId}),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        return json.data;
+    }
+
 }
 export default SeatApi;

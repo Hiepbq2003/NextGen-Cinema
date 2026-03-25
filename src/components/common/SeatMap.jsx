@@ -38,21 +38,24 @@ const SeatMap = ({ showtimeId, onSeatsSelected }) => {
 
     const sortedRows = Object.keys(seatsByRow).sort();
 
-    const handleSeatClick = (seat) => {
-        if (seat.status !== 'AVAILABLE') return;
+    // const handleSeatClick = (seat) => {
+    //     if (seat.status !== 'AVAILABLE') return;
 
-        const isSelected = selectedSeats.some(s => s.id === seat.id);
-        let newSelected;
-        if (isSelected) {
-            newSelected = selectedSeats.filter(s => s.id !== seat.id);
-        } else {
-            newSelected = [...selectedSeats, seat];
-        }
-        setSelectedSeats(newSelected);
-        if (onSeatsSelected) {
-            onSeatsSelected(newSelected);
-        }
-    };
+    //     const isSelected = selectedSeats.some(s => s.id === seat.id);
+    //     let newSelected;
+    //     if (isSelected) {
+    //         newSelected = selectedSeats.filter(s => s.id !== seat.id);
+    //     } else {
+    //         newSelected = [...selectedSeats, seat];
+    //     }
+    //     setSelectedSeats(newSelected);
+    //     if (onSeatsSelected) {
+    //         onSeatsSelected(newSelected);
+    //     }
+    // };
+
+    
+    
 
     const getSeatClass = (seat) => {
         let baseClass = 'seat';
