@@ -393,7 +393,6 @@ const AdminMovies = () => {
                                 </div>
 
                                 <div className="am-modal-col-right">
-                                    {/* Thay input text bằng input file */}
                                     <div className="am-form-group">
                                         <label>Ảnh Poster *</label>
                                         <input
