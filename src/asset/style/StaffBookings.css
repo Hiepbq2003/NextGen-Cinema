@@ -1,0 +1,224 @@
+/* =========================================
+   CSS DÀNH CHO QUẢN LÝ ĐƠN VÉ - STAFF PORTAL
+   ========================================= */
+
+/* --- KHUNG CHÍNH --- */
+.staff-bookings-container {
+    padding: 10px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #334155;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- NÚT BẤM (BUTTONS) --- */
+.staff-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.staff-btn:active {
+    transform: translateY(1px);
+}
+
+.staff-btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+.staff-btn-primary:hover { background-color: #2563eb; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+.staff-btn-success {
+    background-color: #10b981;
+    color: white;
+}
+.staff-btn-success:hover { background-color: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+.staff-btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+.staff-btn-danger:hover { background-color: #dc2626; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+/* --- BỘ LỌC (FILTERS) --- */
+.staff-filter-card {
+    display: flex;
+    gap: 24px;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+}
+
+.staff-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.staff-filter-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.staff-input {
+    padding: 12px 16px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #1e293b;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.staff-input:focus {
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* --- BẢNG DỮ LIỆU (TABLE) --- */
+.staff-table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    overflow-x: auto;
+    margin-bottom: 24px;
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.staff-table th {
+    background-color: #f8fafc;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.staff-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.staff-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.staff-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.staff-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- HUY HIỆU TRẠNG THÁI (BADGES) --- */
+.staff-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Màu trạng thái tương ứng với class bạn đặt trong jsx */
+.staff-badge.pending {
+    background-color: #fef9c3;
+    color: #ca8a04;
+    border: 1px solid #fef08a;
+}
+
+.staff-badge.confirmed {
+    background-color: #dbeafe;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+.staff-badge.completed {
+    background-color: #d1fae5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.staff-badge.cancelled {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* --- PHÂN TRANG (PAGINATION) --- */
+.staff-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+}
+
+.staff-page-btn {
+    padding: 8px 16px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.staff-page-btn:not(:disabled):hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background-color: #f0fdfa;
+}
+
+.staff-page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f1f5f9;
+}
+
+.staff-page-info {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    background: #f8fafc;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}

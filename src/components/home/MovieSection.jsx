@@ -1,29 +1,54 @@
-import "./MovieSection.css";
-
-const movies = [
-  { id: 1, title: "Movie 1", image: "https://via.placeholder.com/250x350" },
-  { id: 2, title: "Movie 2", image: "https://via.placeholder.com/250x350" },
-  { id: 3, title: "Movie 3", image: "https://via.placeholder.com/250x350" },
-  { id: 4, title: "Movie 4", image: "https://via.placeholder.com/250x350" },
-  { id: 5, title: "Movie 5", image: "https://via.placeholder.com/250x350" },
-];
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getActiveMovies, getShowtimesByMovie } from "../../services/api/MovieApi";
+import { toast } from 'react-toastify';
+import MovieCard from '../common/MovieCard';
+import '../../asset/style/MovieSection.css';
 
 const MovieSection = () => {
-  return (
-    <div className="movie-section">
-      <h2>PHIM ĐANG CHIẾU</h2>
+    const [movies, setMovies] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
-      <div className="movie-grid">
-        {movies.map((movie) => (
-          <div key={movie.id} className="movie-card">
-            <img src={movie.image} alt={movie.title} />
-            <h4>{movie.title}</h4>
-            <button>MUA VÉ</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const activeMovies = await getActiveMovies();
+                const checkShowtimesPromises = activeMovies.map(async (movie) => {
+                    try {
+                        const showtimes = await getShowtimesByMovie(movie.id);
+                        return { ...movie, hasShowtimes: Array.isArray(showtimes) && showtimes.length > 0 };
+                    } catch { return { ...movie, hasShowtimes: false }; }
+                });
+                const results = await Promise.all(checkShowtimesPromises);
+                const validMovies = results.filter(m => m.hasShowtimes)
+                    .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+                setMovies(validMovies.slice(0, 20));
+            } catch (error) {
+                toast.error("Không thể tải danh sách phim");
+            } finally { setIsLoading(false); }
+        };
+        fetchMovies();
+    }, []);
+
+    if (isLoading) return <div className="loader-container">Đang tải phim...</div>;
+
+    return (
+        <section className="home-section">
+            <div className="section-header-standard">
+                <h2 className="section-title-main">PHIM ĐANG CHIẾU</h2>
+                <span className="section-view-all" onClick={() => navigate('/movies')}>Xem tất cả {'>'}</span>
+            </div>
+
+            {movies.length === 0 ? (
+                <div className="empty-state">Hiện tại chưa có phim nào được xếp lịch chiếu.</div>
+            ) : (
+                <div className="movie-grid-layout">
+                    {movies.map(movie => <MovieCard key={movie.id} movie={movie} />)}
+                </div>
+            )}
+        </section>
+    );
 };
 
 export default MovieSection;

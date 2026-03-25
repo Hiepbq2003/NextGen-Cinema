@@ -1,0 +1,71 @@
+.policy-container {
+  background-color: #fdfcf0; /* Màu nền hơi vàng nhẹ kiểu giấy của CGV */
+  padding: 40px 0;
+  min-height: 80vh;
+}
+
+.policy-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  padding: 0 20px;
+}
+
+.policy-sidebar {
+  background: #fff;
+  border: 1px solid #d4d3c9;
+  height: fit-content;
+  border-radius: 4px;
+}
+
+.policy-sidebar h3 {
+  background: #333;
+  color: #fff;
+  padding: 15px;
+  margin: 0;
+  font-size: 18px;
+  text-align: center;
+}
+
+.policy-sidebar nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.policy-sidebar nav a {
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.policy-sidebar nav a:hover, 
+.policy-sidebar nav a.active {
+  background-color: #e71a0f;
+  color: #fff;
+}
+
+.policy-content {
+  background: #fff;
+  padding: 30px;
+  border: 1px solid #d4d3c9;
+  border-radius: 4px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.policy-content h2 {
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.policy-content h4 {
+  margin-top: 25px;
+  color: #e71a0f;
+}

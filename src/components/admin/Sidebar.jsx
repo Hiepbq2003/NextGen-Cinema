@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import './AdminStyle.css';
+import '../../asset/style/AdminLayoutStyle.css';
 
 const Sidebar = () => {
     return (
@@ -9,17 +9,35 @@ const Sidebar = () => {
             </div>
             <ul className="sidebar-menu">
                 <li>
-                    {/* Thêm end để nó chỉ active khi url chính xác là /admin */}
                     <NavLink to="/admin" end>📊 Tổng quan</NavLink>
                 </li>
-                <li>
-                    <NavLink to="/admin/movies">🎬 Quản lý Phim</NavLink>
-                </li>
+
                 <li>
                     <NavLink to="/admin/rooms">🚪 Quản lý Phòng chiếu</NavLink>
                 </li>
+
+                <li>
+                    <NavLink to="/admin/movies">🎬 Quản lý Phim</NavLink>
+                </li>
+
                 <li>
                     <NavLink to="/admin/showtimes">📅 Quản lý Lịch chiếu</NavLink>
+                </li>
+
+                <li>
+                    <NavLink to="/admin/vouchers">🎟️ Quản lý Voucher</NavLink>
+                </li>
+
+                <li>
+                    <NavLink to="/admin/bookings">🧾 Quản lý Đơn</NavLink>
+                </li>
+
+                <li>
+                    <NavLink to="/admin/users">👥 Quản lý Khách hàng</NavLink>
+                </li>
+
+                <li>
+                    <NavLink to="/admin/staffs">🛠️ Quản lý Nhân viên</NavLink>
                 </li>
             </ul>
         </div>

@@ -1,186 +1,456 @@
 import { useState, useEffect } from 'react';
-import { getAllRooms, deleteRoom, createRoom, updateRoom, getSeatsByRoomId } from '../../services/api/RoomApi.jsx';
+import {
+    getAllRooms,
+    deleteRoom,
+    createRoom,
+    updateRoom,
+    getSeatsByRoomId,
+    updateSeatType
+} from '../../services/api/RoomApi.jsx';
 import { toast } from 'react-toastify';
-import './AdminPage.css';
+import '../../asset/style/SeatMapStyle.css';
+import '../../asset/style/AdminRooms.css';
 
 const AdminRooms = () => {
     const [rooms, setRooms] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    
     const [showForm, setShowForm] = useState(false);
-    const [currentRoom, setCurrentRoom] = useState({ name: '', totalSeats: 0 });
+    const [currentRoom, setCurrentRoom] = useState({
+        name: '',
+        totalSeats: 0,
+        vipSeatsCount: 0,
+        coupleSeatsCount: 0,
+        layoutType: 'DEFAULT'
+    });
+
+    // Preview state
+    const [previewSeats, setPreviewSeats] = useState([]);
 
     const [showSeatMap, setShowSeatMap] = useState(false);
-    const [selectedRoomName, setSelectedRoomName] = useState("");
+    const [selectedRoom, setSelectedRoom] = useState(null);
+    
     const [seats, setSeats] = useState([]);
+    const [originalSeats, setOriginalSeats] = useState([]);
 
+    const [isEditingMap, setIsEditingMap] = useState(false);
+    const [editRoomName, setEditRoomName] = useState('');
+    const [activeType, setActiveType] = useState('NORMAL');
+    const [modifiedSeatIds, setModifiedSeatIds] = useState(new Set());
+
+    // Generate preview seats whenever input changes
     useEffect(() => {
-        fetchRooms();
-    }, []);
+        if (!showForm) return;
+        const total = currentRoom.totalSeats || 0;
+        const vip = currentRoom.vipSeatsCount || 0;
+        const couple = currentRoom.coupleSeatsCount || 0;
+        const normal = total - vip - couple;
+        const layout = currentRoom.layoutType || 'DEFAULT';
 
-    const fetchRooms = async () => {
-        setIsLoading(true);
-        try {
-            const res = await getAllRooms();
-            setRooms(res); 
-        } catch (error) {
-            toast.error("Không thể tải danh sách phòng!");
-        } finally {
-            setIsLoading(false);
+        if (total <= 0 || normal < 0) {
+            setPreviewSeats([]);
+            return;
         }
+
+        let seatTypes = new Array(total).fill('NORMAL');
+
+        if (layout === "VIP_FRONT") {
+            for (let i = 0; i < vip; i++) seatTypes[i] = "VIP";
+            for (let i = total - couple; i < total; i++) seatTypes[i] = "COUPLE";
+        } else if (layout === "COUPLE_FRONT") {
+            for (let i = 0; i < couple; i++) seatTypes[i] = "COUPLE";
+            for (let i = total - vip; i < total; i++) seatTypes[i] = "VIP";
+        } else if (layout === "VIP_SIDES") {
+            for (let i = total - couple; i < total; i++) seatTypes[i] = "COUPLE";
+            let vipsPlaced = 0;
+            for (let distance = 0; distance < 5 && vipsPlaced < vip; distance++) {
+                let leftCol = distance + 1;
+                let rightCol = 10 - distance;
+                for (let i = 0; i < total - couple && vipsPlaced < vip; i++) {
+                    let col = (i % 10) + 1;
+                    if (col === leftCol || col === rightCol) {
+                        seatTypes[i] = "VIP";
+                        vipsPlaced++;
+                    }
+                }
+            }
+        } else { // DEFAULT
+            for (let i = normal; i < total - couple; i++) seatTypes[i] = "VIP";
+            for (let i = total - couple; i < total; i++) seatTypes[i] = "COUPLE";
+        }
+
+        const newPreview = [];
+        for (let i = 0; i < total; i++) {
+            let rowIdx = Math.floor(i / 10);
+            let colIdx = (i % 10) + 1;
+            let rowChar = String.fromCharCode(65 + rowIdx);
+            newPreview.push({
+                id: `preview-${i}`,
+                rowName: rowChar,
+                seatNumber: colIdx,
+                seatType: seatTypes[i]
+            });
+        }
+        setPreviewSeats(newPreview);
+    }, [currentRoom, showForm]);
+
+    // Pagination states
+    const itemsPerPage = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(rooms.length / itemsPerPage);
+    const paginatedRooms = rooms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const getPaginationButtons = () => {
+        let pages = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) { pages.push(1, 2, 3, 4, '...', totalPages); }
+            else if (currentPage >= totalPages - 2) { pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages); }
+            else { pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages); }
+        }
+        return pages;
     };
 
-    const handleSubmit = async (e) => {
+    useEffect(() => { fetchRooms(); }, []);
+
+    const fetchRooms = async () => {
+        try {
+            const res = await getAllRooms();
+            setRooms(res);
+        } catch (error) { toast.error("Lỗi tải danh sách phòng!"); }
+    };
+
+    const handleCreateRoom = async (e) => {
         e.preventDefault();
         try {
-            if (currentRoom.id) {
-                await updateRoom(currentRoom.id, currentRoom);
-                toast.success("Cập nhật phòng thành công!");
-            } else {
-                await createRoom(currentRoom);
-                toast.success("Thêm phòng mới thành công! Hệ thống đã tự động tạo sơ đồ ghế.");
-            }
+            await createRoom(currentRoom);
+            toast.success("Tạo phòng mới thành công!");
             setShowForm(false);
             fetchRooms();
         } catch (error) {
-            toast.error(error.response?.data?.message || "Lỗi thao tác!");
+            toast.error(error.response?.data?.message || "Lỗi khi tạo phòng!");
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa phòng này?")) {
-            try {
-                await deleteRoom(id);
-                toast.success("Xóa thành công!");
-                fetchRooms();
-            } catch (error) {
-                toast.error("Phòng đang có dữ liệu ràng buộc, không thể xóa!");
-            }
-        }
-    };
-
-    const handleViewSeats = async (roomId, roomName) => {
+    const handleOpenMap = async (room) => {
         try {
-            const res = await getSeatsByRoomId(roomId);
+            const res = await getSeatsByRoomId(room.id);
             setSeats(res);
-            setSelectedRoomName(roomName);
+            setOriginalSeats(res);
+            setSelectedRoom(room);
+            setEditRoomName(room.name);
             setShowSeatMap(true);
+            setIsEditingMap(false);
+            setModifiedSeatIds(new Set());
+        } catch (error) { toast.error("Lỗi tải sơ đồ!"); }
+    };
+
+    const handleSeatClick = (seat) => {
+        if (!isEditingMap) return;
+
+        const originalType = originalSeats.find(s => s.id === seat.id).seatType;
+        let newType;
+
+        if (seat.seatType === activeType) {
+            newType = originalType;
+        } else {
+            newType = activeType;
+        }
+
+        setSeats(seats.map(s => s.id === seat.id ? { ...s, seatType: newType } : s));
+
+        setModifiedSeatIds(prev => {
+            const newSet = new Set(prev);
+            if (newType === originalType) {
+                newSet.delete(seat.id);
+            } else {
+                newSet.add(seat.id);
+            }
+            return newSet;
+        });
+    };
+
+    const handleSaveEdit = async () => {
+        try {
+            if (editRoomName !== selectedRoom.name) {
+                await updateRoom(selectedRoom.id, {
+                    name: editRoomName,
+                    totalSeats: Number(selectedRoom.totalSeats)
+                });
+                setSelectedRoom(prev => ({ ...prev, name: editRoomName }));
+            }
+
+            const updatePromises = Array.from(modifiedSeatIds).map(id => {
+                const seat = seats.find(s => s.id === id);
+                return updateSeatType(id, seat.seatType);
+            });
+            await Promise.all(updatePromises);
+
+            toast.success("Đã lưu thay đổi!");
+            
+            setOriginalSeats([...seats]);
+            setModifiedSeatIds(new Set());
+            setIsEditingMap(false);
+            fetchRooms();
         } catch (error) {
-            toast.error("Không thể lấy sơ đồ ghế!");
+            toast.error(error.response?.data?.message || "Lỗi khi lưu!");
         }
     };
 
-    const getGroupedSeats = () => {
-        return seats.reduce((acc, seat) => {
-            if (!acc[seat.rowName]) acc[seat.rowName] = [];
-            acc[seat.rowName].push(seat);
-            return acc;
-        }, {});
-    };
+    const groupedSeats = seats.reduce((acc, seat) => {
+        if (!acc[seat.rowName]) acc[seat.rowName] = [];
+        acc[seat.rowName].push(seat);
+        return acc;
+    }, {});
 
-    const groupedSeats = getGroupedSeats();
+    const getAdminSeatClass = (seatType, isModified) => {
+        let baseClass = 'seat available'; 
+        
+        if (seatType === 'VIP') baseClass += ' vip';
+        else if (seatType === 'COUPLE') baseClass += ' couple';
+
+        if (isModified) {
+            baseClass += ' admin-modified';
+        }
+        return baseClass;
+    };
 
     return (
-        <div className="admin-page" style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <h2>🚪 Quản lý Phòng Chiếu</h2>
-                {!showForm && !showSeatMap && (
-                    <button className="btn-add" onClick={() => { setCurrentRoom({ name: '', totalSeats: 0 }); setShowForm(true); }}>
-                        ➕ Thêm Phòng
-                    </button>
+        <div className="admin-rooms-container">
+            <div className="admin-rooms-header-row">
+                <h2 style={{ margin: 0 }}>🚪 Quản lý Phòng Chiếu</h2>
+                {!showSeatMap && !showForm && (
+                    <button className="admin-rooms-btn-primary" onClick={() => {
+                        setCurrentRoom({ name: '', totalSeats: 0, vipSeatsCount: 0, coupleSeatsCount: 0, layoutType: 'DEFAULT' });
+                        setShowForm(true);
+                    }}>+ Thêm Phòng</button>
                 )}
             </div>
 
-            {/* FORM THÊM/SỬA PHÒNG */}
             {showForm && (
-                <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                    <h3>{currentRoom.id ? 'Sửa phòng' : 'Thêm phòng mới'}</h3>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label>Tên phòng</label>
-                            <input className="form-control" value={currentRoom.name} onChange={(e) => setCurrentRoom({...currentRoom, name: e.target.value})} required />
-                        </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label>Số ghế</label>
-                            <input className="form-control" type="number" value={currentRoom.totalSeats} onChange={(e) => setCurrentRoom({...currentRoom, totalSeats: e.target.value})} required />
-                        </div>
-                        <button type="submit" className="btn-submit" style={{ width: 'auto', marginTop: 0 }}>Lưu</button>
-                        <button type="button" onClick={() => setShowForm(false)} className="btn-delete" style={{ background: '#6c757d' }}>Hủy</button>
-                    </form>
-                </div>
-            )}
-
-            {/* SƠ ĐỒ GHẾ (MODAL HOẶC PANEL BÊN DƯỚI) */}
-            {showSeatMap && (
-                <div style={{ background: '#fff', padding: '30px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h3>Màn hình chiếu - Phòng {selectedRoomName}</h3>
-                        <button onClick={() => setShowSeatMap(false)} className="btn-delete" style={{ background: '#6c757d' }}>Đóng sơ đồ</button>
-                    </div>
-                    
-                    {/* Vệt màn hình */}
-                    <div style={{ width: '100%', height: '40px', background: '#ccc', borderRadius: '50% 50% 0 0', marginBottom: '40px', textAlign: 'center', color: '#050404', paddingTop: '10px' }}>
-                        MÀN HÌNH
-                    </div>
-
-                    {/* Lưới render ghế */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                        {Object.keys(groupedSeats).map(rowName => (
-                            <div key={rowName} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <strong style={{ width: '30px', textAlign: 'center' }}>{rowName}</strong>
-                                {groupedSeats[rowName].map(seat => (
-                                    <div 
-                                        key={seat.id} 
-                                        style={{
-                                            width: '40px', 
-                                            height: '40px', 
-                                            border: '2px solid #007bff', 
-                                            borderRadius: '5px',
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            cursor: 'pointer',
-                                            fontWeight: 'bold',
-                                            color: '#007bff'
-                                        }}
-                                        title={`Ghế ${rowName}${seat.seatNumber} - Loại: ${seat.seatType}`}
-                                    >
-                                        {seat.seatNumber}
-                                    </div>
-                                ))}
-                                <strong style={{ width: '30px', textAlign: 'center' }}>{rowName}</strong>
+                <div className="admin-rooms-card">
+                    <h3 style={{ marginTop: 0 }}>Tạo phòng chiếu mới</h3>
+                    <form onSubmit={handleCreateRoom}>
+                        <div className="admin-rooms-form-grid">
+                            <div className="form-group">
+                                <label className="admin-rooms-label">Tên phòng</label>
+                                <input className="admin-rooms-input" type="text" value={currentRoom.name}
+                                    onChange={e => setCurrentRoom({ ...currentRoom, name: e.target.value })} required />
                             </div>
-                        ))}
+                            <div className="form-group">
+                                <label className="admin-rooms-label">Tổng số ghế</label>
+                                <input className="admin-rooms-input" type="number" value={currentRoom.totalSeats}
+                                    onChange={e => setCurrentRoom({ ...currentRoom, totalSeats: parseInt(e.target.value) })} required />
+                            </div>
+                            <div className="form-group">
+                                <label className="admin-rooms-label">Số ghế VIP</label>
+                                <input className="admin-rooms-input" type="number" value={currentRoom.vipSeatsCount}
+                                    onChange={e => setCurrentRoom({ ...currentRoom, vipSeatsCount: parseInt(e.target.value) })} />
+                            </div>
+                            <div className="form-group">
+                                <label className="admin-rooms-label">Số ghế Couple</label>
+                                <input className="admin-rooms-input" type="number" value={currentRoom.coupleSeatsCount}
+                                    onChange={e => setCurrentRoom({ ...currentRoom, coupleSeatsCount: parseInt(e.target.value) })} />
+                            </div>
+                            <div className="form-group">
+                                <label className="admin-rooms-label">Kiểu bố trí (Layout)</label>
+                                <select className="admin-rooms-input" value={currentRoom.layoutType || 'DEFAULT'}
+                                    onChange={e => setCurrentRoom({ ...currentRoom, layoutType: e.target.value })}>
+                                    <option value="DEFAULT">Mặc định (VIP giữa, Couple cuối)</option>
+                                    <option value="VIP_FRONT">VIP ở đầu, Couple cuối</option>
+                                    <option value="COUPLE_FRONT">Couple đầu, VIP cuối</option>
+                                    <option value="VIP_SIDES">VIP 2 bên, Couple cuối</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ textAlign: 'right', marginTop: '10px' }}>
+                            <button type="submit" className="admin-rooms-btn-save" style={{ marginRight: '10px' }}>Lưu dữ liệu</button>
+                            <button type="button" className="admin-rooms-btn-cancel" onClick={() => setShowForm(false)}>Hủy</button>
+                        </div>
+                    </form>
+
+                    {/* PREVIEW SECTION */}
+                    {previewSeats.length > 0 && (
+                        <div style={{ marginTop: '30px', borderTop: '2px dashed #e2e8f0', paddingTop: '20px' }}>
+                            <h4 style={{ textAlign: 'center', marginBottom: '15px', color: '#64748b' }}>Bản xem trước sơ đồ</h4>
+                            <div className="seat-legend" style={{ marginBottom: '15px' }}>
+                                <div className="legend-item"><span className="seat-demo available"></span>Thường</div>
+                                <div className="legend-item"><span className="seat-demo vip"></span>VIP</div>
+                                <div className="legend-item"><span className="seat-demo couple"></span>Couple</div>
+                            </div>
+                            <div className="seat-map-container" style={{ padding: 0 }}>
+                                <div className="screen">MÀN HÌNH</div>
+                                <div className="seats-wrapper">
+                                    {Object.keys(previewSeats.reduce((acc, seat) => {
+                                        if (!acc[seat.rowName]) acc[seat.rowName] = [];
+                                        acc[seat.rowName].push(seat);
+                                        return acc;
+                                    }, {})).sort().map(rowName => {
+                                        const groupedPreview = previewSeats.reduce((acc, seat) => {
+                                            if (!acc[seat.rowName]) acc[seat.rowName] = [];
+                                            acc[seat.rowName].push(seat);
+                                            return acc;
+                                        }, {});
+                                        return (
+                                            <div key={rowName} className="seat-row">
+                                                <span className="row-label" style={{ color: '#adb5bd' }}>{rowName}</span>
+                                                <div className="seats-in-row">
+                                                    {groupedPreview[rowName]
+                                                        .sort((a, b) => a.seatNumber - b.seatNumber)
+                                                        .map(seat => (
+                                                            <div
+                                                                key={seat.id}
+                                                                className={getAdminSeatClass(seat.seatType, false)}
+                                                            >
+                                                                {seat.seatNumber}
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                                <span className="row-label" style={{ color: '#adb5bd' }}>{rowName}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {showSeatMap && (
+                <div className="admin-rooms-card" style={{ borderTop: '5px solid #007bff' }}>
+                    <div className="admin-rooms-header-row">
+                        {isEditingMap ? (
+                            <input
+                                style={{ fontSize: '1.2rem', padding: '8px', border: '1px solid #007bff', borderRadius: '4px' }}
+                                value={editRoomName}
+                                onChange={e => setEditRoomName(e.target.value)}
+                            />
+                        ) : (
+                            <h3 style={{ margin: 0 }}>Sơ đồ phòng: {selectedRoom?.name}</h3>
+                        )}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            {!isEditingMap ? (
+                                <button className="admin-rooms-btn-edit" onClick={() => setIsEditingMap(true)}>Sửa Layout</button>
+                            ) : (
+                                <button className="admin-rooms-btn-save" onClick={handleSaveEdit}>Lưu</button>
+                            )}
+                            <button className="admin-rooms-btn-cancel" onClick={() => setShowSeatMap(false)}>Đóng</button>
+                        </div>
+                    </div>
+
+                    {isEditingMap && (
+                        <div className="seat-legend" style={{ marginBottom: '30px' }}>
+                            {['NORMAL', 'VIP', 'COUPLE'].map(type => {
+                                const mapTypeClass = type === 'NORMAL' ? 'available' : type.toLowerCase();
+                                const isActive = activeType === type;
+                                return (
+                                    <div
+                                        key={type}
+                                        className={`admin-seat-legend-item ${isActive ? 'active' : ''}`}
+                                        onClick={() => setActiveType(type)}
+                                    >
+                                        <span className={`seat-demo ${mapTypeClass}`}></span>
+                                        <span style={{ fontWeight: '600' }}>{type}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <div className="seat-map-container" style={{ padding: 0 }}>
+                        <div className="screen">MÀN HÌNH</div>
+
+                        <div className="seats-wrapper">
+                            {Object.keys(groupedSeats).sort().map(rowName => (
+                                <div key={rowName} className="seat-row">
+                                    <span className="row-label" style={{ color: '#adb5bd' }}>{rowName}</span>
+                                    <div className="seats-in-row">
+                                        {groupedSeats[rowName]
+                                            .sort((a, b) => a.seatNumber - b.seatNumber)
+                                            .map(seat => (
+                                                <div
+                                                    key={seat.id}
+                                                    className={getAdminSeatClass(seat.seatType, modifiedSeatIds.has(seat.id))}
+                                                    onClick={() => handleSeatClick(seat)}
+                                                >
+                                                    {seat.seatNumber}
+                                                </div>
+                                            ))}
+                                    </div>
+                                    <span className="row-label" style={{ color: '#adb5bd' }}>{rowName}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}
 
-            {/* BẢNG DANH SÁCH */}
-            {!showSeatMap && (
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tên Phòng</th>
-                            <th>Tổng số ghế</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rooms.map(room => (
-                            <tr key={room.id}>
-                                <td>{room.id}</td>
-                                <td><strong>{room.name}</strong></td>
-                                <td>{room.totalSeats} ghế</td>
-                                <td>
-                                    <button onClick={() => handleViewSeats(room.id, room.name)} style={{ marginRight: '10px', backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Xem sơ đồ</button>
-                                    <button className="btn-edit" onClick={() => { setCurrentRoom(room); setShowForm(true); }}>Sửa</button>
-                                    <button className="btn-delete" onClick={() => handleDelete(room.id)} style={{ marginLeft: '10px' }}>Xóa</button>
-                                </td>
+            {!showSeatMap && !showForm && (
+                <div style={{ overflowX: 'auto' }}>
+                    <table className="admin-rooms-table">
+                        <thead>
+                            <tr>
+                                <th style={{ textAlign: 'left', padding: '10px' }}>Tên Phòng</th>
+                                <th style={{ textAlign: 'left', padding: '10px' }}>Số Ghế</th>
+                                <th style={{ textAlign: 'center', padding: '10px' }}>Hành Động</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {paginatedRooms.map(room => (
+                                <tr key={room.id} style={{ opacity: room.status === 'INACTIVE' ? 0.7 : 1 }}>
+                                    <td className="admin-rooms-td">
+                                        <strong>{room.name}</strong>
+                                        {room.status === 'INACTIVE' && (
+                                            <span style={{
+                                                marginLeft: '8px', fontSize: '10px', backgroundColor: '#6c757d',
+                                                color: '#fff', padding: '2px 8px', borderRadius: '12px', fontWeight: '600'
+                                            }}>ĐANG ẨN</span>
+                                        )}
+                                    </td>
+                                    <td className="admin-rooms-td">{room.totalSeats} ghế</td>
+                                    <td className="admin-rooms-td" style={{ textAlign: 'center' }}>
+                                        <button
+                                            className="admin-rooms-btn-primary"
+                                            style={{ backgroundColor: '#17a2b8', marginRight: '10px', borderRadius: '20px', padding: '8px 16px' }}
+                                            onClick={() => handleOpenMap(room)}
+                                        >
+                                            Sơ đồ
+                                        </button>
+
+                                        <button
+                                            className="admin-rooms-btn-primary"
+                                            style={{
+                                                backgroundColor: room.status === 'ACTIVE' ? '#dc3545' : '#28a745',
+                                                borderRadius: '20px', padding: '8px 16px'
+                                            }}
+                                            onClick={() => {
+                                                const actionName = room.status === 'ACTIVE' ? "Ngừng hoạt động" : "Kích hoạt lại";
+                                                if (window.confirm(`Bạn có chắc muốn ${actionName} phòng này?`)) {
+                                                    deleteRoom(room.id).then(fetchRooms);
+                                                }
+                                            }}
+                                        >
+                                            {room.status === 'ACTIVE' ? "🚫 Ngừng hoạt động" : "✅ Kích hoạt lại"}
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    
+                    {totalPages > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '10px 0', borderTop: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '14px', color: '#64748b' }}>Hiển thị <b>{(currentPage - 1) * itemsPerPage + 1}</b> - <b>{Math.min(currentPage * itemsPerPage, rooms.length)}</b> trong <b>{rooms.length}</b> phòng</span>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} style={{ padding: '6px 12px', background: currentPage === 1 ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px' }}>Trước</button>
+                                {getPaginationButtons().map((page, index) => (
+                                    <button key={index} onClick={() => typeof page === 'number' && setCurrentPage(page)} disabled={page === '...'} style={{ padding: '6px 12px', background: currentPage === page ? '#3b82f6' : (page === '...' ? 'transparent' : '#fff'), color: currentPage === page ? '#fff' : (page === '...' ? '#94a3b8' : '#475569'), border: page === '...' ? 'none' : (currentPage === page ? '1px solid #3b82f6' : '1px solid #cbd5e1'), borderRadius: '6px', fontWeight: currentPage === page ? 'bold' : '600', cursor: page === '...' ? 'default' : 'pointer', fontSize: '13px' }}>{page}</button>
+                                ))}
+                                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} style={{ padding: '6px 12px', background: currentPage === totalPages ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px' }}>Sau</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );

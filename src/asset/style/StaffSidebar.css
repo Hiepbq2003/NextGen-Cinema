@@ -1,0 +1,97 @@
+/* --- BIẾN MÀU SẮC DÀNH RIÊNG CHO STAFF PORTAL --- */
+:root {
+    --sidebar-bg: #1e293b;         
+    --sidebar-hover: #334155;      
+    --sidebar-active: #3b82f6;     
+    --sidebar-text: #94a3b8;       
+    --sidebar-text-active: #ffffff; 
+    --sidebar-border: #334155;
+}
+
+/* --- KHUNG CHÍNH --- */
+.admin-sidebar {
+    width: 260px;
+    /* Xóa position fixed, left, top ở đây */
+    background-color: var(--sidebar-bg) !important;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+/* --- HEADER (LOGO/TITLE) --- */
+.sidebar-header {
+    padding: 24px;
+    text-align: center;
+}
+
+.sidebar-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin: 0;
+    color: var(--sidebar-text-active) !important;
+}
+
+/* --- MENU NAVIGATION --- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 16px;
+    gap: 8px;
+    /* Bỏ flex: 1 ở đây vì ta đã dùng marginTop: auto cho nút Đăng xuất */
+}
+
+/* --- CÁC MỤC MENU (NAV ITEM) --- */
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: var(--sidebar-text) !important; /* Thêm !important để đè màu xanh mặc định của thẻ a */
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Khi di chuột qua */
+.nav-item:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--sidebar-text-active) !important;
+    transform: translateX(4px); 
+}
+
+/* Khi đang ở trang đó (Active) */
+.nav-item.active {
+    background-color: var(--sidebar-active);
+    color: var(--sidebar-text-active) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* --- NÚT ĐĂNG XUẤT --- */
+.admin-sidebar button {
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.2);
+}
+
+.admin-sidebar button:hover {
+    background-color: #c0392b !important; 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
+}
+
+.admin-sidebar button:active {
+    transform: translateY(0);
+}
+
+.admin-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: var(--sidebar-border);
+    border-radius: 10px;
+}

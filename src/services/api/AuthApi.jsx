@@ -14,3 +14,9 @@ export const forgotPassword = (data) => {
 export const resetPassword = (data) => {
     return AxiosClient.post('/auth/reset-password', data);
 };
+
+// Admin Management
+export const getUsersByRole = (role) => AxiosClient.get(`/users/admin/list?role=${role}`);
+export const toggleUserStatus = (id) => AxiosClient.put(`/users/admin/toggle-status/${id}`);
+export const createStaffAccount = (data) => AxiosClient.post('/auth/register-staff', data);
+export const updateUserAdmin = (id, data) => AxiosClient.put(`/users/admin/update/${id}`, data);

@@ -224,3 +224,30 @@ background: linear-gradient(to right, #CFDEF3, #E0EAFC); /* W3C, IE 10+/ Edge, F
 .login-side-image {
     animation: fadeInImage 0.8s ease-out forwards;
 }
+
+.form-content {
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    position: relative;
+    animation: slideInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.back-home-btn {
+    position: absolute;
+    top: 15px; 
+    left: 40px; 
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0e1214;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-home-btn:hover {
+    color: #007bff;
+    transform: translateX(-5px);
+}

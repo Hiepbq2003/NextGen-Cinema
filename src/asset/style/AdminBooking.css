@@ -1,0 +1,310 @@
+/* =========================================
+   GIAO DIỆN QUẢN LÝ ĐƠN VÉ - ADMIN BOOKINGS
+   ========================================= */
+
+.ab-page {
+    padding: 24px;
+    background: #f4f6f8;
+    min-height: 100vh;
+}
+
+/* --- HEADER --- */
+.ab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.ab-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 24px;
+}
+
+.ab-desc {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.ab-refresh-btn {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #475569;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.ab-refresh-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+/* --- FILTER CARD --- */
+.ab-filter-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.ab-filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.ab-filter-group label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #64748b;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.ab-input-wrapper {
+    position: relative;
+}
+
+.ab-input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.ab-input, .ab-select {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+    background: #fff;
+}
+
+.ab-input:focus, .ab-select:focus {
+    border-color: #3b82f6;
+}
+
+.ab-select {
+    cursor: pointer;
+}
+
+/* --- TABLE CARD --- */
+.ab-table-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.ab-table-wrapper {
+    overflow-x: auto;
+}
+
+.ab-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.ab-table th {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 20px;
+    color: #475569;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ab-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+}
+
+.ab-table tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+
+.ab-table tr:hover {
+    background: #f8fafc;
+}
+
+/* --- TABLE CELLS --- */
+.ab-order-id {
+    background: #f1f5f9;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #334155;
+    font-size: 14px;
+}
+
+.ab-customer-name { font-weight: 600; color: #0f172a; font-size: 14px; }
+.ab-customer-email { font-size: 13px; color: #64748b; margin-top: 4px; }
+
+.ab-movie-title { font-weight: 700; color: #3b82f6; font-size: 14px; }
+.ab-movie-info {
+    font-size: 13px;
+    color: #475569;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.ab-movie-info span { display: flex; align-items: center; gap: 4px; }
+
+.ab-total-amount { color: #ef4444; font-weight: 700; font-size: 15px; }
+
+.ab-action-btn {
+    background: #e0f2fe;
+    color: #0284c7;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-size: 13px;
+}
+
+.ab-action-btn:hover {
+    background: #0284c7;
+    color: #fff;
+}
+
+/* --- STATUS BADGES --- */
+.ab-badge {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.ab-badge-scheduled { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; } /* Xanh dương - Đã TT */
+.ab-badge-active { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; } /* Xanh lá - Đã xem */
+.ab-badge-cancelled { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; } /* Đỏ - Hủy */
+.ab-badge-upcoming { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; } /* Vàng - Chờ TT */
+
+/* --- PAGINATION --- */
+.ab-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.ab-page-info { font-size: 14px; color: #64748b; }
+
+.ab-page-controls { display: flex; gap: 8px; }
+
+.ab-page-btn {
+    padding: 6px 14px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #334155;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.ab-page-btn:not(:disabled):hover { border-color: #94a3b8; background: #f1f5f9; }
+.ab-page-btn:disabled { background: #e2e8f0; cursor: not-allowed; color: #94a3b8; }
+.ab-page-current { padding: 6px 14px; background: #3b82f6; color: #fff; border-radius: 6px; font-weight: bold; }
+
+/* --- MODAL BIÊN LAI --- */
+.ab-modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+}
+
+.ab-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    width: 550px;
+    max-width: 90%;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.ab-modal-header {
+    background: #f8fafc;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ab-modal-header h3 { margin: 0; color: #0f172a; display: flex; align-items: center; gap: 10px; font-size: 18px; }
+.ab-modal-id { background: #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 14px; color: #475569; }
+.ab-modal-close { background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer; line-height: 1; }
+.ab-modal-close:hover { color: #ef4444; }
+
+.ab-modal-body { padding: 24px; }
+
+.ab-modal-customer { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.ab-modal-avatar { width: 50px; height: 50px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b; }
+.ab-modal-cus-name { font-weight: 700; font-size: 16px; color: #0f172a; }
+.ab-modal-cus-email { font-size: 14px; color: #64748b; margin-top: 2px; }
+
+.ab-modal-movie { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+.ab-modal-movie-title { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 700; font-size: 16px; color: #0f172a; }
+.ab-modal-movie-icon { background: #fee2e2; padding: 8px; border-radius: 8px; color: #ef4444; display: flex; }
+.ab-modal-movie-details { display: flex; gap: 24px; }
+.ab-modal-movie-details span { display: flex; align-items: center; gap: 8px; color: #475569; font-size: 14px; }
+
+.ab-modal-seats-title { font-size: 13px; color: #64748b; margin-bottom: 12px; font-weight: 700; letter-spacing: 0.5px; }
+.ab-modal-seats-list { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+.ab-modal-seat-tag { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+.ab-modal-divider { border-top: 2px dashed #e2e8f0; margin: 24px 0; }
+
+.ab-modal-summary { display: flex; justify-content: space-between; align-items: flex-end; }
+.ab-summary-date { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+.ab-summary-status { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #334155; }
+.ab-summary-total-title { font-size: 13px; color: #64748b; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.5px; text-align: right; }
+.ab-summary-total-price { margin: 0; color: #ef4444; font-size: 28px; font-weight: 800; text-align: right; }
+
+.ab-modal-footer { background: #f8fafc; padding: 16px 24px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
+
+.ab-btn-close { padding: 10px 20px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s; }
+.ab-btn-close:hover { background: #f1f5f9; }
+
+.ab-btn-danger { padding: 10px 20px; background: #ef4444; border: none; border-radius: 8px; font-weight: 600; color: #fff; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2); transition: 0.2s; }
+.ab-btn-danger:hover { background: #dc2626; box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.3); }
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}

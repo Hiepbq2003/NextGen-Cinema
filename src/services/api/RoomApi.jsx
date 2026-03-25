@@ -19,3 +19,13 @@ export const deleteRoom = (id) => {
 export const getSeatsByRoomId = (roomId) => {
     return AxiosClient.get(`/rooms/${roomId}/seats`);
 };
+
+export const updateSeatType = (seatId, type) => {
+    return AxiosClient.patch(`/rooms/seats/${seatId}`, null, {
+        params: { type }
+    });
+};
+
+export const getRoomById = (id) => {
+    return AxiosClient.get(`/rooms/${id}`);
+};

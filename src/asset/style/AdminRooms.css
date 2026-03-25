@@ -1,0 +1,89 @@
+/* src/asset/style/AdminRooms.css */
+
+.admin-rooms-container {
+    padding: 24px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+.admin-rooms-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.admin-rooms-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+}
+
+.admin-rooms-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.admin-rooms-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.admin-rooms-label {
+    font-weight: 600;
+    color: #495057;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Các nút bấm */
+.admin-rooms-btn-primary { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.admin-rooms-btn-save { background-color: #28a745; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.admin-rooms-btn-cancel { background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.admin-rooms-btn-edit { background-color: #ffc107; color: #000; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+/* Legend chọn loại ghế */
+.admin-seat-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.admin-seat-legend-item.active {
+    border-color: #007bff;
+    background-color: #e7f1ff;
+}
+
+/* Table */
+.admin-rooms-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.admin-rooms-td {
+    padding: 16px;
+    background-color: white;
+    border-bottom: 1px solid #eee;
+}
+
+/* HIỆU ỨNG CHO GHẾ VỪA BỊ CHỈNH SỬA (Làm viền đỏ đứt khúc, nổi lên nhẹ) */
+.seat.admin-modified {
+    border: 3px dashed #dc3545 !important;
+    transform: scale(1.15);
+    box-shadow: 0px 4px 10px rgba(220, 53, 69, 0.4);
+    z-index: 10;
+}

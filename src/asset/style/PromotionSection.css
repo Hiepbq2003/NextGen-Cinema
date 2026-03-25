@@ -1,0 +1,140 @@
+/* src/asset/style/PromotionSection.css */
+.promotion {
+    padding: 60px 8%;
+    background-color: #fafafa;
+    max-width: 1440px;
+    margin: 0 auto;
+    font-family: 'Inter', 'SF Pro Display', sans-serif;
+}
+
+.promotion-header {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.promotion-header h2 {
+    font-size: 28px;
+    font-weight: 900;
+    color: #111;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+}
+
+.promotion-header span {
+    font-size: 15px;
+    color: #666;
+    font-weight: 400;
+}
+
+.promo-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+.promo-item {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #eee;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.promo-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+    border-color: #ff4d4f;
+}
+
+.promo-image-wrapper {
+    height: 130px;
+    overflow: hidden;
+}
+
+.promo-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.5s;
+}
+
+.promo-item:hover .promo-image-wrapper img {
+    transform: scale(1.05);
+}
+
+.promo-info {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.promo-info h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: #000;
+}
+
+.promo-info p {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: #e71a0f;
+    font-weight: 700;
+}
+
+.promo-date {
+    margin-top: auto;
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .promo-list { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+    .promo-list { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .promotion-header h2 { font-size: 20px; }
+}
+
+/* --- Style riêng cho tiêu đề Khuyến Mãi --- */
+.promo-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-left: 6px solid #e71a0f;
+    padding-left: 20px;
+}
+
+/* Hiệu ứng vạch đỏ nhỏ bên dưới (tùy chọn) */
+.promo-title::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background-color: #ff4d4f;  /* Màu đỏ khuyến mãi */
+    border-radius: 2px;
+}
+
+/* Các style khác của promotion-header */
+.promotion-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.promotion-header span {
+    display: block;
+    font-size: 14px;
+    color: #888;
+    margin-top: 10px;
+}

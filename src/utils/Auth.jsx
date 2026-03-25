@@ -1,6 +1,6 @@
 export const getAuth = () => {
     const data = localStorage.getItem('auth');
-    if (!data || data === 'undefined') {
+    if (!data || data === 'undefined' || data === 'null') {
         return null;
     }
 

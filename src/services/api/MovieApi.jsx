@@ -1,26 +1,46 @@
 import axiosClient from './AxiosClient';
 
-// Lấy tất cả phim (dành cho Admin)
-export const getAllMovies = () => {
-    return axiosClient.get('/movies');
-};
-
-// Lấy phim đang chiếu (Public)
 export const getActiveMovies = () => {
     return axiosClient.get('/movies/public');
 };
 
-// Thêm phim mới
+export const getUpcomingMovies = () => {
+    return axiosClient.get('/movies/public/upcoming');
+};
+
+export const getMovieById = (id) => {
+    return axiosClient.get(`/movies/public/${id}`);
+};
+
+export const getShowtimesByMovie = (movieId) => {
+    return axiosClient.get(`/showtimes/public/${movieId}`);
+};
+
+export const getAllMovies = () => {
+    return axiosClient.get('/movies');
+};
+
 export const createMovie = (data) => {
     return axiosClient.post('/movies', data);
 };
 
-// Cập nhật phim
 export const updateMovie = (id, data) => {
     return axiosClient.put(`/movies/${id}`, data);
 };
 
-// Xóa phim (Soft delete)
 export const deleteMovie = (id) => {
     return axiosClient.delete(`/movies/${id}`);
 };
+
+const MovieApi = {
+    getOngoingMovies: getActiveMovies, 
+    getUpcomingMovies,
+    getMovieById,
+    getShowtimesByMovie,
+    getAllMovies,
+    createMovie,
+    updateMovie,
+    deleteMovie
+};
+
+export default MovieApi;

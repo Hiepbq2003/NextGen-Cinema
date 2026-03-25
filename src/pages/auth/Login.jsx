@@ -1,20 +1,21 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login as loginApi } from '../../services/api/AuthApi.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import { FaEye, FaEyeSlash, FaHome } from 'react-icons/fa';
 import { ROLE_ADMIN, ROLE_STAFF } from '../../utils/Constants.jsx';
-import './Login.css';
+import '@/asset/style/Login.css';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,19 +24,22 @@ const Login = () => {
         try {
             const res = await loginApi({ username, password });
             login(res);
-            
+
             toast.success(`Chào mừng ${res.fullName || username} trở lại!`);
-            
-            // KIỂM TRA ROLE ĐỂ CHUYỂN HƯỚNG ĐÚNG TRANG
-            const userRole = res.role;
-            if (userRole === ROLE_ADMIN) {
-                navigate('/admin'); // Admin vào Dashboard
+
+            const from = location.state?.from;
+            const userRole = res.role?.toUpperCase();
+
+            if (from) {
+                navigate(from, { replace: true });
+            } else if (userRole === ROLE_ADMIN) {
+                navigate('/admin');
             } else if (userRole === ROLE_STAFF) {
-                navigate('/staff'); // Staff vào trang của Staff
+                navigate('/staff');
             } else {
-                navigate('/home');  // User bình thường vào trang Home
+                navigate('/home');
             }
-            
+
         } catch (err) {
             const errorMsg = err.response?.data?.message || 'Sai tên đăng nhập hoặc mật khẩu!';
             toast.error(errorMsg);
@@ -52,16 +56,21 @@ const Login = () => {
         <div className="login-wrapper">
             <div className="login-side-image"></div>
             <div className="login-side-form">
-                <div className="form-content">
+                <div className="form-content" style={{ position: 'relative' }}>
+
+                    <div className="back-home-btn" onClick={() => navigate('/home')}>
+                        <FaHome /> Trang chủ
+                    </div>
+
                     <h3 className="form-title">Đăng Nhập</h3>
                     <p className="form-subtitle">Chào mừng bạn đến với NextGen Cinema.</p>
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label>Tên đăng nhập</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type="text" 
+                                type="text"
                                 placeholder="Nhập username của bạn"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -71,15 +80,15 @@ const Login = () => {
 
                         <div className="form-group" style={{ position: 'relative' }}>
                             <label>Mật khẩu</label>
-                            <input 
+                            <input
                                 className="form-control"
-                                type={showPassword ? "text" : "password"} 
+                                type={showPassword ? "text" : "password"}
                                 placeholder="Nhập mật khẩu"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                            <span 
+                            <span
                                 onClick={() => setShowPassword(!showPassword)}
                                 style={{
                                     position: 'absolute',
@@ -94,8 +103,8 @@ const Login = () => {
                         </div>
 
                         <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-                            <span 
-                                className="link-register" 
+                            <span
+                                className="link-register"
                                 onClick={() => navigate('/forgot-password')}
                                 style={{ fontSize: '14px' }}
                             >
@@ -108,9 +117,7 @@ const Login = () => {
                         </button>
                     </form>
 
-                    <div className="divider">
-                        <span>Hoặc</span>
-                    </div>
+                    <div className="divider"><span>Hoặc</span></div>
 
                     <button type="button" className="btn-google" onClick={handleGoogleLogin}>
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" />
@@ -119,9 +126,7 @@ const Login = () => {
 
                     <p style={{ marginTop: '25px', textAlign: 'center', color: '#666' }}>
                         Chưa có tài khoản?{' '}
-                        <span className="link-register" onClick={() => navigate('/register')}>
-                            Đăng ký ngay
-                        </span>
+                        <span className="link-register" onClick={() => navigate('/register')}>Đăng ký ngay</span>
                     </p>
                 </div>
             </div>
