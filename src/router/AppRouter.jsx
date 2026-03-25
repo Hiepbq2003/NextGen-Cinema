@@ -126,7 +126,7 @@ const AppRouter = () => {
         <Route index element={<Navigate to="/staff/dashboard" replace />} />
         <Route path="dashboard" element={<StaffDashboard />} />
         <Route path="bookings" element={<StaffBookings />} />
-        {/* <Route path="pos" element={<StaffPOS />} /> */}
+        <Route path="pos" element={<StaffPOS />} />
       </Route>
 
       {/* 5. Điều hướng mặc định */}

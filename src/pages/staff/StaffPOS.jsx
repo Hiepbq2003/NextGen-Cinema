@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import AxiosClient from '../../services/api/AxiosClient';
+import '../../asset/style/SeatMapStyle.css';
 
 const StaffPOS = () => {
     const [step, setStep] = useState(1);
@@ -49,9 +50,10 @@ const StaffPOS = () => {
     const handleSelectShowtime = async (st) => {
         setSelectedShowtime(st);
         try {
-            const res = await AxiosClient.get(`/seats/showtime/${st.id}`); 
+            const res = await AxiosClient.get(`/seats/public/showtime/${st.id}`); 
             const data = res.data || res;
-            setSeats(Array.isArray(data) ? data : []);
+            const seatsData = Array.isArray(data) ? data : (data?.seats || []);
+            setSeats(seatsData);
             setStep(3);
         } catch (error) {
             toast.error("Lỗi khi tải sơ đồ ghế!");
@@ -69,7 +71,34 @@ const StaffPOS = () => {
         }
     };
 
-    const totalPrice = selectedSeats.length * (selectedShowtime?.basePrice || 0);
+    // Nhóm ghế theo hàng
+    const seatsByRow = seats.reduce((acc, seat) => {
+        const row = seat.rowName;
+        if (!acc[row]) acc[row] = [];
+        acc[row].push(seat);
+        return acc;
+    }, {});
+
+    const sortedRows = Object.keys(seatsByRow).sort();
+
+    const getSeatClass = (seat) => {
+        let baseClass = 'seat';
+
+        if (seat.status === 'AVAILABLE') baseClass += ' available';
+        else if (seat.status === 'RESERVED') baseClass += ' reserved';
+        else if (seat.status === 'BOOKED') baseClass += ' booked';
+
+        if (seat.seatType === 'VIP') baseClass += ' vip';
+        else if (seat.seatType === 'COUPLE') baseClass += ' couple';
+
+        if (selectedSeats.some(s => s.id === seat.id)) {
+            baseClass += ' selected';
+        }
+
+        return baseClass;
+    };
+
+    const totalPrice = selectedSeats.reduce((sum, seat) => sum + (seat.price || 0), 0);
 
     // BƯỚC 4: THANH TOÁN 
     const handleCheckout = async () => {
@@ -91,11 +120,14 @@ const StaffPOS = () => {
 
             await AxiosClient.post(`/bookings/${bookingId}/confirm`);
 
-            await AxiosClient.patch(`/admin/tickets/check-in/${bookingId}`);
+            await AxiosClient.put(`/admin/bookings/${bookingId}/check-in`);
 
-            toast.success("Thanh toán thành công! Vui lòng in vé cho khách.");
+            toast.success("Thanh toán thành công! Đang in vé...");
             
-            handleResetPOS();
+            setTimeout(() => {
+                window.print();
+                handleResetPOS();
+            }, 500);
         } catch (error) {
             toast.error(error.response?.data?.message || "Thanh toán thất bại!");
         } finally {
@@ -166,35 +198,34 @@ const StaffPOS = () => {
                         <h3 style={{ marginTop: 0, textAlign: 'center' }}>MÀN HÌNH</h3>
                         <div style={{ width: '80%', height: '5px', background: '#ccc', margin: '0 auto 30px auto', borderRadius: '5px', boxShadow: '0 5px 10px rgba(0,0,0,0.1)' }}></div>
                         
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '10px' }}>
-                            {seats.map(seat => {
-                                const isSelected = selectedSeats.some(s => s.id === seat.id);
-                                const isBooked = seat.status !== 'AVAILABLE';
-                                
-                                let bgColor = '#f8f9fa';
-                                let borderColor = '#ccc';
-                                let color = '#333';
-
-                                if (isBooked) { bgColor = '#dc3545'; borderColor = '#dc3545'; color = '#fff'; }
-                                else if (isSelected) { bgColor = '#28a745'; borderColor = '#28a745'; color = '#fff'; }
-
-                                return (
-                                    <button 
-                                        key={seat.id} 
-                                        onClick={() => toggleSeat(seat)}
-                                        disabled={isBooked}
-                                        style={{ padding: '10px 0', border: `1px solid ${borderColor}`, background: bgColor, color: color, borderRadius: '5px', cursor: isBooked ? 'not-allowed' : 'pointer', fontWeight: 'bold' }}
-                                    >
-                                        {seat.rowName}{seat.seatNumber}
-                                    </button>
-                                );
-                            })}
+                        <div className="seat-legend" style={{ margin: '20px 0' }}>
+                            <div className="legend-item"><span className="seat-demo available"></span>Ghế thường</div>
+                            <div className="legend-item"><span className="seat-demo vip"></span>Ghế VIP</div>
+                            <div className="legend-item"><span className="seat-demo couple"></span>Ghế đôi</div>
+                            <div className="legend-item"><span className="seat-demo selected"></span>Đã chọn</div>
+                            <div className="legend-item"><span className="seat-demo reserved"></span>Đang giữ</div>
+                            <div className="legend-item"><span className="seat-demo booked"></span>Đã đặt</div>
                         </div>
-                        
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px', fontSize: '13px' }}>
-                            <span><b style={{ display:'inline-block', width:15, height:15, background:'#f8f9fa', border:'1px solid #ccc' }}></b> Ghế trống</span>
-                            <span><b style={{ display:'inline-block', width:15, height:15, background:'#28a745' }}></b> Đang chọn</span>
-                            <span><b style={{ display:'inline-block', width:15, height:15, background:'#dc3545' }}></b> Đã bán</span>
+
+                        <div className="seats-wrapper" style={{ paddingBottom: '20px' }}>
+                            {sortedRows.map(row => (
+                                <div key={row} className="seat-row">
+                                    <span className="row-label">{row}</span>
+                                    <div className="seats-in-row">
+                                        {seatsByRow[row]
+                                            .sort((a, b) => a.seatNumber - b.seatNumber)
+                                            .map(seat => (
+                                                <div
+                                                    key={seat.id}
+                                                    className={getSeatClass(seat)}
+                                                    onClick={() => toggleSeat(seat)}
+                                                >
+                                                    {seat.seatNumber}
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 

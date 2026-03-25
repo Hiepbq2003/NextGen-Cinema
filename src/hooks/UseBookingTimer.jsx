@@ -30,12 +30,10 @@ export const useBookingTimer = (bookingId, onExpire) => {
             setTimeLeft(remaining);
 
             if (remaining <= 0) {
-                // Hết giờ
                 clearInterval(interval);
                 localStorage.removeItem(TIMER_KEY);
                 localStorage.removeItem(EXPIRY_KEY);
 
-                // Gọi API hủy đơn
                 BookingApi.cancelBooking(bookingId)
                     .then(() => {
                         alert('Thời gian thanh toán đã hết. Đơn hàng bị hủy.');
