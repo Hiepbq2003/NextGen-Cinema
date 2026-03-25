@@ -18,8 +18,12 @@ const AdminRooms = () => {
         name: '',
         totalSeats: 0,
         vipSeatsCount: 0,
-        coupleSeatsCount: 0
+        coupleSeatsCount: 0,
+        layoutType: 'DEFAULT'
     });
+
+    // Preview state
+    const [previewSeats, setPreviewSeats] = useState([]);
 
     const [showSeatMap, setShowSeatMap] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(null);
@@ -31,6 +35,62 @@ const AdminRooms = () => {
     const [editRoomName, setEditRoomName] = useState('');
     const [activeType, setActiveType] = useState('NORMAL');
     const [modifiedSeatIds, setModifiedSeatIds] = useState(new Set());
+
+    // Generate preview seats whenever input changes
+    useEffect(() => {
+        if (!showForm) return;
+        const total = currentRoom.totalSeats || 0;
+        const vip = currentRoom.vipSeatsCount || 0;
+        const couple = currentRoom.coupleSeatsCount || 0;
+        const normal = total - vip - couple;
+        const layout = currentRoom.layoutType || 'DEFAULT';
+
+        if (total <= 0 || normal < 0) {
+            setPreviewSeats([]);
+            return;
+        }
+
+        let seatTypes = new Array(total).fill('NORMAL');
+
+        if (layout === "VIP_FRONT") {
+            for (let i = 0; i < vip; i++) seatTypes[i] = "VIP";
+            for (let i = total - couple; i < total; i++) seatTypes[i] = "COUPLE";
+        } else if (layout === "COUPLE_FRONT") {
+            for (let i = 0; i < couple; i++) seatTypes[i] = "COUPLE";
+            for (let i = total - vip; i < total; i++) seatTypes[i] = "VIP";
+        } else if (layout === "VIP_SIDES") {
+            for (let i = total - couple; i < total; i++) seatTypes[i] = "COUPLE";
+            let vipsPlaced = 0;
+            for (let distance = 0; distance < 5 && vipsPlaced < vip; distance++) {
+                let leftCol = distance + 1;
+                let rightCol = 10 - distance;
+                for (let i = 0; i < total - couple && vipsPlaced < vip; i++) {
+                    let col = (i % 10) + 1;
+                    if (col === leftCol || col === rightCol) {
+                        seatTypes[i] = "VIP";
+                        vipsPlaced++;
+                    }
+                }
+            }
+        } else { // DEFAULT
+            for (let i = normal; i < total - couple; i++) seatTypes[i] = "VIP";
+            for (let i = total - couple; i < total; i++) seatTypes[i] = "COUPLE";
+        }
+
+        const newPreview = [];
+        for (let i = 0; i < total; i++) {
+            let rowIdx = Math.floor(i / 10);
+            let colIdx = (i % 10) + 1;
+            let rowChar = String.fromCharCode(65 + rowIdx);
+            newPreview.push({
+                id: `preview-${i}`,
+                rowName: rowChar,
+                seatNumber: colIdx,
+                seatType: seatTypes[i]
+            });
+        }
+        setPreviewSeats(newPreview);
+    }, [currentRoom, showForm]);
 
     // Pagination states
     const itemsPerPage = 10;
@@ -160,7 +220,7 @@ const AdminRooms = () => {
                 <h2 style={{ margin: 0 }}>🚪 Quản lý Phòng Chiếu</h2>
                 {!showSeatMap && !showForm && (
                     <button className="admin-rooms-btn-primary" onClick={() => {
-                        setCurrentRoom({ name: '', totalSeats: 0, vipSeatsCount: 0, coupleSeatsCount: 0 });
+                        setCurrentRoom({ name: '', totalSeats: 0, vipSeatsCount: 0, coupleSeatsCount: 0, layoutType: 'DEFAULT' });
                         setShowForm(true);
                     }}>+ Thêm Phòng</button>
                 )}
@@ -191,12 +251,68 @@ const AdminRooms = () => {
                                 <input className="admin-rooms-input" type="number" value={currentRoom.coupleSeatsCount}
                                     onChange={e => setCurrentRoom({ ...currentRoom, coupleSeatsCount: parseInt(e.target.value) })} />
                             </div>
+                            <div className="form-group">
+                                <label className="admin-rooms-label">Kiểu bố trí (Layout)</label>
+                                <select className="admin-rooms-input" value={currentRoom.layoutType || 'DEFAULT'}
+                                    onChange={e => setCurrentRoom({ ...currentRoom, layoutType: e.target.value })}>
+                                    <option value="DEFAULT">Mặc định (VIP giữa, Couple cuối)</option>
+                                    <option value="VIP_FRONT">VIP ở đầu, Couple cuối</option>
+                                    <option value="COUPLE_FRONT">Couple đầu, VIP cuối</option>
+                                    <option value="VIP_SIDES">VIP 2 bên, Couple cuối</option>
+                                </select>
+                            </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
+                        <div style={{ textAlign: 'right', marginTop: '10px' }}>
                             <button type="submit" className="admin-rooms-btn-save" style={{ marginRight: '10px' }}>Lưu dữ liệu</button>
                             <button type="button" className="admin-rooms-btn-cancel" onClick={() => setShowForm(false)}>Hủy</button>
                         </div>
                     </form>
+
+                    {/* PREVIEW SECTION */}
+                    {previewSeats.length > 0 && (
+                        <div style={{ marginTop: '30px', borderTop: '2px dashed #e2e8f0', paddingTop: '20px' }}>
+                            <h4 style={{ textAlign: 'center', marginBottom: '15px', color: '#64748b' }}>Bản xem trước sơ đồ</h4>
+                            <div className="seat-legend" style={{ marginBottom: '15px' }}>
+                                <div className="legend-item"><span className="seat-demo available"></span>Thường</div>
+                                <div className="legend-item"><span className="seat-demo vip"></span>VIP</div>
+                                <div className="legend-item"><span className="seat-demo couple"></span>Couple</div>
+                            </div>
+                            <div className="seat-map-container" style={{ padding: 0 }}>
+                                <div className="screen">MÀN HÌNH</div>
+                                <div className="seats-wrapper">
+                                    {Object.keys(previewSeats.reduce((acc, seat) => {
+                                        if (!acc[seat.rowName]) acc[seat.rowName] = [];
+                                        acc[seat.rowName].push(seat);
+                                        return acc;
+                                    }, {})).sort().map(rowName => {
+                                        const groupedPreview = previewSeats.reduce((acc, seat) => {
+                                            if (!acc[seat.rowName]) acc[seat.rowName] = [];
+                                            acc[seat.rowName].push(seat);
+                                            return acc;
+                                        }, {});
+                                        return (
+                                            <div key={rowName} className="seat-row">
+                                                <span className="row-label" style={{ color: '#adb5bd' }}>{rowName}</span>
+                                                <div className="seats-in-row">
+                                                    {groupedPreview[rowName]
+                                                        .sort((a, b) => a.seatNumber - b.seatNumber)
+                                                        .map(seat => (
+                                                            <div
+                                                                key={seat.id}
+                                                                className={getAdminSeatClass(seat.seatType, false)}
+                                                            >
+                                                                {seat.seatNumber}
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                                <span className="row-label" style={{ color: '#adb5bd' }}>{rowName}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

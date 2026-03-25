@@ -49,7 +49,21 @@ const AdminShowtimes = () => {
         if (!formData.roomId) { toast.error("Vui lòng chọn Phòng chiếu"); return false; }
         if (!formData.startTime) { toast.error("Vui lòng chọn Giờ bắt đầu"); return false; }
         if (!formData.basePrice || Number(formData.basePrice) <= 0) { toast.error("Giá vé phải lớn hơn 0"); return false; }
-        if (new Date(formData.startTime) <= new Date()) { toast.error("Không thể xếp lịch cho quá khứ!"); return false; }
+        
+        const now = new Date();
+        const startTime = new Date(formData.startTime);
+        
+        if (startTime <= now) { 
+            toast.error("Không thể xếp lịch cho quá khứ!"); 
+            return false; 
+        }
+        
+        const diffMinutes = (startTime - now) / (1000 * 60);
+        if (diffMinutes < 180) {
+            toast.error("Giờ bắt đầu phải lớn hơn hiện tại ít nhất 3 tiếng!");
+            return false;
+        }
+
         return true;
     };
 
