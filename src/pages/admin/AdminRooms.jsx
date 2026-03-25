@@ -32,6 +32,24 @@ const AdminRooms = () => {
     const [activeType, setActiveType] = useState('NORMAL');
     const [modifiedSeatIds, setModifiedSeatIds] = useState(new Set());
 
+    // Pagination states
+    const itemsPerPage = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(rooms.length / itemsPerPage);
+    const paginatedRooms = rooms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const getPaginationButtons = () => {
+        let pages = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) { pages.push(1, 2, 3, 4, '...', totalPages); }
+            else if (currentPage >= totalPages - 2) { pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages); }
+            else { pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages); }
+        }
+        return pages;
+    };
+
     useEffect(() => { fetchRooms(); }, []);
 
     const fetchRooms = async () => {
@@ -262,7 +280,7 @@ const AdminRooms = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {rooms.map(room => (
+                            {paginatedRooms.map(room => (
                                 <tr key={room.id} style={{ opacity: room.status === 'INACTIVE' ? 0.7 : 1 }}>
                                     <td className="admin-rooms-td">
                                         <strong>{room.name}</strong>
@@ -303,6 +321,19 @@ const AdminRooms = () => {
                             ))}
                         </tbody>
                     </table>
+                    
+                    {totalPages > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '10px 0', borderTop: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '14px', color: '#64748b' }}>Hiển thị <b>{(currentPage - 1) * itemsPerPage + 1}</b> - <b>{Math.min(currentPage * itemsPerPage, rooms.length)}</b> trong <b>{rooms.length}</b> phòng</span>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} style={{ padding: '6px 12px', background: currentPage === 1 ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px' }}>Trước</button>
+                                {getPaginationButtons().map((page, index) => (
+                                    <button key={index} onClick={() => typeof page === 'number' && setCurrentPage(page)} disabled={page === '...'} style={{ padding: '6px 12px', background: currentPage === page ? '#3b82f6' : (page === '...' ? 'transparent' : '#fff'), color: currentPage === page ? '#fff' : (page === '...' ? '#94a3b8' : '#475569'), border: page === '...' ? 'none' : (currentPage === page ? '1px solid #3b82f6' : '1px solid #cbd5e1'), borderRadius: '6px', fontWeight: currentPage === page ? 'bold' : '600', cursor: page === '...' ? 'default' : 'pointer', fontSize: '13px' }}>{page}</button>
+                                ))}
+                                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} style={{ padding: '6px 12px', background: currentPage === totalPages ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px' }}>Sau</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

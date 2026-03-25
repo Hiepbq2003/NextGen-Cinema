@@ -5,21 +5,27 @@ import { FaTicketAlt, FaPlus, FaEdit, FaHistory, FaBan, FaCalendarAlt } from 're
 import '../../asset/style/AdminVoucher.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
 const AdminVouchers = () => {
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingVoucher, setEditingVoucher] = useState(null);
+
 
     const [usageModalOpen, setUsageModalOpen] = useState(false);
     const [voucherUsages, setVoucherUsages] = useState([]);
     const [selectedVoucherCode, setSelectedVoucherCode] = useState('');
 
+
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
 
+
     const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const [formData, setFormData] = useState({
         code: '',
@@ -31,15 +37,58 @@ const AdminVouchers = () => {
         expiryDate: '',
     });
 
+
+    // Pagination states for vouchers
+    const itemsPerPage = 8;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(vouchers.length / itemsPerPage);
+    const paginatedVouchers = vouchers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+
+    const getPaginationButtons = () => {
+        let pages = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) { pages.push(1, 2, 3, 4, '...', totalPages); }
+            else if (currentPage >= totalPages - 2) { pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages); }
+            else { pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages); }
+        }
+        return pages;
+    };
+
+
+    // Pagination states for usage history
+    const usageItemsPerPage = 5;
+    const [usageCurrentPage, setUsageCurrentPage] = useState(1);
+    const usageTotalPages = Math.ceil(voucherUsages.length / usageItemsPerPage);
+    const paginatedUsages = voucherUsages.slice((usageCurrentPage - 1) * usageItemsPerPage, usageCurrentPage * usageItemsPerPage);
+
+
+    const getUsagePaginationButtons = () => {
+        let pages = [];
+        if (usageTotalPages <= 5) {
+            for (let i = 1; i <= usageTotalPages; i++) pages.push(i);
+        } else {
+            if (usageCurrentPage <= 3) { pages.push(1, 2, 3, 4, '...', usageTotalPages); }
+            else if (usageCurrentPage >= usageTotalPages - 2) { pages.push(1, '...', usageTotalPages - 3, usageTotalPages - 2, usageTotalPages - 1, usageTotalPages); }
+            else { pages.push(1, '...', usageCurrentPage - 1, usageCurrentPage, usageCurrentPage + 1, '...', usageTotalPages); }
+        }
+        return pages;
+    };
+
+
     useEffect(() => {
         fetchVouchers();
     }, []);
+
 
     const fetchVouchers = async () => {
         setIsLoading(true);
         try {
             const res = await getAllVouchers();
             const now = new Date();
+
 
             const processedVouchers = (res || []).map(voucher => {
          
@@ -49,6 +98,7 @@ const AdminVouchers = () => {
                 return voucher;
             });
 
+
             setVouchers(processedVouchers);
         } catch (error) {
             toast.error("Không thể tải danh sách Voucher!");
@@ -57,11 +107,13 @@ const AdminVouchers = () => {
         }
     };
 
+
     const formatDateTimeForInput = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     };
+
 
     const openModal = (voucher = null) => {
         if (voucher) {
@@ -89,16 +141,19 @@ const AdminVouchers = () => {
         setIsModalOpen(true);
     };
 
+
     const handleViewUsages = async (voucher) => {
         try {
             const res = await getVoucherUsages(voucher.id);
             setVoucherUsages(res || []);
             setSelectedVoucherCode(voucher.code);
+            setUsageCurrentPage(1);
             setUsageModalOpen(true);
         } catch (error) {
             toast.error("Không thể tải lịch sử sử dụng!");
         }
     };
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -113,6 +168,8 @@ const AdminVouchers = () => {
     };
 
 
+
+
     const validateForm = () => {
         if (!formData.code.trim()) { toast.error("Vui lòng nhập mã Voucher"); return false; }
         if (/\s/.test(formData.code)) { toast.error("Mã Voucher không được chứa khoảng trắng"); return false; }
@@ -123,19 +180,23 @@ const AdminVouchers = () => {
         if (!formData.startDate) { toast.error("Vui lòng chọn Thời gian bắt đầu"); return false; }
         if (!formData.expiryDate) { toast.error("Vui lòng chọn Thời gian kết thúc"); return false; }
 
+
         const start = new Date(formData.startDate);
         const end = new Date(formData.expiryDate);
         const now = new Date();
+
 
         if (start >= end) { toast.error("Thời gian kết thúc phải lớn hơn Thời gian bắt đầu"); return false; }
         if (!editingVoucher && start < now) { toast.error("Thời gian bắt đầu không được ở trong quá khứ"); return false; }
         return true;
     };
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
         setIsSubmitting(true);
+
 
         const formDataToSend = new FormData();
         const voucherData = {
@@ -151,6 +212,7 @@ const AdminVouchers = () => {
         if (imageFile) {
             formDataToSend.append('imageFile', imageFile);
         }
+
 
         try {
             if (editingVoucher) {
@@ -169,6 +231,7 @@ const AdminVouchers = () => {
         }
     };
 
+
     const handleDelete = async (id) => {
         if (window.confirm("Bạn có chắc chắn muốn ngừng hoạt động mã Voucher này?")) {
             try {
@@ -181,8 +244,10 @@ const AdminVouchers = () => {
         }
     };
 
+
     return (
         <div className="av-page">
+
 
             <div className="av-header">
                 <div>
@@ -195,6 +260,7 @@ const AdminVouchers = () => {
                     <FaPlus /> Thêm Voucher
                 </button>
             </div>
+
 
             <div className="av-table-card">
                 <div className="av-table-wrapper">
@@ -216,7 +282,7 @@ const AdminVouchers = () => {
                             ) : vouchers.length === 0 ? (
                                 <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>Chưa có Voucher nào trong hệ thống.</td></tr>
                             ) : (
-                                vouchers.map((v) => (
+                                paginatedVouchers.map((v) => (
                                     <tr key={v.id}>
                                         <td>
                                             <img
@@ -263,6 +329,7 @@ const AdminVouchers = () => {
                                                     <FaHistory /> Lịch sử
                                                 </button>
 
+
                                                 {v.status === 1 && new Date(v.expiryDate) >= new Date() && (
                                                     <button className="av-action-btn av-btn-danger" onClick={() => handleDelete(v.id)} title="Ngừng hoạt động">
                                                         <FaBan /> Ngừng
@@ -275,8 +342,22 @@ const AdminVouchers = () => {
                             )}
                         </tbody>
                     </table>
+                   
+                    {totalPages > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '10px 0', borderTop: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '14px', color: '#64748b' }}>Hiển thị <b>{(currentPage - 1) * itemsPerPage + 1}</b> - <b>{Math.min(currentPage * itemsPerPage, vouchers.length)}</b> trong tổng <b>{vouchers.length}</b> voucher</span>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} style={{ padding: '6px 12px', background: currentPage === 1 ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px' }}>Trước</button>
+                                {getPaginationButtons().map((page, index) => (
+                                    <button key={index} onClick={() => typeof page === 'number' && setCurrentPage(page)} disabled={page === '...'} style={{ padding: '6px 12px', background: currentPage === page ? '#3b82f6' : (page === '...' ? 'transparent' : '#fff'), color: currentPage === page ? '#fff' : (page === '...' ? '#94a3b8' : '#475569'), border: page === '...' ? 'none' : (currentPage === page ? '1px solid #3b82f6' : '1px solid #cbd5e1'), borderRadius: '6px', fontWeight: currentPage === page ? 'bold' : '600', cursor: page === '...' ? 'default' : 'pointer', fontSize: '13px' }}>{page}</button>
+                                ))}
+                                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} style={{ padding: '6px 12px', background: currentPage === totalPages ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? '#94a3b8' : '#475569', fontWeight: '600', fontSize: '13px' }}>Sau</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
+
 
             {/* MODAL THÊM / SỬA VOUCHER */}
             {isModalOpen && (
@@ -286,6 +367,7 @@ const AdminVouchers = () => {
                             <h3>{editingVoucher ? "Cập nhật mã khuyến mãi" : "Tạo mã khuyến mãi mới"}</h3>
                             <button className="av-modal-close" onClick={() => setIsModalOpen(false)}>&times;</button>
                         </div>
+
 
                         <form onSubmit={handleSubmit}>
                             <div className="av-modal-body">
@@ -315,6 +397,7 @@ const AdminVouchers = () => {
                                     )}
                                 </div>
 
+
                                 <div className="av-form-row">
                                     <div className="av-form-group" style={{ flex: 2 }}>
                                         <label>Mã Code (Tự động in hoa) *</label>
@@ -333,6 +416,7 @@ const AdminVouchers = () => {
                                     </div>
                                 </div>
 
+
                                 <div className="av-form-row">
                                     <div className="av-form-group">
                                         <label>Đơn tối thiểu (VNĐ) *</label>
@@ -343,6 +427,7 @@ const AdminVouchers = () => {
                                         <input className="av-input" type="number" value={formData.maxDiscountAmount} onChange={e => setFormData({ ...formData, maxDiscountAmount: e.target.value })} placeholder="VD: 50000" required />
                                     </div>
                                 </div>
+
 
                                 <div className="av-form-row">
                                     <div className="av-form-group">
@@ -360,6 +445,7 @@ const AdminVouchers = () => {
                                 </div>
                             </div>
 
+
                             <div className="av-modal-footer">
                                 <button type="button" className="av-btn-cancel" onClick={() => setIsModalOpen(false)}>Hủy bỏ</button>
                                 <button type="submit" className="av-btn-submit" disabled={isSubmitting}>
@@ -376,6 +462,7 @@ const AdminVouchers = () => {
                 </div>
             )}
 
+
             {/* MODAL LỊCH SỬ SỬ DỤNG */}
             {usageModalOpen && (
                 <div className="av-modal-overlay">
@@ -385,6 +472,7 @@ const AdminVouchers = () => {
                             <button className="av-modal-close" onClick={() => setUsageModalOpen(false)}>&times;</button>
                         </div>
 
+
                         <div className="av-modal-body" style={{ padding: '0' }}>
                             {voucherUsages.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '50px', color: '#94a3b8' }}>
@@ -392,8 +480,9 @@ const AdminVouchers = () => {
                                     <div>Chưa có khách hàng nào sử dụng mã này.</div>
                                 </div>
                             ) : (
-                                <table className="av-table">
-                                    <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+                                <>
+                                    <table className="av-table">
+                                        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                                         <tr>
                                             <th>Khách hàng</th>
                                             <th>Email</th>
@@ -402,7 +491,7 @@ const AdminVouchers = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {voucherUsages.map(usage => (
+                                        {paginatedUsages.map(usage => (
                                             <tr key={usage.id}>
                                                 <td style={{ fontWeight: '600', color: '#0f172a' }}>{usage.customerName}</td>
                                                 <td style={{ color: '#64748b', fontSize: '13px' }}>{usage.email || 'N/A'}</td>
@@ -412,8 +501,22 @@ const AdminVouchers = () => {
                                         ))}
                                     </tbody>
                                 </table>
+                                {usageTotalPages > 1 && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px', padding: '10px 15px', borderTop: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                                        <span style={{ fontSize: '13px', color: '#64748b' }}>Hiển thị <b>{(usageCurrentPage - 1) * usageItemsPerPage + 1}</b>-<b>{Math.min(usageCurrentPage * usageItemsPerPage, voucherUsages.length)}</b> / <b>{voucherUsages.length}</b> lượt</span>
+                                        <div style={{ display: 'flex', gap: '5px' }}>
+                                            <button onClick={() => setUsageCurrentPage(prev => Math.max(prev - 1, 1))} disabled={usageCurrentPage === 1} style={{ padding: '4px 8px', background: usageCurrentPage === 1 ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: usageCurrentPage === 1 ? 'not-allowed' : 'pointer', color: usageCurrentPage === 1 ? '#94a3b8' : '#475569', fontSize: '12px' }}>Trước</button>
+                                            {getUsagePaginationButtons().map((page, index) => (
+                                                <button key={index} onClick={() => typeof page === 'number' && setUsageCurrentPage(page)} disabled={page === '...'} style={{ padding: '4px 8px', background: usageCurrentPage === page ? '#3b82f6' : (page === '...' ? 'transparent' : '#fff'), color: usageCurrentPage === page ? '#fff' : (page === '...' ? '#94a3b8' : '#475569'), border: page === '...' ? 'none' : (usageCurrentPage === page ? '1px solid #3b82f6' : '1px solid #cbd5e1'), borderRadius: '4px', cursor: page === '...' ? 'default' : 'pointer', fontSize: '12px' }}>{page}</button>
+                                            ))}
+                                            <button onClick={() => setUsageCurrentPage(prev => Math.min(prev + 1, usageTotalPages))} disabled={usageCurrentPage === usageTotalPages} style={{ padding: '4px 8px', background: usageCurrentPage === usageTotalPages ? '#f1f5f9' : '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: usageCurrentPage === usageTotalPages ? 'not-allowed' : 'pointer', color: usageCurrentPage === usageTotalPages ? '#94a3b8' : '#475569', fontSize: '12px' }}>Sau</button>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                             )}
                         </div>
+
 
                         <div className="av-modal-footer">
                             <button className="av-btn-cancel" onClick={() => setUsageModalOpen(false)}>Đóng</button>
@@ -425,4 +528,6 @@ const AdminVouchers = () => {
     );
 };
 
+
 export default AdminVouchers;
+
