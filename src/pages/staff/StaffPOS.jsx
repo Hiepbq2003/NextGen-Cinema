@@ -17,6 +17,9 @@ const StaffPOS = () => {
     const [customerName, setCustomerName] = useState('Khách vãng lai');
     const [customerPhone, setCustomerPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [pendingBookingId, setPendingBookingId] = useState(null);
 
     // BƯỚC 1: Lấy danh sách phim đang chiếu khi vào trang
     useEffect(() => {
@@ -113,8 +116,8 @@ const StaffPOS = () => {
 
     const totalPrice = selectedSeats.reduce((sum, seat) => sum + (seat.price || 0), 0);
 
-    // BƯỚC 4: THANH TOÁN 
-    const handleCheckout = async () => {
+    // BƯỚC 4: TẠO ĐƠN & MỞ MODAL THU TIỀN
+    const handleCreateBooking = async () => {
         if (selectedSeats.length === 0) {
             toast.warning("Vui lòng chọn ít nhất 1 ghế!"); return;
         }
@@ -132,18 +135,46 @@ const StaffPOS = () => {
             const createRes = await AxiosClient.post('/bookings', bookingRequest);
             const bookingId = createRes.data?.bookingId || createRes.bookingId || createRes.data?.id || createRes.id;
 
-            await AxiosClient.post(`/bookings/${bookingId}/confirm`);
+            setPendingBookingId(bookingId);
+            setIsPaymentModalOpen(true);
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Tạo đơn thất bại!");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-            await AxiosClient.put(`/admin/bookings/${bookingId}/check-in`);
+    const handleConfirmPayment = async () => {
+        if (!pendingBookingId) return;
+        setIsLoading(true);
+        try {
+            await AxiosClient.post(`/bookings/${pendingBookingId}/confirm`);
+            await AxiosClient.put(`/admin/bookings/${pendingBookingId}/check-in`);
 
             toast.success("Thanh toán thành công! Đang in vé...");
+            setIsPaymentModalOpen(false);
             
             setTimeout(() => {
                 window.print();
                 handleResetPOS();
             }, 500);
         } catch (error) {
-            toast.error(error.response?.data?.message || "Thanh toán thất bại!");
+            toast.error(error.response?.data?.message || "Quá trình thanh toán gặp lỗi!");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCancelPayment = async () => {
+        if (!pendingBookingId) return;
+        setIsLoading(true);
+        try {
+            await AxiosClient.put(`/admin/bookings/${pendingBookingId}/cancel`);
+            toast.success("Đã hủy đơn giao dịch!");
+            setIsPaymentModalOpen(false);
+            handleResetPOS();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Không thể hủy đơn!");
         } finally {
             setIsLoading(false);
         }
@@ -156,6 +187,8 @@ const StaffPOS = () => {
         setSelectedSeats([]);
         setCustomerName('Khách vãng lai');
         setCustomerPhone('');
+        setPendingBookingId(null);
+        setIsPaymentModalOpen(false);
         fetchMovies();
     };
 
@@ -268,12 +301,44 @@ const StaffPOS = () => {
                         </div>
 
                         <button 
-                            onClick={handleCheckout} 
+                            onClick={handleCreateBooking} 
                             disabled={isLoading || selectedSeats.length === 0}
                             style={{ width: '100%', padding: '15px', background: selectedSeats.length > 0 ? '#28a745' : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', marginTop: '20px', cursor: selectedSeats.length > 0 ? 'pointer' : 'not-allowed' }}
                         >
-                            {isLoading ? 'Đang xử lý...' : '💰 THU TIỀN & IN VÉ'}
+                            {isLoading ? 'Đang xử lý...' : '💰 TẠO ĐƠN & THU TIỀN'}
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL XÁC NHẬN THANH TOÁN */}
+            {isPaymentModalOpen && (
+                <div className="custom-alert-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+                    <div className="custom-alert-box" style={{ background: '#fff', padding: '30px', borderRadius: '10px', width: '400px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
+                        <h3 style={{ marginTop: 0, color: '#333' }}>Xác nhận Thu Tiền</h3>
+                        <p style={{ fontSize: '16px', color: '#555', margin: '20px 0' }}>
+                            Tổng tiền khách cần thanh toán: <strong style={{ color: '#d92d20', fontSize: '22px', display: 'block', marginTop: '10px' }}>{formatVND(totalPrice)}</strong>
+                        </p>
+                        <p style={{ fontSize: '14px', color: '#888', marginBottom: '30px' }}>
+                            Vui lòng xác nhận khi khách đã thanh toán đủ tiền mặt.
+                        </p>
+                        
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                            <button 
+                                onClick={handleCancelPayment}
+                                disabled={isLoading}
+                                style={{ flex: 1, padding: '12px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoading ? 'not-allowed' : 'pointer' }}
+                            >
+                                ✖ Hủy giao dịch
+                            </button>
+                            <button 
+                                onClick={handleConfirmPayment}
+                                disabled={isLoading}
+                                style={{ flex: 1, padding: '12px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoading ? 'not-allowed' : 'pointer' }}
+                            >
+                                {isLoading ? 'Đang xử lý...' : '✔ Đã nhận tiền (In Vé)'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
