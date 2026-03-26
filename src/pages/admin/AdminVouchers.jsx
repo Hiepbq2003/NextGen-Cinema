@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAllVouchers, createVoucher, updateVoucher, deleteVoucher, getVoucherUsages } from '../../services/api/VoucherApi';
 import { toast } from 'react-toastify';
-import { FaTicketAlt, FaPlus, FaEdit, FaHistory, FaBan, FaCalendarAlt } from 'react-icons/fa';
+import { FaTicketAlt, FaPlus, FaEdit, FaHistory, FaBan, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock } from 'react-icons/fa';
 import '../../asset/style/AdminVoucher.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -41,8 +41,16 @@ const AdminVouchers = () => {
     // Pagination states for vouchers
     const itemsPerPage = 8;
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(vouchers.length / itemsPerPage);
-    const paginatedVouchers = vouchers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    
+    const voucherStats = useMemo(() => ({
+        total: vouchers.length,
+        active: vouchers.filter(v => v.status === 1).length,
+        expired: vouchers.filter(v => new Date(v.expiryDate) < new Date()).length,
+        used: vouchers.filter(v => v.usedCount >= v.quantity).length
+    }), [vouchers]);
+
+    const totalPages = useMemo(() => Math.ceil(vouchers.length / itemsPerPage) || 1, [vouchers.length, itemsPerPage]);
+    const paginatedVouchers = useMemo(() => vouchers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [vouchers, currentPage, itemsPerPage]);
 
 
     const getPaginationButtons = () => {
@@ -61,8 +69,8 @@ const AdminVouchers = () => {
     // Pagination states for usage history
     const usageItemsPerPage = 5;
     const [usageCurrentPage, setUsageCurrentPage] = useState(1);
-    const usageTotalPages = Math.ceil(voucherUsages.length / usageItemsPerPage);
-    const paginatedUsages = voucherUsages.slice((usageCurrentPage - 1) * usageItemsPerPage, usageCurrentPage * usageItemsPerPage);
+    const usageTotalPages = useMemo(() => Math.ceil(voucherUsages.length / usageItemsPerPage) || 1, [voucherUsages.length, usageItemsPerPage]);
+    const paginatedUsages = useMemo(() => voucherUsages.slice((usageCurrentPage - 1) * usageItemsPerPage, usageCurrentPage * usageItemsPerPage), [voucherUsages, usageCurrentPage, usageItemsPerPage]);
 
 
     const getUsagePaginationButtons = () => {
@@ -261,6 +269,36 @@ const AdminVouchers = () => {
                 </button>
             </div>
 
+            <div className="av-stats-container">
+                <div className="av-stat-card av-stat-primary">
+                    <div className="av-stat-icon"><FaTicketAlt /></div>
+                    <div className="av-stat-info">
+                        <span className="av-stat-label">Tổng số Voucher</span>
+                        <span className="av-stat-value">{voucherStats.total}</span>
+                    </div>
+                </div>
+                <div className="av-stat-card av-stat-success">
+                    <div className="av-stat-icon"><FaCheckCircle /></div>
+                    <div className="av-stat-info">
+                        <span className="av-stat-label">Đang hoạt động</span>
+                        <span className="av-stat-value">{voucherStats.active}</span>
+                    </div>
+                </div>
+                <div className="av-stat-card av-stat-warning">
+                    <div className="av-stat-icon"><FaClock /></div>
+                    <div className="av-stat-info">
+                        <span className="av-stat-label">Hết lượt dùng</span>
+                        <span className="av-stat-value">{voucherStats.used}</span>
+                    </div>
+                </div>
+                <div className="av-stat-card av-stat-danger">
+                    <div className="av-stat-icon"><FaTimesCircle /></div>
+                    <div className="av-stat-info">
+                        <span className="av-stat-label">Đã hết hạn</span>
+                        <span className="av-stat-value">{voucherStats.expired}</span>
+                    </div>
+                </div>
+            </div>
 
             <div className="av-table-card">
                 <div className="av-table-wrapper">

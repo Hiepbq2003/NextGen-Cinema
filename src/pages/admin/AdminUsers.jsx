@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getUsersByRole, toggleUserStatus, updateUserAdmin } from '../../services/api/AuthApi';
 import { toast } from 'react-toastify';
-import { FaUsers, FaSearch, FaFilter, FaEdit, FaLock, FaUnlock, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaUsers, FaSearch, FaFilter, FaEdit, FaLock, FaUnlock, FaEnvelope, FaPhone, FaUserCheck, FaUserSlash } from 'react-icons/fa';
 import '../../asset/style/AdminAccountManagement.css';
 
 const AdminUsers = () => {
@@ -67,17 +67,25 @@ const AdminUsers = () => {
         }
     };
 
-    const filteredUsers = users.filter((u) => {
-        const matchSearch = 
-            u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            u.username?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchStatus = statusFilter === 'ALL' || u.status === statusFilter;
-        return matchSearch && matchStatus;
-    });
+    const filteredUsers = useMemo(() => {
+        return users.filter((u) => {
+            const matchSearch = 
+                u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                u.username?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchStatus = statusFilter === 'ALL' || u.status === statusFilter;
+            return matchSearch && matchStatus;
+        });
+    }, [users, searchTerm, statusFilter]);
 
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
-    const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const userStats = useMemo(() => ({
+        total: filteredUsers.length,
+        active: filteredUsers.filter(u => u.status === 'ACTIVE').length,
+        locked: filteredUsers.filter(u => u.status === 'INACTIVE').length
+    }), [filteredUsers]);
+
+    const totalPages = useMemo(() => Math.ceil(filteredUsers.length / itemsPerPage) || 1, [filteredUsers.length, itemsPerPage]);
+    const paginatedUsers = useMemo(() => filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [filteredUsers, currentPage, itemsPerPage]);
 
     const getPageNumbers = () => {
         const pages = [];
@@ -98,6 +106,30 @@ const AdminUsers = () => {
                 <div>
                     <h2 className="aa-title"><FaUsers color="#3b82f6" /> Quản lý Khách Hàng</h2>
                     <p className="aa-desc">Quản lý thông tin và trạng thái hoạt động của người dùng hệ thống.</p>
+                </div>
+            </div>
+
+            <div className="aa-stats-container">
+                <div className="aa-stat-card aa-stat-primary">
+                    <div className="aa-stat-icon"><FaUsers /></div>
+                    <div className="aa-stat-info">
+                        <span className="aa-stat-label">Tổng khách hàng</span>
+                        <span className="aa-stat-value">{userStats.total}</span>
+                    </div>
+                </div>
+                <div className="aa-stat-card aa-stat-success">
+                    <div className="aa-stat-icon"><FaUserCheck /></div>
+                    <div className="aa-stat-info">
+                        <span className="aa-stat-label">Đang hoạt động</span>
+                        <span className="aa-stat-value">{userStats.active}</span>
+                    </div>
+                </div>
+                <div className="aa-stat-card aa-stat-danger">
+                    <div className="aa-stat-icon"><FaUserSlash /></div>
+                    <div className="aa-stat-info">
+                        <span className="aa-stat-label">Tài khoản bị khóa</span>
+                        <span className="aa-stat-value">{userStats.locked}</span>
+                    </div>
                 </div>
             </div>
 

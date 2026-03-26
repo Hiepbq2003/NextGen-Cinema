@@ -160,3 +160,51 @@
 .am-btn-submit:hover { background: #059669; }
 
 @keyframes amModalFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* --- STATS DASHBOARD --- */
+.am-stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.am-stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left: 4px solid #cbd5e1;
+    transition: transform 0.2s;
+}
+
+.am-stat-card:hover { transform: translateY(-3px); }
+
+.am-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.am-stat-info { display: flex; flex-direction: column; }
+.am-stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.am-stat-value { font-size: 22px; font-weight: 800; color: #1e293b; margin-top: 2px; }
+
+.am-stat-primary { border-left-color: #3b82f6; }
+.am-stat-primary .am-stat-icon { background: #eff6ff; color: #3b82f6; }
+
+.am-stat-success { border-left-color: #10b981; }
+.am-stat-success .am-stat-icon { background: #ecfdf5; color: #10b981; }
+
+.am-stat-warning { border-left-color: #f59e0b; }
+.am-stat-warning .am-stat-icon { background: #fffbeb; color: #f59e0b; }
+
+.am-stat-danger { border-left-color: #ef4444; }
+.am-stat-danger .am-stat-icon { background: #fef2f2; color: #ef4444; }

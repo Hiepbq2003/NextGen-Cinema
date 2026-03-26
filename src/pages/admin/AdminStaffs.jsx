@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getUsersByRole, toggleUserStatus, createStaffAccount, updateUserAdmin } from '../../services/api/AuthApi';
 import { toast } from 'react-toastify';
-import { FaUserTie, FaPlus, FaSearch, FaFilter, FaEdit, FaLock, FaUnlock, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaUserTie, FaPlus, FaSearch, FaFilter, FaEdit, FaLock, FaUnlock, FaEnvelope, FaPhone, FaUserCheck, FaUserSlash } from 'react-icons/fa';
 import '../../asset/style/AdminAccountManagement.css';
 
 const AdminStaffs = () => {
@@ -91,17 +91,25 @@ const AdminStaffs = () => {
         }
     };
 
-    const filteredStaffs = staffs.filter((s) => {
-        const matchSearch = 
-            s.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.username?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchStatus = statusFilter === 'ALL' || s.status === statusFilter;
-        return matchSearch && matchStatus;
-    });
+    const filteredStaffs = useMemo(() => {
+        return staffs.filter((s) => {
+            const matchSearch = 
+                s.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                s.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                s.username?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchStatus = statusFilter === 'ALL' || s.status === statusFilter;
+            return matchSearch && matchStatus;
+        });
+    }, [staffs, searchTerm, statusFilter]);
 
-    const totalPages = Math.ceil(filteredStaffs.length / itemsPerPage) || 1;
-    const paginatedStaffs = filteredStaffs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const staffStats = useMemo(() => ({
+        total: filteredStaffs.length,
+        active: filteredStaffs.filter(s => s.status === 'ACTIVE').length,
+        locked: filteredStaffs.filter(s => s.status === 'INACTIVE').length
+    }), [filteredStaffs]);
+
+    const totalPages = useMemo(() => Math.ceil(filteredStaffs.length / itemsPerPage) || 1, [filteredStaffs.length, itemsPerPage]);
+    const paginatedStaffs = useMemo(() => filteredStaffs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [filteredStaffs, currentPage, itemsPerPage]);
 
     const getPageNumbers = () => {
         const pages = [];
@@ -126,6 +134,30 @@ const AdminStaffs = () => {
                 <button className="aa-btn-primary" onClick={() => openModal()}>
                     <FaPlus /> Thêm Nhân Viên Mới
                 </button>
+            </div>
+
+            <div className="aa-stats-container">
+                <div className="aa-stat-card aa-stat-primary">
+                    <div className="aa-stat-icon"><FaUserTie /></div>
+                    <div className="aa-stat-info">
+                        <span className="aa-stat-label">Tổng nhân viên</span>
+                        <span className="aa-stat-value">{staffStats.total}</span>
+                    </div>
+                </div>
+                <div className="aa-stat-card aa-stat-success">
+                    <div className="aa-stat-icon"><FaUserCheck /></div>
+                    <div className="aa-stat-info">
+                        <span className="aa-stat-label">Đang làm việc</span>
+                        <span className="aa-stat-value">{staffStats.active}</span>
+                    </div>
+                </div>
+                <div className="aa-stat-card aa-stat-danger">
+                    <div className="aa-stat-icon"><FaUserSlash /></div>
+                    <div className="aa-stat-info">
+                        <span className="aa-stat-label">Tài khoản bị khóa</span>
+                        <span className="aa-stat-value">{staffStats.locked}</span>
+                    </div>
+                </div>
             </div>
 
             <div className="aa-filter-card">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { FaUserShield, FaSignOutAlt, FaBars, FaBell, FaHome } from "react-icons/fa";
@@ -9,6 +9,37 @@ const AdminHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const contentElement = document.querySelector('.admin-content');
+      if (!contentElement) return;
+
+      const currentScrollY = contentElement.scrollTop;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 70) {
+        // Scrolling down
+        setIsVisible(false);
+      } else {
+        // Scrolling up
+        setIsVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    const contentElement = document.querySelector('.admin-content');
+    if (contentElement) {
+      contentElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (contentElement) {
+        contentElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [lastScrollY]);
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -25,7 +56,7 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="admin-header">
+    <header className={`admin-header ${!isVisible ? "hidden" : ""}`}>
       <div className="admin-header-left">
         <h2 className="admin-page-title">{getPageTitle()}</h2>
       </div>

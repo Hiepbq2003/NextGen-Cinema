@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAllShowtimes, createShowtime, cancelShowtime } from '../../services/api/ShowtimeApi';
 import { getAllMovies } from '../../services/api/MovieApi';
 import { getAllRooms } from '../../services/api/RoomApi';
 import { toast } from 'react-toastify';
-import { FaCalendarPlus, FaSearch, FaFilter, FaDoorOpen, FaClock, FaTicketAlt, FaFilm , FaPlus  } from 'react-icons/fa';
+import { FaCalendarPlus, FaSearch, FaFilter, FaDoorOpen, FaClock, FaTicketAlt, FaFilm , FaPlus, FaCalendarCheck, FaCalendarTimes, FaCalendarAlt  } from 'react-icons/fa';
 import '../../asset/style/AdminShowtimes.css';
 
 const AdminShowtimes = () => {
@@ -95,15 +95,24 @@ const AdminShowtimes = () => {
         }
     };
 
-    const filteredShowtimes = showtimes.filter(st => {
-        const matchSearch = st.movieTitle?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchRoom = roomFilter === 'ALL' || st.roomId?.toString() === roomFilter;
-        const matchStatus = statusFilter === 'ALL' || st.status === statusFilter;
-        return matchSearch && matchRoom && matchStatus;
-    });
+    const filteredShowtimes = useMemo(() => {
+        return showtimes.filter(st => {
+            const matchSearch = st.movieTitle?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchRoom = roomFilter === 'ALL' || st.roomId?.toString() === roomFilter;
+            const matchStatus = statusFilter === 'ALL' || st.status === statusFilter;
+            return matchSearch && matchRoom && matchStatus;
+        });
+    }, [showtimes, searchTerm, roomFilter, statusFilter]);
 
-    const totalPages = Math.ceil(filteredShowtimes.length / itemsPerPage) || 1;
-    const paginatedShowtimes = filteredShowtimes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const showtimeStats = useMemo(() => ({
+        total: filteredShowtimes.length,
+        scheduled: filteredShowtimes.filter(s => s.status === 'SCHEDULED' || s.status === 'UPCOMING').length,
+        showing: filteredShowtimes.filter(s => s.status === 'NOW_SHOWING' || s.status === 'ONGOING').length,
+        ended: filteredShowtimes.filter(s => s.status === 'ENDED' || s.status === 'COMPLETED').length
+    }), [filteredShowtimes]);
+
+    const totalPages = useMemo(() => Math.ceil(filteredShowtimes.length / itemsPerPage) || 1, [filteredShowtimes.length, itemsPerPage]);
+    const paginatedShowtimes = useMemo(() => filteredShowtimes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [filteredShowtimes, currentPage, itemsPerPage]);
 
     const getPageNumbers = () => {
         const pages = [];
@@ -134,6 +143,37 @@ const AdminShowtimes = () => {
                     <p className="as-desc">Sắp xếp khung giờ chiếu phim và quản lý phòng trống.</p>
                 </div>
                 <button className="as-btn-primary" onClick={openModal}><FaPlus /> Xếp lịch mới</button>
+            </div>
+
+            <div className="as-stats-container">
+                <div className="as-stat-card as-stat-primary">
+                    <div className="as-stat-icon"><FaCalendarAlt /></div>
+                    <div className="as-stat-info">
+                        <span className="as-stat-label">Tổng suất chiếu</span>
+                        <span className="as-stat-value">{showtimeStats.total}</span>
+                    </div>
+                </div>
+                <div className="as-stat-card as-stat-warning">
+                    <div className="as-stat-icon"><FaCalendarPlus /></div>
+                    <div className="as-stat-info">
+                        <span className="as-stat-label">Sắp chiếu</span>
+                        <span className="as-stat-value">{showtimeStats.scheduled}</span>
+                    </div>
+                </div>
+                <div className="as-stat-card as-stat-success">
+                    <div className="as-stat-icon"><FaCalendarCheck /></div>
+                    <div className="as-stat-info">
+                        <span className="as-stat-label">Đang chiếu</span>
+                        <span className="as-stat-value">{showtimeStats.showing}</span>
+                    </div>
+                </div>
+                <div className="as-stat-card as-stat-danger">
+                    <div className="as-stat-icon"><FaCalendarTimes /></div>
+                    <div className="as-stat-info">
+                        <span className="as-stat-label">Đã kết thúc</span>
+                        <span className="as-stat-value">{showtimeStats.ended}</span>
+                    </div>
+                </div>
             </div>
 
             <div className="as-filter-card">

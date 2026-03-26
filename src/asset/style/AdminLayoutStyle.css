@@ -64,20 +64,25 @@
 
 .admin-content {
     padding: 20px;
+    padding-top: 5px;
+    /* 70px header + 20px base padding */
     flex: 1;
-    overflow-y: auto; /* Nếu nội dung dài thì chỉ vùng này có scrollbar */
+    overflow-y: auto;
+    /* Nếu nội dung dài thì chỉ vùng này có scrollbar */
 }
+
 /* --- BẢNG DỮ LIỆU (TABLE) --- */
 .admin-table {
     width: 100%;
     border-collapse: collapse;
     background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
 }
 
-.admin-table th, .admin-table td {
+.admin-table th,
+.admin-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #e9ecef;
@@ -100,10 +105,26 @@
     font-size: 12px;
     font-weight: bold;
 }
-.status-badge.ongoing { background-color: #d4edda; color: #155724; }
-.status-badge.upcoming { background-color: #fff3cd; color: #856404; }
-.status-badge.ended { background-color: #f8d7da; color: #721c24; }
-.status-badge.inactive { background-color: #e2e3e5; color: #383d41; }
+
+.status-badge.ongoing {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.upcoming {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.ended {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.inactive {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
 
 /* --- NÚT BẤM --- */
 .btn-add {
@@ -115,7 +136,10 @@
     cursor: pointer;
     font-weight: bold;
 }
-.btn-add:hover { background-color: #218838; }
+
+.btn-add:hover {
+    background-color: #218838;
+}
 
 .btn-edit {
     background-color: #ffc107;
@@ -124,7 +148,10 @@
     border-radius: 4px;
     cursor: pointer;
 }
-.btn-edit:hover { background-color: #e0a800; }
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
 
 .btn-delete {
     background-color: #dc3545;
@@ -134,7 +161,10 @@
     border-radius: 4px;
     cursor: pointer;
 }
-.btn-delete:hover { background-color: #c82333; }
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
 
 .status-badge {
     padding: 6px 12px;
@@ -168,7 +198,9 @@
     cursor: pointer;
 }
 
-.btn-edit, .btn-delete, .btn-info {
+.btn-edit,
+.btn-delete,
+.btn-info {
     height: 32px;
     font-size: 13px;
     display: inline-flex;
@@ -178,8 +210,24 @@
     white-space: nowrap;
 }
 
-.btn-info:hover { 
-    background-color: #138496; 
+.btn-info:hover {
+    background-color: #138496;
 }
-.btn-lock { background-color: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
-.btn-unlock { background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+
+.btn-lock {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-unlock {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}

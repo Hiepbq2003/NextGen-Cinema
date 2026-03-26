@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
     getAllRooms,
     deleteRoom,
@@ -22,7 +22,6 @@ const AdminRooms = () => {
         layoutType: 'DEFAULT'
     });
 
-    // Preview state
     const [previewSeats, setPreviewSeats] = useState([]);
 
     const [showSeatMap, setShowSeatMap] = useState(false);
@@ -36,7 +35,6 @@ const AdminRooms = () => {
     const [activeType, setActiveType] = useState('NORMAL');
     const [modifiedSeatIds, setModifiedSeatIds] = useState(new Set());
 
-    // Generate preview seats whenever input changes
     useEffect(() => {
         if (!showForm) return;
         const total = currentRoom.totalSeats || 0;
@@ -92,11 +90,16 @@ const AdminRooms = () => {
         setPreviewSeats(newPreview);
     }, [currentRoom, showForm]);
 
-    // Pagination states
     const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(rooms.length / itemsPerPage);
-    const paginatedRooms = rooms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = useMemo(() => Math.ceil(rooms.length / itemsPerPage), [rooms.length, itemsPerPage]);
+    const paginatedRooms = useMemo(() => rooms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage), [rooms, currentPage, itemsPerPage]);
+
+    const roomStats = useMemo(() => ({
+        total: rooms.length,
+        active: rooms.filter(r => r.status === 'ACTIVE').length,
+        inactive: rooms.filter(r => r.status === 'INACTIVE').length
+    }), [rooms]);
 
     const getPaginationButtons = () => {
         let pages = [];
@@ -225,6 +228,32 @@ const AdminRooms = () => {
                     }}>+ Thêm Phòng</button>
                 )}
             </div>
+
+            {!showSeatMap && !showForm && (
+                <div className="admin-rooms-stats-container">
+                    <div className="admin-rooms-stat-card stat-primary">
+                        <div className="admin-rooms-stat-icon">🚪</div>
+                        <div className="admin-rooms-stat-info">
+                            <span className="admin-rooms-stat-label">Tổng số phòng</span>
+                            <span className="admin-rooms-stat-value">{roomStats.total}</span>
+                        </div>
+                    </div>
+                    <div className="admin-rooms-stat-card stat-success">
+                        <div className="admin-rooms-stat-icon">✅</div>
+                        <div className="admin-rooms-stat-info">
+                            <span className="admin-rooms-stat-label">Đang hoạt động</span>
+                            <span className="admin-rooms-stat-value">{roomStats.active}</span>
+                        </div>
+                    </div>
+                    <div className="admin-rooms-stat-card stat-danger">
+                        <div className="admin-rooms-stat-icon">🚫</div>
+                        <div className="admin-rooms-stat-info">
+                            <span className="admin-rooms-stat-label">Đang tạm ẩn</span>
+                            <span className="admin-rooms-stat-value">{roomStats.inactive}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showForm && (
                 <div className="admin-rooms-card">

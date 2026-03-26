@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAllBookings, cancelBooking } from '../../services/api/BookingApi.jsx';
 import { toast } from 'react-toastify';
-import { FaTicketAlt, FaUser, FaFilm, FaDoorOpen, FaClock, FaSearch, FaFilter, FaInfoCircle } from 'react-icons/fa';
+import { FaTicketAlt, FaUser, FaFilm, FaDoorOpen, FaClock, FaSearch, FaFilter, FaInfoCircle, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaReceipt, FaSync } from 'react-icons/fa';
 import '../../asset/style/AdminBooking.css';
 
 const AdminBookings = () => {
@@ -51,21 +51,30 @@ const AdminBookings = () => {
         }
     };
 
-    const filteredBookings = bookings.filter((b) => {
-        const matchSearch = 
-            b.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            b.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            b.id?.toString().includes(searchTerm);
-            
-        const matchStatus = statusFilter === 'ALL' || b.status === statusFilter;
-        return matchSearch && matchStatus;
-    });
+    const filteredBookings = useMemo(() => {
+        return bookings.filter((b) => {
+            const matchSearch = 
+                b.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                b.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                b.id?.toString().includes(searchTerm);
+                
+            const matchStatus = statusFilter === 'ALL' || b.status === statusFilter;
+            return matchSearch && matchStatus;
+        });
+    }, [bookings, searchTerm, statusFilter]);
 
-    const totalPages = Math.ceil(filteredBookings.length / itemsPerPage) || 1;
-    const paginatedBookings = filteredBookings.slice(
+    const bookingStats = useMemo(() => ({
+        total: filteredBookings.length,
+        paid: filteredBookings.filter(b => b.status === "PAID" || b.status === "CONFIRMED").length,
+        completed: filteredBookings.filter(b => b.status === "COMPLETED").length,
+        cancelled: filteredBookings.filter(b => b.status === "CANCELLED").length
+    }), [filteredBookings]);
+
+    const totalPages = useMemo(() => Math.ceil(filteredBookings.length / itemsPerPage) || 1, [filteredBookings.length, itemsPerPage]);
+    const paginatedBookings = useMemo(() => filteredBookings.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
-    );
+    ), [filteredBookings, currentPage, itemsPerPage]);
 
     const getPageNumbers = () => {
         const pages = [];
@@ -120,8 +129,39 @@ const AdminBookings = () => {
                     <p className="ab-desc">Quản lý, tra cứu và xử lý các giao dịch mua vé của khách hàng.</p>
                 </div>
                 <button className="ab-refresh-btn" onClick={fetchBookings}>
-                    🔄 Làm mới dữ liệu
+                    <FaSync /> Làm mới dữ liệu
                 </button>
+            </div>
+
+            <div className="ab-stats-container">
+                <div className="ab-stat-card ab-stat-primary">
+                    <div className="ab-stat-icon"><FaReceipt /></div>
+                    <div className="ab-stat-info">
+                        <span className="ab-stat-label">Tổng hóa đơn</span>
+                        <span className="ab-stat-value">{bookingStats.total}</span>
+                    </div>
+                </div>
+                <div className="ab-stat-card ab-stat-success">
+                    <div className="ab-stat-icon"><FaCheckCircle /></div>
+                    <div className="ab-stat-info">
+                        <span className="ab-stat-label">Đã thanh toán</span>
+                        <span className="ab-stat-value">{bookingStats.paid}</span>
+                    </div>
+                </div>
+                <div className="ab-stat-card ab-stat-warning">
+                    <div className="ab-stat-icon"><FaHourglassHalf /></div>
+                    <div className="ab-stat-info">
+                        <span className="ab-stat-label">Đã sử dụng</span>
+                        <span className="ab-stat-value">{bookingStats.completed}</span>
+                    </div>
+                </div>
+                <div className="ab-stat-card ab-stat-danger">
+                    <div className="ab-stat-icon"><FaTimesCircle /></div>
+                    <div className="ab-stat-info">
+                        <span className="ab-stat-label">Đã hủy đơn</span>
+                        <span className="ab-stat-value">{bookingStats.cancelled}</span>
+                    </div>
+                </div>
             </div>
 
             <div className="ab-filter-card">

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAllMovies, deleteMovie, createMovie, updateMovie } from '../../services/api/MovieApi';
 import { toast } from 'react-toastify';
-import { FaFilm, FaPlus, FaSearch, FaFilter, FaEdit, FaBan, FaClock, FaCalendarAlt } from 'react-icons/fa';
+import { FaFilm, FaPlus, FaSearch, FaFilter, FaEdit, FaBan, FaClock, FaCalendarAlt, FaPlayCircle, FaFastForward, FaTimesCircle } from 'react-icons/fa';
 import '../../asset/style/AdminMovies.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -143,17 +143,26 @@ const AdminMovies = () => {
     };
 
    
-    const filteredMovies = movies.filter((m) => {
-        const matchSearch = m.title?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchStatus = statusFilter === 'ALL' || m.status === statusFilter;
-        return matchSearch && matchStatus;
-    });
+    const filteredMovies = useMemo(() => {
+        return movies.filter((m) => {
+            const matchSearch = m.title?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchStatus = statusFilter === 'ALL' || m.status === statusFilter;
+            return matchSearch && matchStatus;
+        });
+    }, [movies, searchTerm, statusFilter]);
 
-    const totalPages = Math.ceil(filteredMovies.length / itemsPerPage) || 1;
-    const paginatedMovies = filteredMovies.slice(
+    const movieStats = useMemo(() => ({
+        total: filteredMovies.length,
+        ongoing: filteredMovies.filter(m => m.status === 'ONGOING').length,
+        upcoming: filteredMovies.filter(m => m.status === 'UPCOMING').length,
+        inactive: filteredMovies.filter(m => m.status === 'INACTIVE').length
+    }), [filteredMovies]);
+
+    const totalPages = useMemo(() => Math.ceil(filteredMovies.length / itemsPerPage) || 1, [filteredMovies.length, itemsPerPage]);
+    const paginatedMovies = useMemo(() => filteredMovies.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
-    );
+    ), [filteredMovies, currentPage, itemsPerPage]);
 
     const getPageNumbers = () => {
         const pages = [];
@@ -206,6 +215,37 @@ const AdminMovies = () => {
                 <button className="am-btn-primary" onClick={() => openModal()}>
                     <FaPlus /> Thêm Phim Mới
                 </button>
+            </div>
+
+            <div className="am-stats-container">
+                <div className="am-stat-card am-stat-primary">
+                    <div className="am-stat-icon"><FaFilm /></div>
+                    <div className="am-stat-info">
+                        <span className="am-stat-label">Tổng số phim</span>
+                        <span className="am-stat-value">{movieStats.total}</span>
+                    </div>
+                </div>
+                <div className="am-stat-card am-stat-success">
+                    <div className="am-stat-icon"><FaPlayCircle /></div>
+                    <div className="am-stat-info">
+                        <span className="am-stat-label">Đang chiếu</span>
+                        <span className="am-stat-value">{movieStats.ongoing}</span>
+                    </div>
+                </div>
+                <div className="am-stat-card am-stat-warning">
+                    <div className="am-stat-icon"><FaFastForward /></div>
+                    <div className="am-stat-info">
+                        <span className="am-stat-label">Sắp chiếu</span>
+                        <span className="am-stat-value">{movieStats.upcoming}</span>
+                    </div>
+                </div>
+                <div className="am-stat-card am-stat-danger">
+                    <div className="am-stat-icon"><FaTimesCircle /></div>
+                    <div className="am-stat-info">
+                        <span className="am-stat-label">Ngừng chiếu</span>
+                        <span className="am-stat-value">{movieStats.inactive}</span>
+                    </div>
+                </div>
             </div>
 
             <div className="am-filter-card">
