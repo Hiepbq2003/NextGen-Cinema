@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 
 const AxiosClient = axios.create({
     baseURL: 'http://localhost:8080/api',
-    
     timeout: 10000,
 });
 
