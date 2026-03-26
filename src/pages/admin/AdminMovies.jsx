@@ -56,7 +56,7 @@ const AdminMovies = () => {
                 releaseDate: movie.releaseDate,
                 status: movie.status
             });
-            setPreviewUrl(movie.posterUrl); // ảnh cũ
+            setPreviewUrl(movie.posterUrl);
             setPosterFile(null);
         } else {
             setEditingMovie(null);
@@ -74,7 +74,7 @@ const AdminMovies = () => {
         if (!formData.title.trim()) { toast.error("Vui lòng nhập tiêu đề"); return false; }
         if (!formData.durationMinutes || formData.durationMinutes <= 0) { toast.error("Thời lượng phải lớn hơn 0"); return false; }
         if (!formData.releaseDate) { toast.error("Vui lòng chọn ngày phát hành"); return false; }
-        // Nếu là thêm mới và không có file
+
         if (!editingMovie && !posterFile) {
             toast.error("Vui lòng chọn ảnh poster");
             return false;
