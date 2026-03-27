@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import BookingApi from '../../services/api/BookingApi';
 import '../../asset/style/PaymentStyle.css';
 import { useEffect } from 'react';
-import {useBookingTimer} from "@/hooks/UseBookingTimer.jsx";
+import {useBookingTimer} from "@/hooks/useBookingTimer.jsx";
 
 const Payment = () => {
     const location = useLocation();
