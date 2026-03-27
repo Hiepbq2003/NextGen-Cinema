@@ -1,21 +1,18 @@
-# 🎬 Cinema Ticket Booking System
+# 🎬 NextGen Cinema - Ticket Booking System
 
 A comprehensive Full-stack application designed for cinema management and online ticket booking. This system provides a seamless experience for customers to browse movies, select seats, and make payments, while offering powerful management tools for Staff and Administrators.
 
-Link Deploy:https://next-gen-cinema-lnnf.vercel.app/
-
-Link BE:https://github.com/XuanLocLuong/be-sba/tree/main
+**Live Demo:** [https://next-gen-cinema-lnnf.vercel.app/](https://next-gen-cinema-lnnf.vercel.app/)  
+**Backend Source:** [https://github.com/XuanLocLuong/be-sba](https://github.com/XuanLocLuong/be-sba)
 
 ---
 
 ## 🌟 Features
 
-The system is designed with 3 main roles:
-
 ### 👤 Customer (User)
 * **Authentication:** Register, Login (Local & OAuth2 via Google), Forgot/Change Password.
 * **Movie Discovery:** Browse ongoing and upcoming movies, view detailed movie information.
-* **Booking & Seat Selection:** Select showtimes and pick seats via a real-time interactive Seat Map to prevent double-booking.
+* **Booking & Seat Selection:** Select showtimes and pick seats via a real-time interactive Seat Map.
 * **Payment & Promotions:** Integrated QR code payment, apply discount codes (Vouchers).
 * **Profile Management:** View booking history (My Tickets) and manage personal profile.
 
@@ -25,47 +22,111 @@ The system is designed with 3 main roles:
 * **Dashboard:** Basic statistics for the current work shift.
 
 ### 👑 Administrator (Admin)
-* **Dashboard:** Comprehensive statistics on revenue, tickets sold, and new user registrations.
-* **Catalog Management:** * Movies, Rooms, and Seats.
-  * Showtimes scheduling.
-* **Operational Management:**
-  * System-wide Booking management.
-  * Voucher/Discount management.
-  * Account management (Staff and Users).
-
----
-
-## 💻 Tech Stack
-
-### 🎨 Frontend
-* **Framework/Library:** ReactJS (Vite/CRA)
-* **Routing:** React Router DOM (with Protected Routes)
-* **Network:** Axios (Interceptors for JWT token handling)
-* **Styling:** Vanilla CSS / CSS Modules (well-organized in `src/asset/style`)
-* **Architecture:** Component-based, Hooks, Context API (`AuthContext`).
-
-### ⚙️ Backend
-* **Framework:** Java Spring Boot 3.x
-* **Security:** Spring Security, JWT (JSON Web Tokens), OAuth2
-* **Database:** MySQL & Spring Data JPA (Hibernate)
-* **Others:** * Email Sending (JavaMailSender)
-  * Google Drive API Integration (For movie images/posters storage)
-  * Lombok, MapStruct (Data Mapping)
+* **Dashboard:** Comprehensive statistics on revenue, tickets sold, and new registrations.
+* **Catalog Management:** Movies, Rooms, Seats, and Showtimes scheduling.
+* **Operational Management:** Booking, Voucher/Discount, and Account management (Staff/Users).
 
 ---
 
 ## 📂 Project Structure
 
-The project is divided into two main parts: Backend (Spring Boot) and Frontend (React).
+The project is divided into two main repositories/folders:
 
-### Frontend (`/src`)
+```text
+NextGen-Cinema/
+ ├── NextGen-Cinema/    # React Frontend (Vite)
+ └── be-sba/            # Spring Boot Backend
+```
+
+### 🎨 Frontend (`/NextGen-Cinema`)
+* **Framework:** ReactJS 19 (Vite)
+* **Routing:** React Router DOM 7
+* **Styling:** Vanilla CSS / CSS Modules / Bootstrap 5
+* **State Management:** Context API (`AuthContext`)
+* **API Client:** Axios (with Interceptors)
+
+### ⚙️ Backend (`/be-sba`)
+* **Framework:** Java Spring Boot 4.x
+* **Security:** Spring Security, JWT, OAuth2
+* **Database:** MySQL & Hibernate (JPA)
+* **Storage:** Google Drive API Integration (for images)
+* **Communication:** JavaMailSender (Email notifications)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Java JDK 17+
+- MySQL Database
+
+### Backend Setup (`be-sba`)
+1. Create a `key.env` file or set the following environment variables:
+   ```env
+   DB_HOST=your_host
+   DB_PORT=your_port
+   DB_NAME=your_db_name
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   JWT_SECRET=your_jwt_secret
+   MAIL_USERNAME=your_email
+   MAIL_PASSWORD=your_app_password
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   GOOGLE_DRIVE_FOLDER_ID=your_folder_id
+   GOOGLE_DRIVE_CLIENT_ID=your_drive_client_id
+   GOOGLE_DRIVE_CLIENT_SECRET=your_drive_client_secret
+   GOOGLE_DRIVE_REFRESH_TOKEN=your_refresh_token
+   ```
+2. Run the application:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+### Frontend Setup (`NextGen-Cinema`)
+1. Navigate to the directory: `cd NextGen-Cinema`
+2. Install dependencies: `npm install`
+3. Start the development server: `npm run dev`
+
+---
+
+## 🧪 Test Accounts
+
+For testing purposes, the system is initialized with the following default accounts:
+
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin` | `admin123` |
+| **Staff** | `staff1` | `staff123` |
+| **Staff** | `staff2` | `staff123` |
+
+---
+
+## 🛠 Project Architecture
+
+### Backend Directory Structure
+```text
+src/main/java/.../besba/
+ ├── config/        # System configuration (Security, CORS)
+ ├── controller/    # REST API Controllers
+ ├── dto/           # Data Transfer Objects
+ ├── entity/        # Database Entities
+ ├── exception/     # Global Error Handling
+ ├── repository/    # JPA Repositories
+ ├── security/      # JWT & OAuth2 Filters
+ ├── service/       # Business Logic
+ └── utils/         # Helper Classes (Email, JWT)
+```
+
+### Frontend Directory Structure
 ```text
 src/
- ├── asset/         # CSS files, Images, Fonts...
- ├── components/    # Reusable UI components (Layout, Header, Footer, SeatMap, Card...)
- ├── context/       # React Context (AuthContext...)
- ├── hooks/         # Custom hooks (UseBookingTimer...)
- ├── pages/         # Views categorized by roles: admin, auth, common, info, staff
- ├── router/        # App routing (AppRouter, ProtectedRoute)
- ├── services/api/  # Axios configuration and API calls (AuthApi, MovieApi, BookingApi...)
- └── utils/         # Utilities and constants
+ ├── asset/         # Styles, Images, Fonts
+ ├── components/    # Reusable UI (SeatMap, Layout, Header)
+ ├── context/       # AuthContext
+ ├── hooks/         # Custom Hooks
+ ├── pages/         # Views (Admin, Staff, Customer)
+ ├── services/api/  # Axios configuration & API calls
+ └── utils/         # Constants & Helpers
+```
