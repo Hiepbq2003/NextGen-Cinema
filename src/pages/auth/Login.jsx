@@ -49,7 +49,8 @@ const Login = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+        const beUrl = import.meta.env.VITE_BE_URL || "http://localhost:8080";
+        window.location.href = `${beUrl}/oauth2/authorization/google`;
     };
 
     return (

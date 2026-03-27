@@ -3,8 +3,8 @@ import { getAuth, clearAuth } from '../../utils/Auth';
 import { toast } from 'react-toastify';
 
 const AxiosClient = axios.create({
-    baseURL: 'http://localhost:8080/api',
-    timeout: 10000,
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+    timeout: 15000,
 });
 
 AxiosClient.interceptors.request.use(

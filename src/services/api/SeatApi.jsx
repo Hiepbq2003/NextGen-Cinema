@@ -1,56 +1,16 @@
-import {getAuth} from "../../utils/Auth.jsx";
+import AxiosClient from "./AxiosClient";
 
 const SeatApi = {
     getSeatsByShowtime: async (showtimeId) => {
-        let api = `http://localhost:8080/api/seats/public/showtime/${showtimeId}`;
-        const response = await fetch(api, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
+        return AxiosClient.get(`/seats/public/showtime/${showtimeId}`);
     },
 
     reserveSeats: async (showtimeId, seatIds) => {
-        const auth = getAuth();
-        console.log("Token: " + auth.token);
-        let api = `http://localhost:8080/api/seats/reserve`;
-        const response = await fetch(api, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${auth.token}`
-            },
-            body: JSON.stringify({showtimeId: showtimeId, seatIds: seatIds}),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
+        return AxiosClient.post(`/seats/reserve`, { showtimeId: showtimeId, seatIds: seatIds });
     },
 
     releaseSeats: async (showtimeId) => {
-        let api = `http://localhost:8080/api/seats/public/release?showtimeId=${showtimeId}`;
-        const response = await fetch(api, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        return json.data;
+        return AxiosClient.post(`/seats/public/release?showtimeId=${showtimeId}`);
     },
 }
 export default SeatApi;
