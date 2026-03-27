@@ -1,8 +1,10 @@
 import {getAuth} from "../../utils/Auth.jsx";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
 const SeatApi = {
     getSeatsByShowtime: async (showtimeId) => {
-        let api = `http://localhost:8080/api/seats/public/showtime/${showtimeId}`;
+        let api = `${BASE_URL}/seats/public/showtime/${showtimeId}`;
         const response = await fetch(api, {
             method: "GET",
             headers: {
@@ -20,7 +22,7 @@ const SeatApi = {
     reserveSeats: async (showtimeId, seatIds) => {
         const auth = getAuth();
         console.log("Token: " + auth.token);
-        let api = `http://localhost:8080/api/seats/reserve`;
+        let api = `${BASE_URL}/seats/reserve`;
         const response = await fetch(api, {
             method: "POST",
             headers: {
@@ -38,7 +40,7 @@ const SeatApi = {
     },
 
     releaseSeats: async (showtimeId) => {
-        let api = `http://localhost:8080/api/seats/public/release?showtimeId=${showtimeId}`;
+        let api = `${BASE_URL}/seats/public/release?showtimeId=${showtimeId}`;
         const response = await fetch(api, {
             method: "POST",
             headers: {
@@ -55,7 +57,7 @@ const SeatApi = {
 
     toggleSeatHold: async (showtimeId, seatId) => {
         const auth = getAuth();
-        let api = `http://localhost:8080/api/seats/toggle-hold`;
+        let api = `${BASE_URL}/seats/toggle-hold`;
         const response = await fetch(api, {
             method: "POST",
             headers: {
