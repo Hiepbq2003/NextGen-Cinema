@@ -141,7 +141,7 @@
     display: block;
     padding: 10px 16px;
     text-decoration: none;
-    color: #222;
+    color: #222 !important;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.2s;
@@ -151,6 +151,6 @@
 
 .dropdown-item:hover {
     background-color: #ffe8e8;
-    color: #e71a0f;
+    color: #e71a0f !important;
     font-weight: 700;
 }
