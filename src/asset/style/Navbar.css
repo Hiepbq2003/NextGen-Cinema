@@ -117,27 +117,29 @@
     top: 100%;
     left: 0;
     width: 100%;
-    height: 25px; /* Cũ là 15px, tăng lên 25px */
+    height: 25px;
+    /* Cũ là 15px, tăng lên 25px */
     background: transparent;
 }
 
 /* Đẩy dropdown xuống một chút cho cân đối với Navbar mới */
 .custom-movies-dropdown {
     position: absolute;
-    top: calc(100% + 18px); /* Cũ là + 8px, tăng lên để cân với Navbar 70px */
+    top: calc(100% + 18px);
+    /* Cũ là + 8px, tăng lên để cân với Navbar 70px */
     left: 50%;
     transform: translateX(-50%);
     background-color: white;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 8px 0;
     min-width: 170px;
     z-index: 1000;
     display: block;
 }
 
-.dropdown-item {
+.dropdown-items {
     display: block;
     padding: 10px 16px;
     text-decoration: none;
@@ -149,7 +151,7 @@
     text-align: center;
 }
 
-.dropdown-item:hover {
+.dropdown-items:hover {
     background-color: #ffe8e8;
     color: #e71a0f !important;
     font-weight: 700;

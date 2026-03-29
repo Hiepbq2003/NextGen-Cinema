@@ -19,8 +19,8 @@ const Navbar = () => {
                         <span className="nav-link-text">PHIM</span>
                         {isMoviesDropdownOpen && (
                             <div className="custom-movies-dropdown">
-                                <Link to="/movies" className="dropdown-item">Phim đang chiếu</Link>
-                                <Link to="/movies/upcoming" className="dropdown-item">Phim sắp chiếu</Link>
+                                <Link to="/movies" className="dropdown-items">Phim đang chiếu</Link>
+                                <Link to="/movies/upcoming" className="dropdown-items">Phim sắp chiếu</Link>
                             </div>
                         )}
                     </li>
