@@ -2,7 +2,7 @@
 
 A comprehensive Full-stack application designed for cinema management and online ticket booking. This system provides a seamless experience for customers to browse movies, select seats, and make payments, while offering powerful management tools for Staff and Administrators.
 
-**Live Demo:** [https://next-gen-cinema-lnnf.vercel.app/](https://next-gen-cinema-lnnf.vercel.app/)  
+**Live Demo:** [https://next-gen-cinema-oeed.vercel.app/](https://next-gen-cinema-oeed.vercel.app/)  
 **Backend Source:** [https://github.com/Hiepbq2003/NextGen-Cinema-BE](https://github.com/Hiepbq2003/NextGen-Cinema-BE)
 
 ---

@@ -151,6 +151,6 @@
 
 .dropdown-item:hover {
     background-color: #ffe8e8;
-    color: #e71a0f;
+    color: #e71a0f !important;
     font-weight: 700;
 }
