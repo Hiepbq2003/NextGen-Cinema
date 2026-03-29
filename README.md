@@ -7,6 +7,18 @@ A comprehensive Full-stack application designed for cinema management and online
 
 ---
 
+## 🧪 Test Accounts
+
+For testing purposes, the system is initialized with the following default accounts:
+
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin` | `admin123` |
+| **Staff** | `staff1` | `staff123` |
+| **Staff** | `staff2` | `staff123` |
+| **Customer** | `customer` | `123456` |
+
+---
 ## 🌟 Features
 
 ### 👤 Customer (User)
@@ -88,18 +100,6 @@ NextGen-Cinema/
 1. Navigate to the directory: `cd NextGen-Cinema`
 2. Install dependencies: `npm install`
 3. Start the development server: `npm run dev`
-
----
-
-## 🧪 Test Accounts
-
-For testing purposes, the system is initialized with the following default accounts:
-
-| Role | Username | Password |
-| :--- | :--- | :--- |
-| **Administrator** | `admin` | `admin123` |
-| **Staff** | `staff1` | `staff123` |
-| **Staff** | `staff2` | `staff123` |
 
 ---
 
