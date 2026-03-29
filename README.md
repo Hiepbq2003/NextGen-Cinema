@@ -1,71 +1,50 @@
-# 🎬 Cinema Ticket Booking System
+# 🎨 NextGen Cinema - Frontend
 
-A comprehensive Full-stack application designed for cinema management and online ticket booking. This system provides a seamless experience for customers to browse movies, select seats, and make payments, while offering powerful management tools for Staff and Administrators.
+The React-based frontend application for the Cinema Ticket Booking System. Built with Vite and modern React patterns.
 
-Link Deploy:https://next-gen-cinema-lnnf.vercel.app/
+## 🚀 Getting Started
 
-Link BE:https://github.com/XuanLocLuong/be-sba/tree/main
+### Prerequisites
+- Node.js (v18+)
+- npm
 
----
+### Installation
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start development server:
+   ```bash
+   npm run dev
+   ```
+3. Build for production:
+   ```bash
+   npm run build
+   ```
 
-## 🌟 Features
+## 🛠 Tech Stack
+- **Framework:** ReactJS 19 (Vite)
+- **Routing:** React Router DOM 7 (with Protected Routes)
+- **Networking:** Axios (with Bearer Token interceptors)
+- **Styling:** Vanilla CSS / CSS Modules / Bootstrap 5
+- **Icons:** React Icons & Lucide React
+- **Charts:** Recharts (Admin statistics)
 
-The system is designed with 3 main roles:
-
-### 👤 Customer (User)
-* **Authentication:** Register, Login (Local & OAuth2 via Google), Forgot/Change Password.
-* **Movie Discovery:** Browse ongoing and upcoming movies, view detailed movie information.
-* **Booking & Seat Selection:** Select showtimes and pick seats via a real-time interactive Seat Map to prevent double-booking.
-* **Payment & Promotions:** Integrated QR code payment, apply discount codes (Vouchers).
-* **Profile Management:** View booking history (My Tickets) and manage personal profile.
-
-### 👨‍💼 Staff
-* **POS System:** Support direct ticket booking at the counter for walk-in customers.
-* **Booking Management:** View booking lists, check-in, and verify tickets for customers.
-* **Dashboard:** Basic statistics for the current work shift.
-
-### 👑 Administrator (Admin)
-* **Dashboard:** Comprehensive statistics on revenue, tickets sold, and new user registrations.
-* **Catalog Management:** * Movies, Rooms, and Seats.
-  * Showtimes scheduling.
-* **Operational Management:**
-  * System-wide Booking management.
-  * Voucher/Discount management.
-  * Account management (Staff and Users).
-
----
-
-## 💻 Tech Stack
-
-### 🎨 Frontend
-* **Framework/Library:** ReactJS (Vite/CRA)
-* **Routing:** React Router DOM (with Protected Routes)
-* **Network:** Axios (Interceptors for JWT token handling)
-* **Styling:** Vanilla CSS / CSS Modules (well-organized in `src/asset/style`)
-* **Architecture:** Component-based, Hooks, Context API (`AuthContext`).
-
-### ⚙️ Backend
-* **Framework:** Java Spring Boot 3.x
-* **Security:** Spring Security, JWT (JSON Web Tokens), OAuth2
-* **Database:** MySQL & Spring Data JPA (Hibernate)
-* **Others:** * Email Sending (JavaMailSender)
-  * Google Drive API Integration (For movie images/posters storage)
-  * Lombok, MapStruct (Data Mapping)
-
----
-
-## 📂 Project Structure
-
-The project is divided into two main parts: Backend (Spring Boot) and Frontend (React).
-
-### Frontend (`/src`)
+## 📂 Folder Structure
 ```text
 src/
  ├── asset/         # CSS files, Images, Fonts...
  ├── components/    # Reusable UI components (Layout, Header, Footer, SeatMap, Card...)
- ├── context/       # React Context (AuthContext...)
- ├── hooks/         # Custom hooks (UseBookingTimer...)
+ ├── context/       # AuthContext for global user state
+ ├── hooks/         # Custom hooks (UseBookingTimer, etc.)
  ├── pages/         # Views categorized by roles: admin, auth, common, info, staff
- ├── router/        # App routing (AppRouter, ProtectedRoute)
- ├── services/api/  # Axios configuration and API calls (AuthApi, MovieApi, BookingApi...)
- └── utils/         # Utilities and constants
+ ├── router/        # App routing configuration
+ ├── services/api/  # API call implementations via Axios
+ └── utils/         # Utility functions and constants
+```
+
+## 🔐 Key Features
+- **Real-time Seat Map:** Interactive seat selection with status updates.
+- **Role-based Access:** Protected routes for Staff and Admin.
+- **Responsive Design:** Optimized for both Desktop and Mobile users.
+- **Authentication:** Integrated Login/Register and Google OAuth2 support.

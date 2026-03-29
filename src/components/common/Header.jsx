@@ -16,7 +16,6 @@ const Header = () => {
 
   let timeoutId = null;
 
-  // Giữ logic hover
   const handleMouseEnter = () => {
     if (timeoutId) clearTimeout(timeoutId);
     setIsDropdownOpen(true);

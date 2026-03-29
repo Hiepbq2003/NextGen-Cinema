@@ -1,8 +1,3 @@
-/* =========================================
-   CSS DÀNH CHO QUẢN LÝ ĐƠN VÉ - STAFF PORTAL
-   ========================================= */
-
-/* --- KHUNG CHÍNH --- */
 .staff-bookings-container {
     padding: 10px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -15,7 +10,6 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- NÚT BẤM (BUTTONS) --- */
 .staff-btn {
     display: inline-flex;
     align-items: center;
